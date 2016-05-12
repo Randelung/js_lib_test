@@ -1,6 +1,6 @@
-package JamaNew
+package Jama
 
-import JamaNew.util.Maths
+import Jama.util.Maths
 
 @SerialVersionUID(1)
 class QRDecomposition(A: Matrix) {

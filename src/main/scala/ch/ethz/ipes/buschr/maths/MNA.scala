@@ -1,4 +1,4 @@
-package ch.ethz.ipes.buschr.schematics.maths
+package ch.ethz.ipes.buschr.maths
 
 import ch.ethz.ipes.buschr.schematics.components.Component
 

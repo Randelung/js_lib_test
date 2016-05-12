@@ -1,27 +1,10 @@
-package JamaNew
+package Jama
 
-import JamaNew.util.Maths
+import Jama.util.Maths
 
 import scala.util.Random
 
 object Matrix {
-
-	/**
-	  * Convenience method to convert a linear differential equation to matrix form. A represents all coefficients of
-	  * the differential equation, including zeros, starting at the highest order term (e.g. y\'\'\' = y\'\' + 3y' - 7y
-	  * becomes {1, 3, -7}).
-	  *
-	  * @param A The coefficients of the equation solved for the highest differential, not including inhomogenities.
-	  * @return Matrix representing the differential equation.
-	  */
-	def fromDiffEquation(A: Array[Double]): Matrix = {
-		val matrix = new Matrix(A.length, A.length)
-		for (i <- 0 until A.length - 1) {
-			matrix.A(i)(i + 1) = 1
-		}
-		A.reverse.copyToArray(matrix.A(A.length - 1))
-		matrix
-	}
 
 	def constructWithCopy(A: Array[Array[Double]]): Matrix = {
 		val m = A.length
@@ -97,6 +80,15 @@ class Matrix(private var m: Int, private var n: Int) extends Cloneable with java
 		for (i <- 0 until m; j <- 0 until n) {
 			A(i)(j) = vals(i + j * m)
 		}
+	}
+
+	def apply(i: Int, j: Int) = A(i)(j)
+
+	def apply(i: Int) = A(i)
+
+	def update(i: Int, j: Int, value: Double) = {
+		require(i < A.length && j < A.head.length, s"Invalid indices: $i >= ${A.length} or $j >= ${A.head.length}.")
+		A(i)(j) = value
 	}
 
 	def copy(): Matrix = {
@@ -205,8 +197,19 @@ class Matrix(private var m: Int, private var n: Int) extends Cloneable with java
 		X
 	}
 
-	def set(i: Int, j: Int, s: Double) {
-		A(i)(j) = s
+	def setColumn(j: Int, vector: Array[Double]): Unit = {
+		require(vector.length == A.length, "Vector length must be equal to matrix height.")
+		for (i <- vector.indices) {
+			A(i)(j) = vector(i)
+		}
+	}
+
+	def getColumn(j: Int): Array[Double] = {
+		val array = Array.ofDim[Double](A.length)
+		for (i <- A.indices) {
+			array(i) = A(i)(j)
+		}
+		array
 	}
 
 	def setMatrix(i0: Int,

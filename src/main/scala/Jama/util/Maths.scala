@@ -1,9 +1,9 @@
-package JamaNew.util
+package Jama.util
 
 object Maths {
 
 	def hypot(a: Double, b: Double): Double = {
-		var r: Double = .0
+		var r = 0d
 		if (Math.abs(a) > Math.abs(b)) {
 			r = b / a
 			r = Math.abs(a) * Math.sqrt(1 + r * r)

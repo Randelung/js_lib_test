@@ -1,4 +1,4 @@
-package JamaNew
+package Jama
 
 //remove if not needed
 

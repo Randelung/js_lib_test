@@ -1,11 +1,11 @@
-package example
+package ch.ethz.ipes.buschr.schematics
 
 import org.scalajs.dom.html
 
 import scala.scalajs.js.annotation.JSExport
 
 @JSExport
-object ScalaJSExample {
+object Main {
 	@JSExport
 	def main(canvas: html.Canvas): Unit = {
 

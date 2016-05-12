@@ -1,4 +1,4 @@
-package ch.ethz.ipes.buschr.schematics.maths
+package excluded
 
 import ch.ethz.ipes.buschr.schematics.facades.Implicits
 

@@ -20,3 +20,4 @@ bootSnippet := "example.ScalaJSExample().main(document.getElementById('canvas'))
 
 updateBrowsers <<= updateBrowsers.triggeredBy(fastOptJS in Compile)
 
+excludeFilter in unmanagedSources := HiddenFileFilter || "excluded"
