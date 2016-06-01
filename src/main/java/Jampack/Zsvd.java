@@ -53,7 +53,6 @@ public class Zsvd {
      * if the maximum number of iterations is exceeded.
      *
      * @param XX A Zmat
-     * @return The Zsvd of XX
      * @throws JampackException Thrown if maximimum number of iterations is
      *                          exceeded.<br>
      *                          Passed from below.
@@ -120,7 +119,10 @@ public class Zsvd {
             axkk = Z.abs(xkk);
             X.put(k, k, new Z(axkk));
             d[kk] = axkk;
-            scale.Div(scale.Conj(xkk), axkk);
+            if (axkk != 0)
+                scale.Div(scale.Conj(xkk), axkk);
+            else
+                scale = new Z(1);
             if (k < X.cx) {
                 xkk1 = X.get(k, k + 1);
                 X.put(k, k + 1, xkk1.Times(scale, xkk1));
@@ -136,7 +138,10 @@ public class Zsvd {
                 axkk1 = Z.abs(xkk1);
                 X.put(k, k + 1, new Z(axkk1));
                 e[kk] = axkk1;
-                scale.Div(scale.Conj(xkk1), axkk1);
+                if (axkk1 == 0)
+                    scale = new Z(1);
+                else
+                    scale.Div(scale.Conj(xkk1), axkk1);
                 if (k < X.rx) {
                     xk1k1 = X.get(k + 1, k + 1);
                     X.put(k + 1, k + 1, xk1k1.Times(scale, xk1k1));
@@ -296,6 +301,5 @@ public class Zsvd {
       Return the decompostion;
 */
         S.re = d;
-        return;
     }
 }

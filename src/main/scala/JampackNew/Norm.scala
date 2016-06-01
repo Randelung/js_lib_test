@@ -40,8 +40,8 @@ object Norm {
 	}
 
 	def fro(A: Zmat): Double = {
-		A.getProperties()
-		Norm.fro(A, A.bx, A.rx, A.bx, A.cx)
+		A.loadProperties()
+		Norm.fro(A, A.baseIndex, A.rx, A.baseIndex, A.cx)
 	}
 
 	def fro(u: Z1): Double = {

@@ -9,101 +9,97 @@ object Zsvd {
 
 class Zsvd(XX: Zmat) {
 
-	val X = new Zmat(XX)
+	private val X = new Zmat(XX)
 
 	var U: Zmat = Eye.o(X.nr)
 
 	var V: Zmat = Eye.o(X.nc)
 
-	var mc = math.min(X.nr, X.nc)
+	private val mc = math.min(X.nr, X.nc)
 
 	var S: Zdiagmat = new Zdiagmat(mc)
 
-	var il: Int = 0
-	var iu: Int = 0
-	var iter: Int = 0
-	var kk: Int = 0
-	var m: Int = 0
+	private var il: Int = 0
+	private var iu: Int = 0
+	private var iter: Int = 0
+	private var kk: Int = 0
+	private var m: Int = 0
 
-	var as: Double = 0.0
-	var at: Double = 0.0
-	var au: Double = 0.0
-	var axkk: Double = 0.0
-	var axkk1: Double = 0.0
-	var dmax: Double = 0.0
-	var dmin: Double = 0.0
-	var ds: Double = 0.0
-	var ea: Double = 0.0
-	var es: Double = 0.0
-	var shift: Double = 0.0
-	var ss: Double = 0.0
-	var t: Double = 0.0
+	private var as: Double = 0.0
+	private var at: Double = 0.0
+	private var au: Double = 0.0
+	private var axkk: Double = 0.0
+	private var axkk1: Double = 0.0
+	private var dmax: Double = 0.0
+	private var dmin: Double = 0.0
+	private var ds: Double = 0.0
+	private var ea: Double = 0.0
+	private var es: Double = 0.0
+	private var shift: Double = 0.0
+	private var ss: Double = 0.0
+	private var t: Double = 0.0
 
-	var xkk: Z = null
-	var xkk1: Z = null
-	var xk1k1: Z = null
+	private var xkk: Z = null
+	private var xkk1: Z = null
+	private var xk1k1: Z = null
 
-	val P = new Rot()
+	private val P = new Rot()
 
-	var scale: Z = 0
+	private var scale: Z = 0
 
-	var zr: Z = 0
+	private var zr: Z = 0
 
-	var h: Z1 = null
+	private var h: Z1 = null
 
-	val temp = new Z1(math.max(X.nr, X.nc))
+	private val temp = new Z1(math.max(X.nr, X.nc))
 
-	val d = Array.ofDim[Double](mc)
+	private val d = Array.ofDim[Double](mc)
 
-	val e = Array.ofDim[Double](mc)
+	private val e = Array.ofDim[Double](mc - 1)
 
 	m = math.min(X.rx, X.cx)
 
-	for (k <- X.bx to m) {
+	for (k <- X.baseIndex to m) {
 		h = House.genc(X, k, X.rx, k)
 		House.ua(h, X, k, X.rx, k + 1, X.cx, temp)
-		House.au(U, h, U.bx, U.rx, k, U.cx, temp)
+		House.au(U, h, U.baseIndex, U.rx, k, U.cx, temp)
 		if (k != X.cx) {
 			h = House.genr(X, k, k + 1, X.cx)
 			House.au(X, h, k + 1, X.rx, k + 1, X.cx, temp)
-			House.au(V, h, V.bx, V.rx, k + 1, V.cx, temp)
+			House.au(V, h, V.baseIndex, V.rx, k + 1, V.cx, temp)
 		}
 	}
 
-	for (k <- X.bx to m) {
-		kk = k - X.bx
+	for (k <- X.baseIndex to m) {
+		kk = k - X.baseIndex
 		xkk = X.get(k, k)
 		axkk = xkk.abs
 		X.put(k, k, new Z(axkk))
 		d(kk) = axkk
-		scale = xkk.conj / axkk
+		scale = if (axkk != 0) xkk.conj / axkk else 1
 		if (k < X.cx) {
-			xkk1 = X.get(k, k + 1) * scale
-			X.put(k, k + 1, xkk1)
+			X(k, k + 1) *= scale
 		}
 		scale = scale.conj
-		for (i <- U.bx to U.rx) {
-			zr = U.get(i, k) * scale
-			U.put(i, k, zr)
+		for (i <- U.baseIndex to U.rx) {
+			U(i, k) *= scale
 		}
 		if (k < X.cx) {
 			xkk1 = X.get(k, k + 1)
 			axkk1 = xkk1.abs
 			X.put(k, k + 1, new Z(axkk1))
 			e(kk) = axkk1
-			scale = xkk1.conj / axkk1
+			scale = if (axkk1 != 0) xkk1.conj / axkk1 else 1
 			if (k < X.rx) {
-				xk1k1 = X.get(k + 1, k + 1) * scale
-				X.put(k + 1, k + 1, xk1k1)
+				X(k + 1, k + 1) *= scale
 			}
-			for (i <- V.bx to V.rx) {
-				zr = V.get(i, k + 1) * scale
-				V.put(i, k + 1, zr)
+			for (i <- V.baseIndex to V.rx) {
+				V(i, k + 1) *= scale
 			}
 		}
 	}
 
-	m = m - X.bx
+	m = m - X.baseIndex
 
 	if (X.nr < X.nc) {
 		t = e(m)
@@ -114,8 +110,8 @@ class Zsvd(XX: Zmat) {
 				t = P.sr * e(k - 1)
 				e(k - 1) = P.c * e(k - 1)
 			}
-			Rot.ap(V, P, V.bx, V.rx, k + V.bx, X.rx + 1)
-			Rot.ap(X, P, X.bx, X.rx, k + X.bx, X.rx + 1)
+			Rot.ap(V, P, V.baseIndex, V.rx, k + V.baseIndex, X.rx + 1)
+			Rot.ap(X, P, X.baseIndex, X.rx, k + X.baseIndex, X.rx + 1)
 		}
 	}
 
@@ -125,6 +121,9 @@ class Zsvd(XX: Zmat) {
 
 	val outer = new Breaks
 	val inner = new Breaks
+
+	println(e.deep)
+	println(d.deep)
 
 	outer.breakable {
 		while (true) {
@@ -193,13 +192,13 @@ class Zsvd(XX: Zmat) {
 				d(i) = t
 				t = -P.sr * d(i + 1)
 				d(i + 1) = P.c * d(i + 1)
-				Rot.ap(V, P, V.bx, V.rx, V.bx + i, V.bx + i + 1)
+				Rot.ap(V, P, V.baseIndex, V.rx, V.baseIndex + i, V.baseIndex + i + 1)
 				Rot.genc(d(i), t, P)
 				d(i) = P.zr
 				t = P.c * e(i) + P.sr * d(i + 1)
 				d(i + 1) = P.c * d(i + 1) - P.sr * e(i)
 				e(i) = t
-				Rot.aph(U, P, U.bx, U.rx, U.bx + i, U.bx + i + 1)
+				Rot.aph(U, P, U.baseIndex, U.rx, U.baseIndex + i, U.baseIndex + i + 1)
 				if (i != iu - 1) {
 					t = P.sr * e(i + 1)
 					e(i + 1) = P.c * e(i + 1)

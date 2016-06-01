@@ -2,7 +2,7 @@ package JampackNew
 
 class Zchol(A: Zmat) {
 
-	A.getProperties()
+	A.loadProperties()
 
 	if (A.nr != A.nc) {
 		throw new JampackException("Matrix not square.")

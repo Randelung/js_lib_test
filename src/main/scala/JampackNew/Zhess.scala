@@ -12,10 +12,10 @@ class Zhess(A: Zmat) {
 
 	val work = new Z1(H.nr)
 
-	for (k <- H.bx until H.cx - 1) {
+	for (k <- H.baseIndex until H.cx - 1) {
 		val u = House.genc(H, k + 1, H.rx, k)
 		House.ua(u, H, k + 1, H.rx, k + 1, H.cx, work)
-		House.au(H, u, H.bx, H.rx, k + 1, H.cx, work)
-		House.au(U, u, U.bx, U.rx, k + 1, U.cx, work)
+		House.au(H, u, H.baseIndex, H.rx, k + 1, H.cx, work)
+		House.au(U, u, U.baseIndex, U.rx, k + 1, U.cx, work)
 	}
 }

@@ -236,18 +236,18 @@ object Print {
 		var stringBuilder = new StringBuilder
 		val nr = A.nrow
 		val nc = A.ncol
-		A.getProperties()
+		A.loadProperties()
 		var real = true
 		breakable {
-			for (i <- A.bx to A.rx; j <- A.bx to A.cx) {
-				if (A.im(i - A.bx)(j - A.bx) != 0) {
+			for (i <- A.baseIndex to A.rx; j <- A.baseIndex to A.cx) {
+				if (A.im(i - A.baseIndex)(j - A.baseIndex) != 0) {
 					real = false
 					break
 				}
 			}
 		}
 		if (!real) {
-			val temp = (nr + A.bx - 1).toString
+			val temp = (nr + A.baseIndex - 1).toString
 			val rfw = temp.length + 1
 			val ww = w + d + 10
 			val ncp = (Parameters.PageWidth - rfw) / ww
@@ -259,13 +259,13 @@ object Print {
 				while (head.length < rfw) head = head + " "
 				stringBuilder ++= head
 				for (j <- jl until ju) {
-					head = (j + A.bx).toString
+					head = (j + A.baseIndex).toString
 					while (head.length < ww) head = " " + head
 					stringBuilder ++= head
 				}
 				stringBuilder += '\n'
 				for (i <- 0 until nr) {
-					var row = (i + A.bx).toString
+					var row = (i + A.baseIndex).toString
 					while (row.length < rfw) row = " " + row
 					stringBuilder ++= row
 					for (j <- jl until ju) {
@@ -285,7 +285,7 @@ object Print {
 			val temp = A.rx.toString
 			val rfw = temp.length + 1
 			val ncp = (Parameters.PageWidth - rfw) / w
-			var jl = A.bx
+			var jl = A.baseIndex
 			while (jl <= A.cx) {
 				val ju = Math.min(A.cx, jl + ncp - 1)
 				stringBuilder += '\n'
@@ -298,12 +298,12 @@ object Print {
 					stringBuilder ++= head
 				}
 				stringBuilder += '\n'
-				for (i <- A.bx to A.rx) {
+				for (i <- A.baseIndex to A.rx) {
 					var row = i.toString
 					while (row.length < rfw) row = " " + row
 					stringBuilder ++= row
 					for (j <- jl to ju) {
-						stringBuilder ++= DoubletoEstring(A.re(i - A.bx)(j - A.bx), w, d)
+						stringBuilder ++= DoubletoEstring(A.re(i - A.baseIndex)(j - A.baseIndex), w, d)
 					}
 					stringBuilder += '\n'
 				}

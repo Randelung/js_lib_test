@@ -2,7 +2,7 @@ package JampackNew
 
 class Zludpp(A: Zmat) {
 
-	A.getProperties()
+	A.loadProperties()
 
 	var absi: Double = 0.0
 	var mx: Double = 0.0

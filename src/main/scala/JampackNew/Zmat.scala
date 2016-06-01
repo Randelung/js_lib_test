@@ -1,5 +1,7 @@
 package JampackNew
 
+import ch.ethz.ipes.buschr.maths.JamaSVD
+
 class Zmat(_re: Array[Array[Double]], _im: Array[Array[Double]]) {
 
 	Parameters.BaseIndexNotChangeable = true
@@ -14,7 +16,7 @@ class Zmat(_re: Array[Array[Double]], _im: Array[Array[Double]]) {
 		throw new JampackException("Inconsistent array dimensions")
 	}
 
-	var bx: Int = _
+	var baseIndex: Int = _
 
 	var rx: Int = _
 
@@ -24,7 +26,7 @@ class Zmat(_re: Array[Array[Double]], _im: Array[Array[Double]]) {
 
 	var nc: Int = _
 
-	getProperties()
+	loadProperties()
 
 	var re = Array.ofDim[Double](nr, nc)
 
@@ -60,10 +62,10 @@ class Zmat(_re: Array[Array[Double]], _im: Array[Array[Double]]) {
 	}
 
 	def this(D: Zdiagmat) {
-		this(Array.ofDim[Double](0, 0), Array.ofDim[Double](0, 0))
+		this(Array.ofDim[Double](1, 0), Array.ofDim[Double](1, 0))
 		nrow = D.n
 		ncol = D.n
-		getProperties()
+		loadProperties()
 		re = Array.ofDim[Double](nr, nc)
 		im = Array.ofDim[Double](nr, nc)
 		for (i <- 0 until nr) {
@@ -92,10 +94,10 @@ class Zmat(_re: Array[Array[Double]], _im: Array[Array[Double]]) {
 		}
 	}
 
-	def getProperties(): Unit = {
-		bx = basex
-		rx = bx + nrow - 1
-		cx = bx + ncol - 1
+	def loadProperties(): Unit = {
+		baseIndex = basex
+		rx = baseIndex + nrow - 1
+		cx = baseIndex + ncol - 1
 		nr = nrow
 		nc = ncol
 	}
@@ -271,6 +273,11 @@ class Zmat(_re: Array[Array[Double]], _im: Array[Array[Double]]) {
 
 	def qr(): Zhqrd = new Zhqrd(this)
 
+	def vectorNorm: Double = {
+		require(ncol == 1, "Matrix must be a cloumn vector.")
+		math.sqrt(getZ.flatten.map(i => (i * i.conj).re).sum)
+	}
+
 	def conj: Zmat = {
 		new Zmat(re, im.map(_.map(-_)))
 	}
@@ -282,6 +289,13 @@ class Zmat(_re: Array[Array[Double]], _im: Array[Array[Double]]) {
 			m.im(j)(i) = im(i)(j)
 		}
 		m
+	}
+
+	def rank: Int = new JamaSVD(this).rank()
+
+	def pinv: Zmat = {
+		val svd = new JamaSVD(this)
+		svd.V * svd.S.pinv * svd.U.conj.transpose
 	}
 
 	override def clone(): Zmat = {

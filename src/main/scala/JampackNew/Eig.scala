@@ -9,7 +9,7 @@ class Eig(val A: Zmat) {
 	var scale = 0d
 	var z: Z = null
 	var d: Z = null
-	A.getProperties()
+	A.loadProperties()
 	if (A.nr != A.nc) {
 		throw new JampackException("Matrix not square.")
 	}
@@ -38,7 +38,7 @@ class Eig(val A: Zmat) {
 			z = X.get0(i, k) / z
 			X.put0(i, k, z)
 		}
-		scale = 1d / Norm.fro(X, X.bx, X.rx, X.bx + k, X.bx + k)
+		scale = 1d / Norm.fro(X, X.baseIndex, X.rx, X.baseIndex + k, X.baseIndex + k)
 		for (i <- 0 until X.nr) {
 			X.re(i)(k) = scale * X.re(i)(k)
 			X.im(i)(k) = scale * X.im(i)(k)

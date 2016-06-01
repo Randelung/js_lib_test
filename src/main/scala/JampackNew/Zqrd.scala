@@ -2,7 +2,7 @@ package JampackNew
 
 class Zqrd(A: Zmat) {
 
-	A.getProperties()
+	A.loadProperties()
 
 	var Q: Zmat = Eye.o(A.nr)
 
@@ -15,6 +15,6 @@ class Zqrd(A: Zmat) {
 	}
 
 	for (k <- hqr.ntran - 1 to 0 by -1) {
-		House.ua(hqr.U(k), Q, k + A.bx, A.rx, k + A.bx, A.rx)
+		House.ua(hqr.U(k), Q, k + A.baseIndex, A.rx, k + A.baseIndex, A.rx)
 	}
 }

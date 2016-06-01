@@ -5,10 +5,10 @@ object Block {
 	def o(A: Zmat, ii: Array[Int], jj: Array[Int]): Array[Array[Zmat]] = {
 		var i = 0
 		var j = 0
-		A.getProperties()
+		A.loadProperties()
 		val m = ii.length
 		val n = jj.length
-		if (ii(0) < A.bx || ii(m - 1) > A.rx + 1) {
+		if (ii(0) < A.baseIndex || ii(m - 1) > A.rx + 1) {
 			throw new JampackException("Illegal row array.")
 		}
 		for (i <- 1 until m) {
@@ -16,7 +16,7 @@ object Block {
 				throw new JampackException("Illegal row array.")
 			}
 		}
-		if (jj(0) < A.bx || jj(n - 1) > A.cx + 1) {
+		if (jj(0) < A.baseIndex || jj(n - 1) > A.cx + 1) {
 			throw new JampackException("Illegal column array.")
 		}
 		for (j <- 1 until n) {

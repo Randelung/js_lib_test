@@ -54,7 +54,7 @@ class Schur(A: Zmat) {
 	outer.breakable {
 		while (true) {
 			inner.breakable {
-				while (iu > T.bx) {
+				while (iu > T.baseIndex) {
 					d = Z.abs1(T.get(iu, iu)) + Z.abs1(T.get(iu - 1, iu - 1))
 					sd = Z.abs1(T.get(iu, iu - 1))
 					if (sd >= 1.0e-16 * d) inner.break
@@ -63,21 +63,21 @@ class Schur(A: Zmat) {
 					iu = iu - 1
 				}
 			}
-			if (iu == T.bx) outer.break
+			if (iu == T.baseIndex) outer.break
 			iter = iter + 1
 			if (iter >= Schur.MAXITER) {
 				throw new JampackException("Maximum number of iterations exceeded.")
 			}
 			il = iu - 1
 			inner.breakable {
-				while (il > T.bx) {
+				while (il > T.baseIndex) {
 					d = Z.abs1(T.get(il, il)) + Z.abs1(T.get(il - 1, il - 1))
 					sd = Z.abs1(T.get(il, il - 1))
 					if (sd < 1.0e-16 * d) inner.break
 					il = il - 1
 				}
 			}
-			if (il != T.bx) {
+			if (il != T.baseIndex) {
 				T.put(il, il - 1, Z.ZERO)
 			}
 			p = T.get(iu - 1, iu - 1)
@@ -121,8 +121,8 @@ class Schur(A: Zmat) {
 			i = il
 			while (i < iu) {
 				Rot.pa(P, T, i, i + 1, i, T.cx)
-				Rot.aph(T, P, T.bx, Math.min(i + 2, iu), i, i + 1)
-				Rot.aph(U, P, U.bx, U.rx, i, i + 1)
+				Rot.aph(T, P, T.baseIndex, Math.min(i + 2, iu), i, i + 1)
+				Rot.aph(U, P, U.baseIndex, U.rx, i, i + 1)
 				if (i != iu - 1) {
 					Rot.genc(T, i + 1, i + 2, i, P)
 				}

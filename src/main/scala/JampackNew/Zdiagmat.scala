@@ -20,14 +20,14 @@ class Zdiagmat private() {
 
 	Parameters.BaseIndexNotChangeable = true
 
-	getProperties()
+	loadProperties()
 
 	def this(order: Int) {
 		this()
 		Parameters.BaseIndexNotChangeable = true
 		basex = Parameters.BaseIndex
 		this.order = order
-		getProperties()
+		loadProperties()
 		re = Array.ofDim[Double](n)
 		im = Array.ofDim[Double](n)
 	}
@@ -37,7 +37,7 @@ class Zdiagmat private() {
 		Parameters.BaseIndexNotChangeable = true
 		basex = Parameters.BaseIndex
 		this.order = order
-		getProperties()
+		loadProperties()
 		re = Array.ofDim[Double](n)
 		im = Array.ofDim[Double](n)
 		for (i <- 0 until n) {
@@ -51,7 +51,7 @@ class Zdiagmat private() {
 		Parameters.BaseIndexNotChangeable = true
 		bx = Parameters.BaseIndex
 		order = `val`.re.length
-		getProperties()
+		loadProperties()
 		re = Array.ofDim[Double](n)
 		im = Array.ofDim[Double](n)
 		for (i <- 0 until n) {
@@ -66,7 +66,7 @@ class Zdiagmat private() {
 		Parameters.BaseIndexNotChangeable = true
 		bx = Parameters.BaseIndex
 		order = re.length
-		getProperties()
+		loadProperties()
 		this.re = re.clone()
 		this.im = im.clone()
 	}
@@ -101,7 +101,7 @@ class Zdiagmat private() {
 				im(i) = A.im(i + k)(i)
 			}
 		}
-		getProperties()
+		loadProperties()
 	}
 
 	def this(A: Zmat) {
@@ -113,7 +113,7 @@ class Zdiagmat private() {
 		Parameters.BaseIndexNotChangeable = true
 		basex = Parameters.BaseIndex
 		order = D.order
-		getProperties()
+		loadProperties()
 		re = Array.ofDim[Double](n)
 		im = Array.ofDim[Double](n)
 		for (i <- 0 until n) {
@@ -122,7 +122,7 @@ class Zdiagmat private() {
 		}
 	}
 
-	def getProperties(): Unit = {
+	def loadProperties(): Unit = {
 		bx = basex
 		dx = bx + order - 1
 		n = order
@@ -153,6 +153,8 @@ class Zdiagmat private() {
 	def pinv: Zdiagmat = {
 		new Zdiagmat(re.map(i => if ((i * 1e5).round != 0) 1 / i else 0), im.map(i => if ((i * 1e5).round != 0) 1 / i else 0))
 	}
+
+	def unary_- = new Zdiagmat(re.map(-_), im.map(-_))
 
 	override def toString: String = Print.o(this)
 

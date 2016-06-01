@@ -3,8 +3,8 @@ package JampackNew
 object Solve {
 
 	def aib(L: Zltmat, B: Zmat): Zmat = {
-		L.getProperties()
-		B.getProperties()
+		L.loadProperties()
+		B.loadProperties()
 		if (L.nr != L.nc) throw new JampackException("Rectangular matrix.")
 		if (L.nr != B.nr) throw new JampackException("Inconsistent dimensions.")
 		val X = new Zmat(B)
@@ -21,8 +21,8 @@ object Solve {
 
 	def ahib(L: Zltmat, B: Zmat): Zmat = {
 		var x: Z = 0
-		L.getProperties()
-		B.getProperties()
+		L.loadProperties()
+		B.loadProperties()
 		if (L.nr != L.nc) throw new JampackException("Rectangular matrix.")
 		if (L.nr != B.nr) throw new JampackException("Inconsistent dimensions.")
 		val X = new Zmat(B)
@@ -41,16 +41,16 @@ object Solve {
 	}
 
 	def bai(B: Zmat, L: Zltmat): Zmat = {
-		L.getProperties()
-		B.getProperties()
+		L.loadProperties()
+		B.loadProperties()
 		if (L.nr != L.nc) throw new JampackException("Rectangular matrix.")
 		if (L.nr != B.nc) throw new JampackException("Inconsistent dimensions.")
 		H.o(ahib(L, H.o(B)))
 	}
 
 	def bahi(B: Zmat, L: Zltmat): Zmat = {
-		L.getProperties()
-		B.getProperties()
+		L.loadProperties()
+		B.loadProperties()
 		if (L.nr != L.nc) throw new JampackException("Rectangular matrix.")
 		if (L.nc != B.nc) throw new JampackException("Inconsistent dimensions.")
 		H.o(aib(L, H.o(B)))
@@ -58,8 +58,8 @@ object Solve {
 
 	def aib(U: Zutmat, B: Zmat): Zmat = {
 		var x: Z = 0
-		U.getProperties()
-		B.getProperties()
+		U.loadProperties()
+		B.loadProperties()
 		if (U.nr != U.nc) throw new JampackException("Rectangular matrix.")
 		if (U.nr != B.nr) throw new JampackException("Inconsistent dimensions.")
 		val X = new Zmat(B)
@@ -77,8 +77,8 @@ object Solve {
 
 	def ahib(U: Zutmat, B: Zmat): Zmat = {
 		var x: Z = 0
-		U.getProperties()
-		B.getProperties()
+		U.loadProperties()
+		B.loadProperties()
 		if (U.nr != U.nc) throw new JampackException("Rectangular matrix.")
 		if (U.nr != B.nr) throw new JampackException("Inconsistent dimensions.")
 		val X = new Zmat(B)
@@ -97,16 +97,16 @@ object Solve {
 	}
 
 	def bai(B: Zmat, U: Zutmat): Zmat = {
-		U.getProperties()
-		B.getProperties()
+		U.loadProperties()
+		B.loadProperties()
 		if (U.nr != U.nc) throw new JampackException("Rectangular matrix.")
 		if (U.nr != B.nc) throw new JampackException("Inconsistent dimensions.")
 		H.o(ahib(U, H.o(B)))
 	}
 
 	def bahi(B: Zmat, U: Zutmat): Zmat = {
-		U.getProperties()
-		B.getProperties()
+		U.loadProperties()
+		B.loadProperties()
 		if (U.nr != U.nc) throw new JampackException("Rectangular matrix.")
 		if (U.nc != B.nc) throw new JampackException("Inconsistent dimensions.")
 		H.o(aib(U, H.o(B)))
@@ -114,8 +114,8 @@ object Solve {
 
 	def aib(A: Zmat, B: Zmat): Zmat = {
 		var LU: Zludpp = null
-		A.getProperties()
-		B.getProperties()
+		A.loadProperties()
+		B.loadProperties()
 		if (A.nr != A.nc) throw new JampackException("Rectangular matrix.")
 		if (A.nr != B.nr) throw new JampackException("Inconsistent dimensions.")
 		if (Parameters.History) {
@@ -131,8 +131,8 @@ object Solve {
 
 	def ahib(A: Zmat, B: Zmat): Zmat = {
 		var LU: Zludpp = null
-		A.getProperties()
-		B.getProperties()
+		A.loadProperties()
+		B.loadProperties()
 		if (A.nr != A.nc) throw new JampackException("Rectangular matrix.")
 		if (A.nr != B.nr) throw new JampackException("Inconsistent dimensions.")
 		if (Parameters.History) {
@@ -146,8 +146,8 @@ object Solve {
 
 	def bai(B: Zmat, A: Zmat): Zmat = {
 		var LU: Zludpp = null
-		A.getProperties()
-		B.getProperties()
+		A.loadProperties()
+		B.loadProperties()
 		if (A.nr != A.nc) throw new JampackException("Rectangular matrix.")
 		if (A.nr != B.nc) throw new JampackException("Inconsistent dimensions.")
 		if (Parameters.History) {
@@ -161,8 +161,8 @@ object Solve {
 
 	def bahi(B: Zmat, A: Zmat): Zmat = {
 		var LU: Zludpp = null
-		A.getProperties()
-		B.getProperties()
+		A.loadProperties()
+		B.loadProperties()
 		if (A.nr != A.nc) throw new JampackException("Rectangular matrix.")
 		if (A.nr != B.nc) throw new JampackException("Inconsistent dimensions.")
 		if (Parameters.History) {
@@ -176,8 +176,8 @@ object Solve {
 
 	def aib(A: Zpsdmat, B: Zmat): Zmat = {
 		var CHOL: Zchol = null
-		A.getProperties()
-		B.getProperties()
+		A.loadProperties()
+		B.loadProperties()
 		if (A.nr != A.nc) throw new JampackException("Rectangular matrix.")
 		if (A.nr != B.nr) throw new JampackException("Inconsistent dimensions.")
 		if (Parameters.History) {
@@ -191,8 +191,8 @@ object Solve {
 
 	def bai(B: Zmat, A: Zpsdmat): Zmat = {
 		var CHOL: Zchol = null
-		A.getProperties()
-		B.getProperties()
+		A.loadProperties()
+		B.loadProperties()
 		if (A.nr != A.nc) throw new JampackException("Rectangular matrix.")
 		if (A.nr != B.nc) throw new JampackException("Inconsistent dimensions.")
 		if (Parameters.History) {

@@ -376,4 +376,6 @@ class Rot {
 	var zr: Double = _
 
 	var zi: Double = _
+
+	override def toString = s"Rot(c = $c, sr = $sr, si = $si, zr = $zr, zi = $zi)"
 }

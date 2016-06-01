@@ -19,13 +19,13 @@ object Parameters {
 	def adjustBaseIndex(A: Zmat) {
 		BaseIndexNotChangeable = true
 		A.basex = BaseIndex
-		A.getProperties()
+		A.loadProperties()
 	}
 
 	def adjustBaseIndex(A: Zdiagmat) {
 		BaseIndexNotChangeable = true
 		A.basex = BaseIndex
-		A.getProperties()
+		A.loadProperties()
 	}
 
 	var History: Boolean = true

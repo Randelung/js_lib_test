@@ -30,6 +30,29 @@ object Z {
 	implicit def fromShort(x: Short): Z = new Z(x, 0)
 
 	implicit def fromFloat(x: Float): Z = new Z(x, 0)
+
+	implicit object ZAsNumeric extends Numeric[Z] {
+
+		override def plus(x: Z, y: Z): Z = x + y
+
+		override def toDouble(x: Z): Double = throw new IllegalArgumentException("Can't transform Z to Double.")
+
+		override def toFloat(x: Z): Float = throw new IllegalArgumentException("Can't transform Z to Float.")
+
+		override def toInt(x: Z): Int = throw new IllegalArgumentException("Can't transform Z to Int.")
+
+		override def negate(x: Z): Z = -x
+
+		override def toLong(x: Z): Long = throw new IllegalArgumentException("Can't transform Z to Long.")
+
+		override def times(x: Z, y: Z): Z = x * y
+
+		override def minus(x: Z, y: Z): Z = x - y
+
+		override def compare(x: Z, y: Z): Int = throw new IllegalArgumentException("Z are not ordered.")
+
+		override def fromInt(x: Int): Z = new Z(x)
+	}
 }
 
 case class Z(re: Double, im: Double) {

@@ -12,15 +12,15 @@ class Zhqrd(A: Zmat) {
 
 	var R: Zutmat = new Zutmat(A)
 
-	A.getProperties()
+	A.loadProperties()
 
-	for (k <- A.bx until A.bx + ntran) {
-		U(k - A.bx) = House.genc(R, k, A.rx, k)
-		House.ua(U(k - A.bx), R, k, A.rx, k + 1, A.cx)
+	for (k <- A.baseIndex until A.baseIndex + ntran) {
+		U(k - A.baseIndex) = House.genc(R, k, A.rx, k)
+		House.ua(U(k - A.baseIndex), R, k, A.rx, k + 1, A.cx)
 	}
 
 	if (nrow > ncol) {
-		R = new Zutmat(R.get(R.bx, R.cx, R.bx, R.cx))
+		R = new Zutmat(R.get(R.baseIndex, R.cx, R.baseIndex, R.cx))
 	}
 
 	def qb(B: Zmat): Zmat = {
@@ -30,7 +30,7 @@ class Zhqrd(A: Zmat) {
 		val C = new Zmat(B)
 		var k = ntran - 1
 		while (k >= 0) {
-			House.ua(U(k), C, C.bx + k, C.rx, C.bx, C.cx)
+			House.ua(U(k), C, C.baseIndex + k, C.rx, C.baseIndex, C.cx)
 			k -= 1
 		}
 		C
@@ -42,7 +42,7 @@ class Zhqrd(A: Zmat) {
 		}
 		val C = new Zmat(B)
 		for (k <- 0 until ntran) {
-			House.ua(U(k), C, C.bx + k, C.rx, C.bx, C.cx)
+			House.ua(U(k), C, C.baseIndex + k, C.rx, C.baseIndex, C.cx)
 		}
 		C
 	}

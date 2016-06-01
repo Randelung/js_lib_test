@@ -252,8 +252,8 @@ public class Rot {
      * Given the real and imaginary parts of a 2-vector, genr returns
      * a plane rotation such that
      * <pre>
-     *      |x y|P = |x y||   c      s||x| = |z 0|
-     *                    |-conj(s)  c||y|
+     *      |x y|P = |x y||   c      s| = |z 0|
+     *                    |-conj(s)  c|
      * </pre>
      *
      * @param xr The real part of the first component of the 2-vector
@@ -295,8 +295,8 @@ public class Rot {
      * Given the real and imaginary parts of a 2-vector, genr generates
      * a plane rotation such that
      * <pre>
-     *      |x y|P = |x y||   c      s||x| = |z 0|
-     *                    |-conj(s)  c||y|
+     *      |x y|P = |x y||   c      s| = |z 0|
+     *                    |-conj(s)  c|
      * </pre>
      *
      * @param xr The real part of the first component of the 2-vector
