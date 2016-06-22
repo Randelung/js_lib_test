@@ -372,7 +372,7 @@ object Print {
 				frac = frac / 10
 				exp = exp + 1
 			}
-			var fmt = s"%.${d}f"
+			val fmt = s"%.${d}f"
 			val sfrac = fmt.format(frac)
 			if (exp < 0) {
 				minuse = true

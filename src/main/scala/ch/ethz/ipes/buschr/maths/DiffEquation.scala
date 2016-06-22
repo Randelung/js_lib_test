@@ -6,7 +6,7 @@ import scala.util.control.Breaks._
 
 /** Five step first order differential equation solver.
   *
-  * Solves a first order differential system, either as a system matrix or by using factory method as a matrix of
+  * Solves a first order differential system, either as a system matrix or by using the factory method as a matrix of
   * coefficients of the equation solved to y^n^ = Ay^n-1^ + ... Dy, which becomes [A B C ... D].
   * The process is as follows:
   *
@@ -19,7 +19,7 @@ import scala.util.control.Breaks._
   * `generalEigenVectors`. This is done automatically at object creation.
   *
   * $ 3. (Optional) Add a non-homogeneous term to the right side, i.e. y' = Ay' + g. g can be either a constant, a
-  * polynomial term, an exponential term or a mixture thereof. This is done by request using provided methods. TODO link correct methods
+  * polynomial term, an exponential term or a mixture thereof. This is done by request using `applyInhomogeneity`
   *
   * $ 4. Add a data point to fix constants. This populates `_constants`, which is not directly obtainable. This step is
   * invoked using `applyStartingConditions` or `applyDataPoint`.
@@ -99,36 +99,52 @@ class DiffEquation(private val _matrix: Zmat) {
 	  * The additional term can be changed to zero, a constant, or an exponential function of t. Polynomial terms and
 	  * mixed expressions are not supported.
 	  *
-	  * @param `type`       Type of non-homogeneity added
 	  * @param coefficients Complex array of coefficients for vector of either [1 t t^2^ ...]' for polynomials (in which
 	  *                     case exponents is expected to be ''null'') or [exp(v1*t) exp(v2*t) ...]' for exponential
 	  *                     inhomogeneities. The order of v1, v2 etc. is determined by the vector ''exponents''.
 	  * @param exponents    Exponents for exponential inhomogeneity. Otherwise expected to be ''null''.
 	  */
-	def applyInhomogeneity(`type`: DiffEquation.Inhomogeneity.Value, coefficients: Zmat, exponents: Zmat): Unit = {
-		`type` match {
-			case DiffEquation.Inhomogeneity.Zero =>
-				require(coefficients == null, "Inhomogeneity of zero expects a null pointer as parameters.")
-				require(exponents == null, "Inhomogeneity of zero expects a null pointer as exponents.")
+	def applyInhomogeneity(coefficients: Zmat, exponents: Zmat): Unit = {
+		if (exponents == null) {
+			if (coefficients == null) {
 				_typeOfInhomogeneity = DiffEquation.Inhomogeneity.Zero
+				_inhomogeneityExponents = null
 				_particularSolution = null
-				_inhomogeneityExponents = null
-
-			case DiffEquation.Inhomogeneity.Constant =>
-				require(coefficients.ncol == 1, "Constant inhomogeneity expects a single vector.")
-				require(exponents == null, "Constant inhomogeneity expects a null pointer as exponents.")
+			}
+			else {
 				require(coefficients.nrow == _matrix.nrow, "Inhomogeneity height must agree with matrix height.")
+				if (coefficients.ncol == 1) {
+					// guess for x' = Ax + U for constant U is x = const, with x' = 0. Therefore, solve 0 = Ax + U, which is
+					// x_particular_ = -pinv(A) * U
+					_typeOfInhomogeneity = DiffEquation.Inhomogeneity.Constant
+					_inhomogeneityExponents = null
+					_particularSolution = -_matrix.solve(coefficients)
+				}
+				else {
+					_typeOfInhomogeneity = DiffEquation.Inhomogeneity.Polynomial
+					_inhomogeneityExponents = null
 
-				// guess for x' = Ax + U for constant U is x = const, with x' = 0. Therefore, solve 0 = Ax + U, which is
-				// x_particular_ = -pinv(A) * U
-				_typeOfInhomogeneity = DiffEquation.Inhomogeneity.Constant
-				_particularSolution = -_matrix.solve(coefficients)
-				_inhomogeneityExponents = null
-
-			case DiffEquation.Inhomogeneity.Exponential =>
+					// x' = Ax + U for U = coeffs * [1 t t² t³ ...]' requires the guess x = X * [1 t t² t³ ...]', so
+					// x' = X * diag([1 2 3 ...], -1) * [1 t t² t³ ...]' = A * X * [1 t t² t³ ...]' + coefficients * [1 t t² t³ ...]',
+					// which allows for simplification to X * diag([1 2 3 ...], -1) = A * X + coefficients, which in turn
+					// leads to the sylvester equation A * X - X * diag([1 2 3 ...], -1) = -coefficients
+					val diffMatrix = new Zmat(coefficients.ncol, coefficients.ncol)
+					for (i <- 1 until coefficients.ncol) {
+						diffMatrix(i, i - 1) = -i
+					}
+					_particularSolution = DiffEquation.solveSylvesterEquation(_matrix, diffMatrix, -coefficients)
+				}
+			}
+		}
+		else {
+			require(exponents.ncol == 1, "Exponents must be a single vector.")
+			if (coefficients == null) {
+				throw new Exception("Coefficients can only be null for exponents of null.")
+			}
+			else {
+				require(coefficients.nrow == _matrix.nrow, "Inhomogeneity height must agree with matrix height.")
 				require(coefficients.ncol == exponents.nrow, "Coefficients and exponents dimensions must agree.")
-				require(exponents.ncol == 1, "Exponents must be a single vector.")
-				require(coefficients.nrow == _matrix.nrow, "Inhomogeneity height must agree with matrix height.")
+
 				_typeOfInhomogeneity = DiffEquation.Inhomogeneity.Exponential
 				_inhomogeneityExponents = exponents.clone()
 
@@ -138,23 +154,7 @@ class DiffEquation(private val _matrix: Zmat) {
 				// the sylvester equation A * X - X * diag(exponents) = -coefficients
 				val diffMatrix = new Zmat(new Zdiagmat(exponents.getZ.map(-_.head.re), exponents.getZ.map(-_.head.im)))
 				_particularSolution = DiffEquation.solveSylvesterEquation(_matrix, diffMatrix, -coefficients)
-
-			case DiffEquation.Inhomogeneity.Polynomial =>
-				require(exponents == null, "Polynomial inhomogeneity expects a null pointer as exponents.")
-				require(coefficients.nrow == _matrix.nrow, "Inhomogeneity height must agree with matrix height.")
-				_inhomogeneityExponents = null
-				_typeOfInhomogeneity = DiffEquation.Inhomogeneity.Polynomial
-
-				// x' = Ax + U for U = coeffs * [1 t t² t³ ...]' requires the guess x = X * [1 t t² t³ ...]', so
-				// x' = X * diag([1 2 3 ...], -1) * [1 t t² t³ ...]' = A * X * [1 t t² t³ ...]' + coefficients * [1 t t² t³ ...]',
-				// which allows for simplification to X * diag([1 2 3 ...], -1) = A * X + coefficients, which in turn
-				// leads to the sylvester equation A * X - X * diag([1 2 3 ...], -1) = -coefficients
-				val diffMatrix = new Zmat(coefficients.ncol, coefficients.ncol)
-				for (i <- 1 until coefficients.ncol) {
-					diffMatrix(i, i - 1) = -i
-				}
-				_particularSolution = DiffEquation.solveSylvesterEquation(_matrix, diffMatrix, -coefficients)
-
+			}
 		}
 		_appliedDataPoint = false
 	}
@@ -245,8 +245,8 @@ class DiffEquation(private val _matrix: Zmat) {
 	}
 
 	// step 5: pick up solution to the problem.
-	def solution(differentiation: Int = 0): (Double => Z) = {
-		require(differentiation >= 0, "Can't have a negative differentiation.")
+	def solution(row: Int = 0): (Double => Z) = {
+		require(row >= 0, "Can't have a negative row.")
 		require(_appliedDataPoint, "No data point applied, solution not defined.")
 
 		(t: Double) => {
@@ -264,7 +264,7 @@ class DiffEquation(private val _matrix: Zmat) {
 				var temp: Z = 0
 				// build chain for current vector
 				for (k <- j to lastUnchangedEigenvector by -1) {
-					temp += _generalEigenVectors(differentiation, k) * (eig * t).exp * math.pow(t, j - k) / (2 to j - k).product
+					temp += _generalEigenVectors(row, k) * (eig * t).exp * math.pow(t, j - k) / (2 to j - k).product
 				}
 				// multiply by constant
 				result += temp * _constants(j)
@@ -273,19 +273,61 @@ class DiffEquation(private val _matrix: Zmat) {
 			// add inhomogeneous solution
 			_typeOfInhomogeneity match {
 				case DiffEquation.Inhomogeneity.Zero => // do nothing
-				case DiffEquation.Inhomogeneity.Constant => result += _particularSolution(differentiation, 0)
+				case DiffEquation.Inhomogeneity.Constant => result += _particularSolution(row, 0)
 				case DiffEquation.Inhomogeneity.Exponential =>
-					result += (_particularSolution * new Zmat(_inhomogeneityExponents.getZ.map(_.map(i => (i * t).exp)))) (differentiation, 0)
+					result += (_particularSolution * new Zmat(_inhomogeneityExponents.getZ.map(_.map(i => (i * t).exp)))) (row, 0)
 				case DiffEquation.Inhomogeneity.Polynomial =>
 					val vector = new Zmat(_particularSolution.ncol, 1)
 					for (i <- 0 until vector.nrow) {
 						vector(i, 0) = math.pow(t, i)
 					}
-					result += (_particularSolution * vector) (differentiation, 0)
+					result += (_particularSolution * vector) (row, 0)
 			}
 
 			result
 		}: Z
+	}
+
+	def solutionVector: (Double => Zmat) = {
+		require(_appliedDataPoint, "No data point applied, solution not defined.")
+
+		(t: Double) => {
+			var result = new Zmat(_generalEigenVectors.nrow, 1)
+
+			// add homogeneous solution
+			var lastUnchangedEigenvector = 0
+			for (j <- _generalEigenVectors.re.indices) {
+				val eig = Z(_eigenvalueDecomposition.D.re(j), _eigenvalueDecomposition.D.im(j))
+				if (DiffEquation.sameEigenvectors(_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, j, j).getZ.flatten,
+					_eigenvalueDecomposition.X.get(0, _eigenvalueDecomposition.X.nrow - 1, j, j).getZ.flatten,
+					5)) {
+					lastUnchangedEigenvector = j
+				}
+				var temp = new Zmat(_generalEigenVectors.nrow, 1)
+				// build chain for current vector
+				for (k <- j to lastUnchangedEigenvector by -1) {
+					temp += (_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, k, k) * (eig * t).exp * math.pow(t, j - k) / (2 to j - k).product)
+				}
+				// multiply by constant
+				result += temp * _constants(j)
+			}
+
+			// add inhomogeneous solution
+			_typeOfInhomogeneity match {
+				case DiffEquation.Inhomogeneity.Zero => // do nothing
+				case DiffEquation.Inhomogeneity.Constant => result += _particularSolution.get(0, _generalEigenVectors.nrow - 1, 0, 0)
+				case DiffEquation.Inhomogeneity.Exponential =>
+					result += (_particularSolution * new Zmat(_inhomogeneityExponents.getZ.map(_.map(i => (i * t).exp))))
+				case DiffEquation.Inhomogeneity.Polynomial =>
+					val vector = new Zmat(_particularSolution.ncol, 1)
+					for (i <- 0 until vector.nrow) {
+						vector(i, 0) = math.pow(t, i)
+					}
+					result += _particularSolution * vector
+			}
+
+			result
+		}: Zmat
 	}
 
 	def matrix = _matrix.clone()

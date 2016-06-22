@@ -42,7 +42,7 @@ object Parameters {
 
 	var OutputFracPlaces: Int = 3
 
-	var PageWidth: Int = 80
+	var PageWidth: Int = 240
 
 	def setOutputParams(width: Int, frac: Int, pagewidth: Int) {
 		OutputFieldWidth = if (width > 0) width else OutputFieldWidth
