@@ -5,54 +5,14 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d40b7c0b-c8ba-4869-8a54-fc320b72c0a0" name="Default" comment="MNA works so far, it's missing output. Differential equations are being solved, voltage inputs work correctly now using an inner resistance.&#10;&#10;Need to implement&#10;- current sources with inner resistance&#10;- MNA output (substitute the matrix back into the DAE)&#10;- Ground current sourcing">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/JampackNew/MatrixTest.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/DiffEquationTest.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/MNATest.scala" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/mySVD.scala" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/java/JampackNew/MatrixTest.scala" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/js_lib_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/js_lib_test.iml" />
+    <list default="true" id="d40b7c0b-c8ba-4869-8a54-fc320b72c0a0" name="Default" comment="MNA works so far, it's missing output. Differential equations are being solved, voltage inputs work correctly now using an inner resistance.&#10;&#10;SVD has been corrected; the implementation file has been replaced by the JAMA algorithm.&#10;&#10;Need to implement&#10;- current sources (with inner resistance)&#10;- MNA output (substitute the matrix back into the DAE)&#10;- Ground current sourcing/sinking, possibly merge ground nodes into one - no ground current?&#10;&#10;Could implement&#10;- dynamic inner resistance of voltage sources&#10;- mix polynomial with exponential inputs&#10;- data point vectors with different times">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/JampackNew/Parameters.scala" afterPath="$PROJECT_DIR$/src/main/scala/JampackNew/Parameters.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/JampackNew/Print.scala" afterPath="$PROJECT_DIR$/src/main/scala/JampackNew/Print.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/JampackNew/Eig.scala" afterPath="$PROJECT_DIR$/src/main/scala/JampackNew/Eig.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/JampackNew/Zdiagmat.scala" afterPath="$PROJECT_DIR$/src/main/scala/JampackNew/Zdiagmat.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Block.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Block.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Eig.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Eig.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Eye.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Eye.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/H.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/H.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/House.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/House.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Inv.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Inv.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/JampackException.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/JampackException.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Merge.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Merge.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Minus.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Minus.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Norm.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Norm.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Parameters.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Parameters.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Pivot.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Pivot.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Plus.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Plus.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Print.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Print.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Rand.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Rand.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Rot.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Rot.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Schur.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Schur.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Solve.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Solve.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Swap.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Swap.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Times.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Times.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Trace.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Trace.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Z.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Z.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Z1.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Z1.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zchol.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zchol.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zdiagmat.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zdiagmat.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zhess.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zhess.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zhqrd.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zhqrd.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zltmat.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zltmat.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zludpp.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zludpp.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zmat.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zmat.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zpsdmat.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zpsdmat.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zqrd.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zqrd.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zspec.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zspec.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zsvd.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zsvd.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/java/Jampack/Zutmat.java" afterPath="$PROJECT_DIR$/src/main/java/excluded/Jampack/Zutmat.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/DiffEquationTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/DiffEquationTest.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/MNATest.scala" afterPath="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/MNATest.scala" />
     </list>
     <ignored path="Example.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -100,20 +60,8 @@
       <file leaf-file-name="MNA.scala" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-603">
-              <caret line="234" column="42" selection-start-line="234" selection-start-column="42" selection-end-line="234" selection-end-column="42" />
-              <folding>
-                <element signature="e#35#62#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MNATest.scala" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/MNATest.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="421">
-              <caret line="78" column="37" selection-start-line="78" selection-start-column="37" selection-end-line="78" selection-end-column="37" />
+            <state relative-caret-position="640">
+              <caret line="98" column="4" selection-start-line="98" selection-start-column="4" selection-end-line="98" selection-end-column="4" />
               <folding>
                 <element signature="e#35#62#0" expanded="true" />
               </folding>
@@ -124,8 +72,18 @@
       <file leaf-file-name="DiffEquation.scala" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="247" column="11" selection-start-line="247" selection-start-column="11" selection-end-line="247" selection-end-column="11" />
+            <state relative-caret-position="600">
+              <caret line="190" column="9" selection-start-line="190" selection-start-column="9" selection-end-line="190" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MNATest.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/MNATest.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="400">
+              <caret line="25" column="45" selection-start-line="25" selection-start-column="45" selection-end-line="25" selection-end-column="45" />
               <folding />
             </state>
           </provider>
@@ -175,7 +133,6 @@
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zludpp.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zutmat.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Z1.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Eig.scala" />
         <option value="$PROJECT_DIR$/src/main/java/Jampack/Zhess.java" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zhess.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zhqrd.scala" />
@@ -194,17 +151,18 @@
         <option value="$PROJECT_DIR$/src/main/java/Jama/util/Maths.java" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zmat.scala" />
         <option value="$PROJECT_DIR$/src/main/java/Jampack/Zsvd.java" />
-        <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zdiagmat.scala" />
         <option value="$PROJECT_DIR$/src/test/java/JampackNew/DiffEquationTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquationTest.scala" />
         <option value="$PROJECT_DIR$/src/test/java/JampackNew/MatrixTest.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/JampackNew/MatrixTest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/JamaSVD.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Z.scala" />
-        <option value="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/DiffEquationTest.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Print.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Parameters.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zdiagmat.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Eig.scala" />
+        <option value="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/DiffEquationTest.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/MNATest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" />
       </list>
@@ -251,18 +209,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope">
-        <subPane subId="Problems" />
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -372,6 +318,96 @@
               <option name="myItemId" value="main" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="buschr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="DiffSolver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js_lib_test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="buschr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="maths" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="DiffSolver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js_lib_test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="buschr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="maths" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="DiffEquation.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="DiffSolver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js_lib_test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -389,8 +425,20 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
       <pane id="PackagesPane">
         <subPane />
+      </pane>
+      <pane id="Scope">
+        <subPane subId="Problems" />
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
       </pane>
     </panes>
   </component>
@@ -825,7 +873,14 @@
       <option name="project" value="LOCAL" />
       <updated>1464792805172</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="MNA works so far, it's missing output. Differential equations are being solved, voltage inputs work correctly now using an inner resistance.&#10;&#10;SVD has been corrected; the implementation file has been replaced by the JAMA algorithm.&#10;&#10;Need to implement&#10;- current sources (with inner resistance)&#10;- MNA output (substitute the matrix back into the DAE)&#10;- Ground current sourcing/sinking, possibly merge ground nodes into one - no ground current?&#10;&#10;Could implement&#10;- dynamic inner resistance of voltage sources&#10;- mix polynomial with exponential inputs&#10;- data point vectors with different times">
+      <created>1466567748889</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1466567748889</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -874,16 +929,14 @@
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.49520257" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32719395" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.49520257" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="SBT" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.50479746" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.4968017" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2881907" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28787878" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24946696" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -891,13 +944,15 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38786566" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-8" y="-20" width="1936" height="1056" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38786566" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-8" y="-20" width="1936" height="1056" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32719395" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" x="92" y="92" width="1736" height="856" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.4968017" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
@@ -917,7 +972,8 @@
     <MESSAGE value="DiffEquation solver now knows Complex numbers. Matrix does not (yet? needed?).&#10;Complex eigenvalues lead to complex functions, sin and cos etc. work flawlessly." />
     <MESSAGE value="Whole library now on Steroids, a.k.a. Complex values. Moved from JAMA to JAMpack.&#10;DiffEquation now knows everything, i.e. algebraic and geometric multiplicities are accounted for, complex eigenvalues are no problem, and data points other than 0 are also implemented.&#10;&#10;Maybe at a later time I might include a method that will allow different points in time for all the differentiations, i.e. a vector t instead of just a Double." />
     <MESSAGE value="Inhomogeneities working, which means diff equation solver is done.&#10;Now able to:&#10;- correctly do SVD (using JAMA algorithm)&#10;- find general and specialized solutions to differential equations or ODE systems&#10;- find solutions for homogeneous and inhomogeneous systems, with constant, polynomial, and exponential inhomogeneities&#10;&#10;The only thing left to figure out is what to do with the cases that the sylvester equation can't solve. My guess is that theoretical work will conclude that the eigenvalues in the differential matrices can't ever appear in circuit systems, or the system is not solvable or something." />
-    <option name="LAST_COMMIT_MESSAGE" value="Inhomogeneities working, which means diff equation solver is done.&#10;Now able to:&#10;- correctly do SVD (using JAMA algorithm)&#10;- find general and specialized solutions to differential equations or ODE systems&#10;- find solutions for homogeneous and inhomogeneous systems, with constant, polynomial, and exponential inhomogeneities&#10;&#10;The only thing left to figure out is what to do with the cases that the sylvester equation can't solve. My guess is that theoretical work will conclude that the eigenvalues in the differential matrices can't ever appear in circuit systems, or the system is not solvable or something." />
+    <MESSAGE value="MNA works so far, it's missing output. Differential equations are being solved, voltage inputs work correctly now using an inner resistance.&#10;&#10;SVD has been corrected; the implementation file has been replaced by the JAMA algorithm.&#10;&#10;Need to implement&#10;- current sources (with inner resistance)&#10;- MNA output (substitute the matrix back into the DAE)&#10;- Ground current sourcing/sinking, possibly merge ground nodes into one - no ground current?&#10;&#10;Could implement&#10;- dynamic inner resistance of voltage sources&#10;- mix polynomial with exponential inputs&#10;- data point vectors with different times" />
+    <option name="LAST_COMMIT_MESSAGE" value="MNA works so far, it's missing output. Differential equations are being solved, voltage inputs work correctly now using an inner resistance.&#10;&#10;SVD has been corrected; the implementation file has been replaced by the JAMA algorithm.&#10;&#10;Need to implement&#10;- current sources (with inner resistance)&#10;- MNA output (substitute the matrix back into the DAE)&#10;- Ground current sourcing/sinking, possibly merge ground nodes into one - no ground current?&#10;&#10;Could implement&#10;- dynamic inner resistance of voltage sources&#10;- mix polynomial with exponential inputs&#10;- data point vectors with different times" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1063,13 +1119,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/JampackNew/Eig.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="48">
-          <caret line="3" column="9" selection-start-line="3" selection-start-column="9" selection-end-line="3" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.11.7-sources.jar!/scala/Array.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="485">
@@ -1103,13 +1152,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
           <caret line="42" column="4" selection-start-line="42" selection-start-column="4" selection-end-line="42" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/JampackNew/Zdiagmat.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="774">
-          <caret line="145" column="44" selection-start-line="145" selection-start-column="44" selection-end-line="145" selection-end-column="44" />
         </state>
       </provider>
     </entry>
@@ -1178,18 +1220,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/DiffEquationTest.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2512">
-          <caret line="158" column="93" selection-start-line="158" selection-start-column="93" selection-end-line="158" selection-end-column="93" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/JampackNew/Print.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="243">
           <caret line="323" column="35" selection-start-line="323" selection-start-column="35" selection-end-line="323" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1197,7 +1231,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="181">
           <caret line="30" column="31" selection-start-line="30" selection-start-column="31" selection-end-line="30" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1205,40 +1238,58 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="241">
           <caret line="392" column="45" selection-start-line="392" selection-start-column="45" selection-end-line="392" selection-end-column="45" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/JampackNew/Eig.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="51" column="22" selection-start-line="51" selection-start-column="22" selection-end-line="51" selection-end-column="22" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/JampackNew/Zmat.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
-          <caret line="293" column="44" selection-start-line="293" selection-start-column="44" selection-end-line="293" selection-end-column="44" />
+        <state relative-caret-position="353">
+          <caret line="125" column="13" selection-start-line="125" selection-start-column="13" selection-end-line="125" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/JampackNew/Zdiagmat.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1280">
+          <caret line="4" column="6" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/DiffEquationTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="752">
+          <caret line="181" column="5" selection-start-line="181" selection-start-column="5" selection-end-line="181" selection-end-column="5" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="247" column="11" selection-start-line="247" selection-start-column="11" selection-end-line="247" selection-end-column="11" />
+        <state relative-caret-position="600">
+          <caret line="190" column="9" selection-start-line="190" selection-start-column="9" selection-end-line="190" selection-end-column="9" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/MNATest.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="421">
-          <caret line="78" column="37" selection-start-line="78" selection-start-column="37" selection-end-line="78" selection-end-column="37" />
-          <folding>
-            <element signature="e#35#62#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="400">
+          <caret line="25" column="45" selection-start-line="25" selection-start-column="45" selection-end-line="25" selection-end-column="45" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-603">
-          <caret line="234" column="42" selection-start-line="234" selection-start-column="42" selection-end-line="234" selection-end-column="42" />
+        <state relative-caret-position="640">
+          <caret line="98" column="4" selection-start-line="98" selection-start-column="4" selection-end-line="98" selection-end-column="4" />
           <folding>
             <element signature="e#35#62#0" expanded="true" />
           </folding>

@@ -28,7 +28,7 @@ import scala.util.control.Breaks._
   *
   * @param _matrix Matrix A in y'= Ax
   */
-class DiffEquation(private val _matrix: Zmat) {
+class DiffEquation(private var _matrix: Zmat) {
 	require(_matrix.nrow == _matrix.ncol && _matrix.rank == _matrix.nrow, "Matrix must be full rank.")
 
 	//step 0: initialisation. only have the matrix so far, so inhomogeneity is zero. also no data point yet to fix constants.
@@ -45,10 +45,10 @@ class DiffEquation(private val _matrix: Zmat) {
 	private var _inhomogeneityExponents: Zmat = null
 
 	// step 1: get eigenvalues and eigenvectors of matrix
-	private val _eigenvalueDecomposition = new Eig(_matrix)
+	private var _eigenvalueDecomposition = new Eig(_matrix)
 
 	// step 2: find generalized eigenvectors of matrix
-	private val _generalEigenVectors = eigenVectors
+	private var _generalEigenVectors = eigenVectors
 	private var _seenEigs: Map[Z, Int] = Map()
 	private var _usedSVD: Map[Z, JamaSVD] = Map()
 	for (j <- _eigenvalueDecomposition.D.re.indices) {
@@ -161,7 +161,7 @@ class DiffEquation(private val _matrix: Zmat) {
 
 	// step 4: apply data point to fix constants
 	//TODO maybe implement a method that takes a t[] and allows different points in time for each differentiation?
-	private val _constants = Array.ofDim[Z](_matrix.nrow)
+	private var _constants = Array.ofDim[Z](_matrix.nrow)
 
 	def applyStartingConditions(vector: Array[Double]): Unit = {
 		require(vector.length == _constants.length, s"Vector needs to be of size ${
@@ -169,13 +169,13 @@ class DiffEquation(private val _matrix: Zmat) {
 		} x 1.")
 
 		_appliedDataPoint = true
-		val vectorMatrix = new Zmat(vector.length, 1)
-		vectorMatrix.put(0, vector.length - 1, 0, 0, new Zmat(vector.map(Array(_))))
+		val vectorMatrix = new Zmat(vector.map(Array(_)))
 		_typeOfInhomogeneity match {
 			case DiffEquation.Inhomogeneity.Zero =>
 				_generalEigenVectors.solve(vectorMatrix)
 					.get(0, vector.length - 1, 0, 0).getZ.map(_.head).copyToArray(_constants)
 			case DiffEquation.Inhomogeneity.Constant =>
+				// would need chains, but as t = 0 the chains are only the first element each.
 				_generalEigenVectors.solve(vectorMatrix - _particularSolution)
 					.get(0, vector.length - 1, 0, 0).getZ.map(_.head).copyToArray(_constants)
 			case DiffEquation.Inhomogeneity.Exponential =>
@@ -245,89 +245,84 @@ class DiffEquation(private val _matrix: Zmat) {
 	}
 
 	// step 5: pick up solution to the problem.
-	def solution(row: Int = 0): (Double => Z) = {
+	def solution(t: Double, row: Int = 0) = {
 		require(row >= 0, "Can't have a negative row.")
 		require(_appliedDataPoint, "No data point applied, solution not defined.")
 
-		(t: Double) => {
-			var result: Z = 0
+		var result: Z = 0
 
-			// add homogeneous solution
-			var lastUnchangedEigenvector = 0
-			for (j <- _generalEigenVectors.re.indices) {
-				val eig = Z(_eigenvalueDecomposition.D.re(j), _eigenvalueDecomposition.D.im(j))
-				if (DiffEquation.sameEigenvectors(_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, j, j).getZ.flatten,
-					_eigenvalueDecomposition.X.get(0, _eigenvalueDecomposition.X.nrow - 1, j, j).getZ.flatten,
-					5)) {
-					lastUnchangedEigenvector = j
-				}
-				var temp: Z = 0
-				// build chain for current vector
-				for (k <- j to lastUnchangedEigenvector by -1) {
-					temp += _generalEigenVectors(row, k) * (eig * t).exp * math.pow(t, j - k) / (2 to j - k).product
-				}
-				// multiply by constant
-				result += temp * _constants(j)
+		// add homogeneous solution
+		var lastUnchangedEigenvector = 0
+		for (j <- _generalEigenVectors.re.indices) {
+			val eig = _eigenvalueDecomposition.D.get(j)
+			if (DiffEquation.sameEigenvectors(_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, j, j).getZ.flatten,
+				_eigenvalueDecomposition.X.get(0, _eigenvalueDecomposition.X.nrow - 1, j, j).getZ.flatten,
+				5)) {
+				lastUnchangedEigenvector = j
 			}
-
-			// add inhomogeneous solution
-			_typeOfInhomogeneity match {
-				case DiffEquation.Inhomogeneity.Zero => // do nothing
-				case DiffEquation.Inhomogeneity.Constant => result += _particularSolution(row, 0)
-				case DiffEquation.Inhomogeneity.Exponential =>
-					result += (_particularSolution * new Zmat(_inhomogeneityExponents.getZ.map(_.map(i => (i * t).exp)))) (row, 0)
-				case DiffEquation.Inhomogeneity.Polynomial =>
-					val vector = new Zmat(_particularSolution.ncol, 1)
-					for (i <- 0 until vector.nrow) {
-						vector(i, 0) = math.pow(t, i)
-					}
-					result += (_particularSolution * vector) (row, 0)
+			var temp: Z = 0
+			// build chain for current vector
+			for (k <- j to lastUnchangedEigenvector by -1) {
+				temp += _generalEigenVectors(row, k) * (eig * t).exp * math.pow(t, j - k) / (2 to j - k).product
 			}
+			// multiply by constant
+			result += temp * _constants(j)
+		}
 
-			result
-		}: Z
+		// add inhomogeneous solution
+		_typeOfInhomogeneity match {
+			case DiffEquation.Inhomogeneity.Zero => // do nothing
+			case DiffEquation.Inhomogeneity.Constant => result += _particularSolution(row, 0)
+			case DiffEquation.Inhomogeneity.Exponential =>
+				result += (_particularSolution * new Zmat(_inhomogeneityExponents.getZ.map(_.map(i => (i * t).exp)))) (row, 0)
+			case DiffEquation.Inhomogeneity.Polynomial =>
+				val vector = new Zmat(_particularSolution.ncol, 1)
+				for (i <- 0 until vector.nrow) {
+					vector(i, 0) = math.pow(t, i)
+				}
+				result += (_particularSolution * vector) (row, 0)
+		}
+
+		result
 	}
 
-	def solutionVector: (Double => Zmat) = {
+	def solutionVector(t: Double) = {
 		require(_appliedDataPoint, "No data point applied, solution not defined.")
+		var result = new Zmat(_generalEigenVectors.nrow, 1)
 
-		(t: Double) => {
-			var result = new Zmat(_generalEigenVectors.nrow, 1)
-
-			// add homogeneous solution
-			var lastUnchangedEigenvector = 0
-			for (j <- _generalEigenVectors.re.indices) {
-				val eig = Z(_eigenvalueDecomposition.D.re(j), _eigenvalueDecomposition.D.im(j))
-				if (DiffEquation.sameEigenvectors(_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, j, j).getZ.flatten,
-					_eigenvalueDecomposition.X.get(0, _eigenvalueDecomposition.X.nrow - 1, j, j).getZ.flatten,
-					5)) {
-					lastUnchangedEigenvector = j
-				}
-				var temp = new Zmat(_generalEigenVectors.nrow, 1)
-				// build chain for current vector
-				for (k <- j to lastUnchangedEigenvector by -1) {
-					temp += (_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, k, k) * (eig * t).exp * math.pow(t, j - k) / (2 to j - k).product)
-				}
-				// multiply by constant
-				result += temp * _constants(j)
+		// add homogeneous solution
+		var lastUnchangedEigenvector = 0
+		for (j <- _generalEigenVectors.re.indices) {
+			val eig = Z(_eigenvalueDecomposition.D.re(j), _eigenvalueDecomposition.D.im(j))
+			if (DiffEquation.sameEigenvectors(_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, j, j).getZ.flatten,
+				_eigenvalueDecomposition.X.get(0, _eigenvalueDecomposition.X.nrow - 1, j, j).getZ.flatten,
+				5)) {
+				lastUnchangedEigenvector = j
 			}
-
-			// add inhomogeneous solution
-			_typeOfInhomogeneity match {
-				case DiffEquation.Inhomogeneity.Zero => // do nothing
-				case DiffEquation.Inhomogeneity.Constant => result += _particularSolution.get(0, _generalEigenVectors.nrow - 1, 0, 0)
-				case DiffEquation.Inhomogeneity.Exponential =>
-					result += (_particularSolution * new Zmat(_inhomogeneityExponents.getZ.map(_.map(i => (i * t).exp))))
-				case DiffEquation.Inhomogeneity.Polynomial =>
-					val vector = new Zmat(_particularSolution.ncol, 1)
-					for (i <- 0 until vector.nrow) {
-						vector(i, 0) = math.pow(t, i)
-					}
-					result += _particularSolution * vector
+			var temp = new Zmat(_generalEigenVectors.nrow, 1)
+			// build chain for current vector
+			for (k <- j to lastUnchangedEigenvector by -1) {
+				temp += (_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, k, k) * (eig * t).exp * math.pow(t, j - k) / (2 to j - k).product)
 			}
+			// multiply by constant
+			result += temp * _constants(j)
+		}
 
-			result
-		}: Zmat
+		// add inhomogeneous solution
+		_typeOfInhomogeneity match {
+			case DiffEquation.Inhomogeneity.Zero => // do nothing
+			case DiffEquation.Inhomogeneity.Constant => result += _particularSolution.get(0, _generalEigenVectors.nrow - 1, 0, 0)
+			case DiffEquation.Inhomogeneity.Exponential =>
+				result += (_particularSolution * new Zmat(_inhomogeneityExponents.getZ.map(_.map(i => (i * t).exp))))
+			case DiffEquation.Inhomogeneity.Polynomial =>
+				val vector = new Zmat(_particularSolution.ncol, 1)
+				for (i <- 0 until vector.nrow) {
+					vector(i, 0) = math.pow(t, i)
+				}
+				result += _particularSolution * vector
+		}
+
+		result
 	}
 
 	def matrix = _matrix.clone()
@@ -339,6 +334,20 @@ class DiffEquation(private val _matrix: Zmat) {
 	def generalEigenVectors = _generalEigenVectors.clone()
 
 	def appliedDataPoint = _appliedDataPoint
+
+	override def clone(): DiffEquation = {
+		val copy = new DiffEquation(new Zmat(Array[Array[Z]](Array(1))))
+		copy._matrix = _matrix.clone()
+		copy._appliedDataPoint = _appliedDataPoint
+		copy._typeOfInhomogeneity = _typeOfInhomogeneity
+		copy._particularSolution = _particularSolution.clone()
+		copy._eigenvalueDecomposition = _eigenvalueDecomposition.clone()
+		copy._generalEigenVectors = _generalEigenVectors.clone()
+		copy._seenEigs = Map[Z, Int]() ++ _seenEigs
+		copy._usedSVD = Map[Z, JamaSVD]() ++ _usedSVD
+		copy._constants = _constants.clone()
+		copy
+	}
 
 }
 

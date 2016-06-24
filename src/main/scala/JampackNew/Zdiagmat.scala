@@ -163,4 +163,6 @@ class Zdiagmat private() {
 			obj.asInstanceOf[Zdiagmat].re.sameElements(re) && obj.asInstanceOf[Zdiagmat].im.sameElements(im)
 		case _ => false
 	}
+
+	override def clone: Zdiagmat = new Zdiagmat(this)
 }
