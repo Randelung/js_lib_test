@@ -83,7 +83,7 @@ class MNA(private val netlist: MNA.NetList) {
 	})*/
 
 	// solution vector is stacked values of all node potentials and all element currents. sources are elements.
-	private var vectorLength = nodes.length + _netlist.capacitors.length + _netlist.resistors.length + _netlist.inductors.length +
+	private var vectorLength = nodes.length + 2 * _netlist.capacitors.length + _netlist.resistors.length + _netlist.inductors.length +
 		_netlist.inputs.length
 
 	// enumerate input exponents to optimize input matrix sizes
@@ -124,35 +124,35 @@ class MNA(private val netlist: MNA.NetList) {
 	for (i <- nodes.indices) {
 		for (j <- _netlist.capacitors.indices) {
 			if (_netlist.capacitors(j).startNode == nodes(i)) {
-				B(i, nodes.length + j) = -1
+				B(i, nodes.length + _netlist.capacitors.length + j) = -1
 			}
 			else if (_netlist.capacitors(j).endNode == nodes(i)) {
-				B(i, nodes.length + j) = 1
+				B(i, nodes.length + _netlist.capacitors.length + j) = 1
 			}
 		}
 		for (j <- _netlist.inductors.indices) {
 			if (_netlist.inductors(j).startNode == nodes(i)) {
-				B(i, nodes.length + _netlist.capacitors.length + j) = -1
+				B(i, nodes.length + 2 * _netlist.capacitors.length + j) = -1
 			}
 			else if (_netlist.inductors(j).endNode == nodes(i)) {
-				B(i, nodes.length + _netlist.capacitors.length + j) = 1
+				B(i, nodes.length + 2 * _netlist.capacitors.length + j) = 1
 			}
 		}
 		for (j <- _netlist.resistors.indices) {
 			if (_netlist.resistors(j).startNode == nodes(i)) {
-				B(i, nodes.length + _netlist.capacitors.length + _netlist.inductors.length + j) = -1
+				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + j) = -1
 			}
 			else if (_netlist.resistors(j).endNode == nodes(i)) {
-				B(i, nodes.length + _netlist.capacitors.length + _netlist.inductors.length + j) = 1
+				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + j) = 1
 			}
 		}
 		for (j <- _netlist.inputs.indices) {
 			if (_netlist.inputs(j).startNode == nodes(i)) {
 				// input current is from end to start
-				B(i, nodes.length + _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + j) = 1
+				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + j) = 1
 			}
 			else if (_netlist.inputs(j).endNode == nodes(i)) {
-				B(i, nodes.length + _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + j) = -1
+				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + j) = -1
 			}
 		}
 	}
@@ -160,17 +160,22 @@ class MNA(private val netlist: MNA.NetList) {
 	// KVL for capacitors: potential(startNode) - potential(endNode) = u_C = 1/iwC * i_C
 	// therefore: iwC * u_C = i_C, or -iwC * u_C + i_C = 0
 	// and finally: iwC * (potential(endNode) - potential(startNode) + i_C = 0 (resp. input if present)
+	// however, since only one variable can be used in the differentiation, potential(endNode) - potential(startNode) is
+	// put into a new variable that can then be differentiated, using u_C + potential(endNode) - potential(startNode) = 0
 	for (i <- _netlist.capacitors.indices) {
-		val matrixIndex = nodes.length + i
-		A(matrixIndex, nodes.indexOf(_netlist.capacitors(i).startNode)) = -_netlist.capacitors(i).value
-		A(matrixIndex, nodes.indexOf(_netlist.capacitors(i).endNode)) = _netlist.capacitors(i).value
-		B(matrixIndex, matrixIndex) = 1
+		val matrixIndexExtraVar = nodes.length + i
+		val matrixIndexKVL = nodes.length + _netlist.capacitors.length + i
+		B(matrixIndexExtraVar, nodes.indexOf(_netlist.capacitors(i).startNode)) = -1
+		B(matrixIndexExtraVar, nodes.indexOf(_netlist.capacitors(i).endNode)) = 1
+		B(matrixIndexExtraVar, matrixIndexExtraVar) = 1
+		B(matrixIndexKVL, matrixIndexKVL) = 1
+		A(matrixIndexKVL, matrixIndexExtraVar) = -_netlist.capacitors(i).value
 	}
 
 	// KVL for inductors: potential(startNode) - potential(endNode) = u_L = jwL * i_L
 	// therefore: potential(endNode) - potential(startNode) + jwL * i_L = 0 (resp. input if present)
 	for (i <- _netlist.inductors.indices) {
-		val matrixIndex = nodes.length + _netlist.capacitors.length + i
+		val matrixIndex = nodes.length + 2 * _netlist.capacitors.length + i
 		B(matrixIndex, nodes.indexOf(_netlist.inductors(i).startNode)) = -1
 		B(matrixIndex, nodes.indexOf(_netlist.inductors(i).endNode)) = 1
 		A(matrixIndex, matrixIndex) = _netlist.inductors(i).value
@@ -179,7 +184,7 @@ class MNA(private val netlist: MNA.NetList) {
 	// KVL for resistors: potential(startNode) - potential(endNode) = u_R = R * i_R
 	// therefore: potential(endNode) - potential(startNode) + R * i_R = 0 (resp. input if present)
 	for (i <- _netlist.resistors.indices) {
-		val matrixIndex = nodes.length + _netlist.capacitors.length + _netlist.inductors.length + i
+		val matrixIndex = nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + i
 		B(matrixIndex, nodes.indexOf(_netlist.resistors(i).startNode)) = -1
 		B(matrixIndex, nodes.indexOf(_netlist.resistors(i).endNode)) = 1
 		B(matrixIndex, matrixIndex) = _netlist.resistors(i).value
@@ -195,7 +200,7 @@ class MNA(private val netlist: MNA.NetList) {
 				}
 			case MNA.Input.InputType.voltageSource =>
 				// KVL for inputs: potential(startNode) - potential(endNode) = u_I (which is input)
-				val matrixIndex = nodes.length + _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + i
+				val matrixIndex = nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + i
 				B(matrixIndex, nodes.indexOf(_netlist.inputs(i).startNode)) = 1
 				B(matrixIndex, nodes.indexOf(_netlist.inputs(i).endNode)) = -1
 				if (_netlist.inputs(i).inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
@@ -224,7 +229,7 @@ class MNA(private val netlist: MNA.NetList) {
 	}
 	private var Atranspose = A.transpose
 	for (i <- A.transpose.getZ.indices) {
-		if (!Atranspose(i).forall(_ == Z(0, 0)) && B(i, i) != Z(1, 0)) {
+		if (!Atranspose(i).forall(_ == Z(0, 0))) {
 			col += i
 		}
 	}
@@ -337,58 +342,31 @@ class MNA(private val netlist: MNA.NetList) {
 
 	def elementCurrent(element: MNA.Capacitor, t: Double): Double = {
 		require(_netlist.capacitors.contains(element), "Element not in netlist.")
-		solution(t, nodes.length + _netlist.capacitors.indexOf(element))
+		solution(t, nodes.length + _netlist.capacitors.length + _netlist.capacitors.indexOf(element))
 	}
 
 	def elementCurrent(element: MNA.Resistor, t: Double): Double = {
 		require(_netlist.resistors.contains(element), "Element not in netlist.")
-		solution(t, nodes.length + _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.indexOf(element))
+		solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.indexOf(element))
 	}
 
 	def elementCurrent(element: MNA.Inductor, t: Double): Double = {
 		require(_netlist.inductors.contains(element), "Element not in netlist.")
-		solution(t, nodes.length + _netlist.capacitors.length + _netlist.inductors.indexOf(element))
+		solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.indexOf(element))
 	}
 
 	def elementCurrent(element: MNA.Input, t: Double): Double = {
 		require(_netlist.inputs.contains(element), "Element not in netlist.")
-		solution(t, nodes.length + _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + _netlist.inputs.indexOf(element))
+		solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + _netlist.inputs.indexOf(element))
 	}
 }
 
 object MNA {
 
-	def fromJSON(json: String): (MNA, NetList) = {
+	def fromJSON(json: String) = {
 
-		// parse JSON
-		val parsedJSON = JSON.parse(json)
-		val capacitors = parsedJSON.capacitors.asInstanceOf[js.Array[js.Dynamic]]
-			.map(i => new Capacitor(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int],
-				new Z(i.realValue.asInstanceOf[Double], i.imagValue.asInstanceOf[Double])))
-		val inductors = parsedJSON.inductors.asInstanceOf[js.Array[js.Dynamic]]
-			.map(i => new Inductor(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int],
-				new Z(i.realValue.asInstanceOf[Double], i.imagValue.asInstanceOf[Double])))
-		val resistors = parsedJSON.resistors.asInstanceOf[js.Array[js.Dynamic]]
-			.map(i => new Resistor(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int],
-				new Z(i.realValue.asInstanceOf[Double], i.imagValue.asInstanceOf[Double])))
-		val inputs = parsedJSON.inputs.asInstanceOf[js.Array[js.Dynamic]]
-			.map(i => new Input(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int],
-				Input.InhomogeneityType.withName(i.inhomogeneityType.asInstanceOf[String]),
-				Input.InputType.withName(i.inputType.asInstanceOf[String]),
-				i.coefficients.asInstanceOf[js.Array[js.Dynamic]]
-					.map(j => Z(j.realValue.asInstanceOf[Double], j.imagValue.asInstanceOf[Double])).toArray,
-				if (i.exponents.asInstanceOf[js.Array[js.Dynamic]].nonEmpty) {
-					i.exponents.asInstanceOf[js.Array[js.Dynamic]]
-						.map(j => Z(j.realValue.asInstanceOf[Double], j.imagValue.asInstanceOf[Double])).toArray
-				}
-				else null))
-		val grounds = parsedJSON.grounds.asInstanceOf[js.Array[js.Dynamic]]
-			.map(i => i.node.asInstanceOf[Int])
-		require(inputs.forall(i => if (i.exponents != null) i.exponents.length == i.coefficients.length else true), "Input matrix dimensions must agree.")
-		require(inputs.forall(i => i.inhomogeneityType == inputs.head.inhomogeneityType), "Only single type of inhomogeneity supported.")
-
-		val netlist = new NetList(capacitors, inductors, resistors, inputs, grounds)
-		(new MNA(netlist), netlist)
+		val netlist = NetList.fromJSON(json)
+		(netlist, new MNA(netlist))
 	}
 
 	case class Capacitor(name: String, startNode: Int, endNode: Int, value: Z)
@@ -398,7 +376,11 @@ object MNA {
 	case class Resistor(name: String, startNode: Int, endNode: Int, value: Z)
 
 	case class Input(name: String, startNode: Int, endNode: Int, inhomogeneityType: Input.InhomogeneityType.Value,
-					 inputType: Input.InputType.Value, coefficients: Array[Z], exponents: Array[Z])
+					 inputType: Input.InputType.Value, coefficients: Array[Z], exponents: Array[Z]) {
+
+		override def toString =
+			s"Input($name, $startNode, $endNode, $inhomogeneityType, $inputType, ${coefficients.deep}, ${exponents.deep})"
+	}
 
 	object Input {
 
@@ -424,6 +406,57 @@ object MNA {
 	  */
 	case class NetList(var capacitors: js.Array[Capacitor], var inductors: js.Array[Inductor],
 					   var resistors: js.Array[Resistor], var inputs: js.Array[Input],
-					   var grounds: js.Array[Int])
+					   var grounds: js.Array[Int]) {
+
+		def apply(name: String) = {
+			if (capacitors.map(_.name).contains(name)) {
+				capacitors(capacitors.map(_.name).indexOf(name))
+			}
+			else if (inductors.map(_.name).contains(name)) {
+				inductors(inductors.map(_.name).indexOf(name))
+			}
+			else if (resistors.map(_.name).contains(name)) {
+				resistors(resistors.map(_.name).indexOf(name))
+			}
+			else if (inputs.map(_.name).contains(name)) {
+				inputs(inputs.map(_.name).indexOf(name))
+			}
+		}
+	}
+
+	object NetList {
+
+		def fromJSON(json: String): NetList = {
+
+			// parse JSON
+			val parsedJSON = JSON.parse(json)
+			val capacitors = parsedJSON.capacitors.asInstanceOf[js.Array[js.Dynamic]]
+				.map(i => new Capacitor(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int],
+					new Z(i.realValue.asInstanceOf[Double], i.imagValue.asInstanceOf[Double])))
+			val inductors = parsedJSON.inductors.asInstanceOf[js.Array[js.Dynamic]]
+				.map(i => new Inductor(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int],
+					new Z(i.realValue.asInstanceOf[Double], i.imagValue.asInstanceOf[Double])))
+			val resistors = parsedJSON.resistors.asInstanceOf[js.Array[js.Dynamic]]
+				.map(i => new Resistor(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int],
+					new Z(i.realValue.asInstanceOf[Double], i.imagValue.asInstanceOf[Double])))
+			val inputs = parsedJSON.inputs.asInstanceOf[js.Array[js.Dynamic]]
+				.map(i => new Input(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int],
+					Input.InhomogeneityType.withName(i.inhomogeneityType.asInstanceOf[String]),
+					Input.InputType.withName(i.inputType.asInstanceOf[String]),
+					i.coefficients.asInstanceOf[js.Array[js.Dynamic]]
+						.map(j => Z(j.realValue.asInstanceOf[Double], j.imagValue.asInstanceOf[Double])).toArray,
+					if (i.exponents.asInstanceOf[js.Array[js.Dynamic]].nonEmpty) {
+						i.exponents.asInstanceOf[js.Array[js.Dynamic]]
+							.map(j => Z(j.realValue.asInstanceOf[Double], j.imagValue.asInstanceOf[Double])).toArray
+					}
+					else null))
+			val grounds = parsedJSON.grounds.asInstanceOf[js.Array[js.Dynamic]]
+				.map(i => i.node.asInstanceOf[Int])
+			require(inputs.forall(i => if (i.exponents != null) i.exponents.length == i.coefficients.length else true), "Input matrix dimensions must agree.")
+			require(inputs.forall(i => i.inhomogeneityType == inputs.head.inhomogeneityType), "Only single type of inhomogeneity supported.")
+
+			new NetList(capacitors, inductors, resistors, inputs, grounds)
+		}
+	}
 
 }

@@ -8,16 +8,17 @@ name := "DiffSolver"
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
-	"org.scala-js" %%% "scalajs-dom" % "0.8.2",
-	"com.lihaoyi" %%% "scalatags" % "0.5.4",
+	"com.lihaoyi" %%% "scalatags" % "0.5.5",
 	"org.scalatest" %%% "scalatest" % "3.0.0-M10" % "test"
 )
 
-bootSnippet := "example.ScalaJSExample().main(document.getElementById('canvas'));"
+bootSnippet := "new ch.ethz.ipes.buschr.schematics.CircuitAnalyzer(document.getElementById('canvas'));"
 
 updateBrowsers <<= updateBrowsers.triggeredBy(fastOptJS in Compile)
 
 excludeFilter in unmanagedSources := HiddenFileFilter || "excluded"
+
+scalaJSUseRhino in Global := false

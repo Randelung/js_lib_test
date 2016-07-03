@@ -1,0 +1,217 @@
+package ch.ethz.ipes.buschr.schematics
+
+import ch.ethz.ipes.buschr.maths.MNA.Input.{InhomogeneityType, InputType}
+import ch.ethz.ipes.buschr.maths.MNA.NetList
+import ch.ethz.ipes.buschr.maths.Vector2D
+import org.scalajs.dom._
+
+import scala.scalajs.js
+
+/**
+  * Created by Randolph Busch on 03/07/16.
+  */
+object CircuitIllustrator {
+
+	def drawCircuit(canvas: html.Canvas, gridWidth: Int, gridHeight: Int, elementMap: Map[String, (Int, Int, Int, Int)],
+					nodeMap: Map[Int, js.Array[(Int, Int)]], netList: NetList): Unit = {
+
+		val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+		context.lineWidth = 2
+		context.lineCap = "square"
+		context.font = "16pt Arial"
+		val widthFactor = canvas.width / (gridWidth + 1)
+		val heightFactor = canvas.height / (gridHeight + 1)
+		context.beginPath()
+		netList.capacitors.foreach(i => {
+			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
+			val endVector = Vector2D(widthFactor * elementMap(i.name)._3, heightFactor * elementMap(i.name)._4)
+			val directionalVector = endVector - startVector
+			val width = 20
+			context.moveTo(startVector)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 3)
+			context.moveTo(endVector)
+			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 3)
+			context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 3 +
+				directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 3 -
+				directionalVector.perpendicular.normed * width)
+			context.moveTo(startVector + directionalVector * 0.5 + directionalVector.normed * 3 +
+				directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 3 -
+				directionalVector.perpendicular.normed * width)
+			if (startVector.y > endVector.y) {
+				context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.normed * 8 +
+					directionalVector.perpendicular.normed * 30)
+			}
+			else {
+				context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.normed * 8 -
+					directionalVector.perpendicular.normed * 30)
+			}
+		})
+		netList.resistors.foreach(i => {
+			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
+			val endVector = Vector2D(widthFactor * elementMap(i.name)._3, heightFactor * elementMap(i.name)._4)
+			val directionalVector = endVector - startVector
+			val width = 8
+			context.moveTo(startVector)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20)
+			context.moveTo(endVector)
+			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20)
+			context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 - directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20 - directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
+			if (startVector.y > endVector.y) {
+				context.fillText(i.name, startVector + directionalVector * 0.5 - directionalVector.normed * 8 +
+					directionalVector.perpendicular.normed * 16)
+			}
+			else {
+				context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.normed * 8 -
+					directionalVector.perpendicular.normed * 16)
+			}
+		})
+		netList.inductors.foreach(i => {
+			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
+			val endVector = Vector2D(widthFactor * elementMap(i.name)._3, heightFactor * elementMap(i.name)._4)
+			val directionalVector = endVector - startVector
+			val width = 8
+			context.moveTo(startVector)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20)
+			context.moveTo(endVector)
+			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20)
+			context.stroke()
+			context.beginPath()
+			context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 - directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20 - directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
+			context.fill()
+			context.beginPath()
+			if (startVector.y > endVector.y) {
+				context.fillText(i.name, startVector + directionalVector * 0.5 - directionalVector.normed * 8 +
+					directionalVector.perpendicular.normed * 16)
+			}
+			else {
+				context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.normed * 8 -
+					directionalVector.perpendicular.normed * 16)
+			}
+		})
+
+		netList.inputs.foreach(i => {
+			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
+			val endVector = Vector2D(widthFactor * elementMap(i.name)._3, heightFactor * elementMap(i.name)._4)
+			val directionalVector = endVector - startVector
+			context.moveTo(startVector)
+			i.inputType match {
+				case InputType.currentSource =>
+					i.inhomogeneityType match {
+						case InhomogeneityType.zero =>
+							if (startVector.y > endVector.y) {
+								context.fillText(i.name, startVector + directionalVector * 0.5 +
+									directionalVector.perpendicular.normed * 10)
+							}
+							else {
+								context.fillText(i.name, startVector + directionalVector * 0.5 -
+									directionalVector.perpendicular.normed * 10)
+							}
+						case InhomogeneityType.constant | InhomogeneityType.polynomial | InhomogeneityType.exponential =>
+							context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20)
+							context.moveTo(endVector)
+							context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20)
+							context.stroke()
+							context.beginPath()
+							context.arc(startVector + directionalVector * 0.5, 20, 0, 2 * math.Pi)
+							context.stroke()
+							context.beginPath()
+							context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 13)
+							context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 13)
+							context.moveTo(startVector + directionalVector * 0.5 + directionalVector.normed * 8 +
+								directionalVector.perpendicular.normed * 5)
+							context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 13)
+							context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 8 -
+								directionalVector.perpendicular.normed * 5)
+							if (startVector.y > endVector.y) {
+								context.fillText(i.name, startVector + directionalVector * 0.5 +
+									directionalVector.normed * 8 + directionalVector.perpendicular.normed * 30)
+							}
+							else {
+								context.fillText(i.name, startVector + directionalVector * 0.5 +
+									directionalVector.normed * 8 - directionalVector.perpendicular.normed * 30)
+							}
+					}
+				case InputType.voltageSource =>
+					i.inhomogeneityType match {
+						case InhomogeneityType.zero =>
+							context.lineTo(endVector)
+							if (startVector.y > endVector.y) {
+								context.fillText(i.name, startVector + directionalVector * 0.5 +
+									directionalVector.normed * 8 + directionalVector.perpendicular.normed * 5)
+							}
+							else {
+								context.fillText(i.name, startVector + directionalVector * 0.5 +
+									directionalVector.normed * 8 - directionalVector.perpendicular.normed * 5)
+							}
+						case InhomogeneityType.constant =>
+							context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 3)
+							context.moveTo(endVector)
+							context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 3)
+							context.moveTo(startVector + directionalVector * 0.5 + directionalVector.normed * 3 +
+								directionalVector.perpendicular.normed * 15)
+							context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 3 -
+								directionalVector.perpendicular.normed * 15)
+							context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 3 -
+								directionalVector.perpendicular.normed * 20)
+							context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 3 +
+								directionalVector.perpendicular.normed * 20)
+							if (startVector.y > endVector.y) {
+								context.fillText(i.name, startVector + directionalVector * 0.5 +
+									directionalVector.normed * 8 + directionalVector.perpendicular.normed * 30)
+							}
+							else {
+								context.fillText(i.name, startVector + directionalVector * 0.5 +
+									directionalVector.normed * 8 - directionalVector.perpendicular.normed * 30)
+							}
+						case InhomogeneityType.exponential | InhomogeneityType.polynomial =>
+							context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20)
+							context.moveTo(endVector)
+							context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20)
+							context.stroke()
+							context.beginPath()
+							context.arc(startVector + directionalVector * 0.5, 20, 0, 2 * math.Pi)
+							context.stroke()
+							context.beginPath()
+							context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 10 +
+								directionalVector.perpendicular.normed * 5)
+							context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 10 -
+								directionalVector.perpendicular.normed * 5)
+							context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 15)
+							context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 5)
+							context.moveTo(startVector + directionalVector * 0.5 + directionalVector.normed * 10 +
+								directionalVector.perpendicular.normed * 5)
+							context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 10 -
+								directionalVector.perpendicular.normed * 5)
+							if (startVector.y > endVector.y) {
+								context.fillText(i.name, startVector + directionalVector * 0.5 +
+									directionalVector.normed * 8 + directionalVector.perpendicular.normed * 30)
+							}
+							else {
+								context.fillText(i.name, startVector + directionalVector * 0.5 +
+									directionalVector.normed * 8 - directionalVector.perpendicular.normed * 30)
+							}
+					}
+			}
+		})
+		nodeMap.values.foreach(i => {
+			if (i.length > 1) {
+				context.moveTo(widthFactor * i.head._1, heightFactor * i.head._2)
+				for (j <- 1 until i.length) {
+					context.lineTo(widthFactor * i(j)._1, heightFactor * i(j)._2)
+				}
+			}
+		})
+		context.stroke()
+	}
+
+}
