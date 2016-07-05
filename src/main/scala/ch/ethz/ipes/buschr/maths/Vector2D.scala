@@ -1,5 +1,7 @@
 package ch.ethz.ipes.buschr.maths
 
+import scala.language.implicitConversions
+
 /**
   * Created by Randolph Busch on 03/07/16.
   */
@@ -24,4 +26,15 @@ case class Vector2D(x: Double, y: Double) {
 	def scalarProduct(that: Vector2D) = x * that.x + y * that.y
 
 	def angleTo(that: Vector2D) = math.acos(this scalarProduct that / (length * that.length))
+}
+
+object Vector2D {
+
+	implicit def fromTuple2DD(i: (Double, Double)): Vector2D = new Vector2D(i._1, i._2)
+
+	implicit def fromTuple2II(i: (Int, Int)): Vector2D = new Vector2D(i._1, i._2)
+
+	implicit def fromTuple2DI(i: (Int, Double)): Vector2D = new Vector2D(i._1, i._2)
+
+	implicit def fromTuple2ID(i: (Double, Int)): Vector2D = new Vector2D(i._1, i._2)
 }

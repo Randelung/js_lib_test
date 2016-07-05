@@ -36,9 +36,7 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 			}
 
 			CircuitAnalyzer.mna = new MNA(CircuitAnalyzer.netlist)
-			CircuitAnalyzer.graph = GraphPlotter(canvasGraph, 2 * math.Pi)
-			//CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementVoltage(netlist.capacitors.head, t), netlist.capacitors.head.name, "#00ff00")
-			//CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementCurrent(netlist.capacitors.head, t), netlist.capacitors.head.name, "#ff0000")
+			CircuitAnalyzer.graph = GraphPlotter(canvasGraph, 8 * math.Pi)
 		}
 	}
 	xhr.open("GET", urlNetlist, async = true)
@@ -80,26 +78,72 @@ object CircuitAnalyzer {
 		(parsedJSON.grid.width.asInstanceOf[Int], parsedJSON.grid.height.asInstanceOf[Int], elementMap, nodeMap)
 	}
 
-	private var button1pressed = false
+	private var button1pressed = 0
 
 	@JSExport
 	def button1(): Unit = {
-		if (button1pressed) {
-			return
+		button1pressed = button1pressed match {
+			case 0 =>
+				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementVoltage(netlist.capacitors.head, t), "u_" + netlist.capacitors.head.name)
+				1
+			case 1 =>
+				graph.disableFunction("u_" + netlist.capacitors.head.name)
+				2
+			case 2 =>
+				graph.enableFunction("u_" + netlist.capacitors.head.name)
+				1
 		}
-		button1pressed = true
-		CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementVoltage(netlist.capacitors.head, t), "u_" + netlist.capacitors.head.name, "#00ff00")
 	}
 
-	private var button2pressed = false
+	private var button2pressed = 0
 
 	@JSExport
 	def button2(): Unit = {
-		if (button2pressed) {
-			return
+		button2pressed = button2pressed match {
+			case 0 =>
+				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementCurrent(netlist.capacitors.head, t), "i_" + netlist.capacitors.head.name)
+				1
+			case 1 =>
+				graph.disableFunction("i_" + netlist.capacitors.head.name)
+				2
+			case 2 =>
+				graph.enableFunction("i_" + netlist.capacitors.head.name)
+				1
 		}
-		button2pressed = true
-		CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementCurrent(netlist.capacitors.head, t), "i_" + netlist.capacitors.head.name, "#ff0000")
+	}
+
+	private var button3pressed = 0
+
+	@JSExport
+	def button3(): Unit = {
+		button3pressed = button3pressed match {
+			case 0 =>
+				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementVoltage(netlist.inductors.head, t), "u_" + netlist.inductors.head.name)
+				1
+			case 1 =>
+				graph.disableFunction("u_" + netlist.inductors.head.name)
+				2
+			case 2 =>
+				graph.enableFunction("u_" + netlist.inductors.head.name)
+				1
+		}
+	}
+
+	private var button4pressed = 0
+
+	@JSExport
+	def button4(): Unit = {
+		button4pressed = button4pressed match {
+			case 0 =>
+				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementCurrent(netlist.inductors.head, t), "i_" + netlist.inductors.head.name)
+				1
+			case 1 =>
+				graph.disableFunction("i_" + netlist.inductors.head.name)
+				2
+			case 2 =>
+				graph.enableFunction("i_" + netlist.inductors.head.name)
+				1
+		}
 	}
 
 }

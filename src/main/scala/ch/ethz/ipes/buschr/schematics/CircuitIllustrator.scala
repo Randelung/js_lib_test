@@ -1,5 +1,6 @@
 package ch.ethz.ipes.buschr.schematics
 
+import JampackNew.Z
 import ch.ethz.ipes.buschr.maths.MNA.Input.{InhomogeneityType, InputType}
 import ch.ethz.ipes.buschr.maths.MNA.NetList
 import ch.ethz.ipes.buschr.maths.Vector2D
@@ -49,26 +50,33 @@ object CircuitIllustrator {
 			}
 		})
 		netList.resistors.foreach(i => {
+
 			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
 			val endVector = Vector2D(widthFactor * elementMap(i.name)._3, heightFactor * elementMap(i.name)._4)
-			val directionalVector = endVector - startVector
-			val width = 8
-			context.moveTo(startVector)
-			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20)
-			context.moveTo(endVector)
-			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20)
-			context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
-			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 - directionalVector.perpendicular.normed * width)
-			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20 - directionalVector.perpendicular.normed * width)
-			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
-			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
-			if (startVector.y > endVector.y) {
-				context.fillText(i.name, startVector + directionalVector * 0.5 - directionalVector.normed * 8 +
-					directionalVector.perpendicular.normed * 16)
+			if (i.value == Z(0, 0)) {
+				context.moveTo(startVector)
+				context.lineTo(endVector)
 			}
 			else {
-				context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.normed * 8 -
-					directionalVector.perpendicular.normed * 16)
+				val directionalVector = endVector - startVector
+				val width = 8
+				context.moveTo(startVector)
+				context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20)
+				context.moveTo(endVector)
+				context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20)
+				context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
+				context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 - directionalVector.perpendicular.normed * width)
+				context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20 - directionalVector.perpendicular.normed * width)
+				context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
+				context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 20 + directionalVector.perpendicular.normed * width)
+				if (startVector.y > endVector.y) {
+					context.fillText(i.name, startVector + directionalVector * 0.5 - directionalVector.normed * 8 +
+						directionalVector.perpendicular.normed * 16)
+				}
+				else {
+					context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.normed * 8 -
+						directionalVector.perpendicular.normed * 16)
+				}
 			}
 		})
 		netList.inductors.foreach(i => {
@@ -203,6 +211,18 @@ object CircuitIllustrator {
 					}
 			}
 		})
+		netList.grounds.foreach(i => {
+			val groundNodeVector = Vector2D(widthFactor * elementMap("g_" + i)._1, heightFactor * elementMap("g_" + i)._2)
+			context.beginPath()
+			context.moveTo(groundNodeVector)
+			context.lineTo(groundNodeVector +(0, 10))
+			context.moveTo(groundNodeVector +(-10, 10))
+			context.lineTo(groundNodeVector +(10, 10))
+			context.moveTo(groundNodeVector +(-6, 14))
+			context.lineTo(groundNodeVector +(6, 14))
+			context.moveTo(groundNodeVector +(-2, 18))
+			context.lineTo(groundNodeVector +(2, 18))
+		})
 		nodeMap.values.foreach(i => {
 			if (i.length > 1) {
 				context.moveTo(widthFactor * i.head._1, heightFactor * i.head._2)
@@ -212,6 +232,8 @@ object CircuitIllustrator {
 			}
 		})
 		context.stroke()
+
+		println("Circuit illustration done.")
 	}
 
 }

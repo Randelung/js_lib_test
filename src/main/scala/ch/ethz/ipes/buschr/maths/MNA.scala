@@ -55,6 +55,8 @@ class MNA(private val netlist: MNA.NetList) {
 
 	// add additional resistor for every input (non-ideal inputs)
 	private var j = 0
+
+	// this part adds resistors for each input to create non-ideal sources.
 	/*_netlist.inputs.foreach(i => {
 		i.inputType match {
 			case MNA.Input.InputType.voltageSource =>
@@ -379,7 +381,8 @@ object MNA {
 					 inputType: Input.InputType.Value, coefficients: Array[Z], exponents: Array[Z]) {
 
 		override def toString =
-			s"Input($name, $startNode, $endNode, $inhomogeneityType, $inputType, ${coefficients.deep}, ${exponents.deep})"
+			s"Input($name, $startNode, $endNode, $inhomogeneityType, $inputType, " +
+				s"${if (coefficients != null) coefficients.deep else coefficients}, ${if (exponents != null) exponents.deep else exponents})"
 	}
 
 	object Input {

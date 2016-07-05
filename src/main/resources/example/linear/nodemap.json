@@ -45,6 +45,13 @@
 			"endX": 1,
 			"startY": 2,
 			"endY": 3
+		},
+		{
+			"elementName": "g_2",
+			"startX": 4,
+			"endX": 4,
+			"startY": 3,
+			"endY": 3
 		}
 	],
 	"spreadNodes": [
