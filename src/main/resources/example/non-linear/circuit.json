@@ -1,0 +1,60 @@
+{
+	"capacitors": [
+		{
+			"name": "C",
+			"startNode": 2,
+			"endNode": 3,
+			"realValue": 1,
+			"imagValue": 0
+		}
+	],
+	"inductors": [
+		{
+			"name": "L",
+			"startNode": 1,
+			"endNode": 2,
+			"realValue": 1,
+			"imagValue": 0
+		}
+	],
+	"resistors": [
+		{
+			"name": "R",
+			"startNode": 2,
+			"endNode": 3,
+			"realValue": 1,
+			"imagValue": 0
+		},
+		{
+			"name": "cable",
+			"startNode": 0,
+			"endNode": 1,
+			"realValue": 0,
+			"imagValue": 0
+		}
+	],
+	"diodes": [
+		{
+			"name": "D",
+			"startNode": 3,
+			"endNode": 1
+		}
+	],
+	"inputs": [
+		{
+			"name": "U",
+			"startNode": 0,
+			"endNode": 3,
+			"inputType": "voltageSource",
+			"inhomogeneityType": "constant",
+			"coefficients": [
+				{
+					"realValue": 1,
+					"imagValue": 0
+				}
+			],
+			"exponents": [
+			]
+		}
+	]
+}

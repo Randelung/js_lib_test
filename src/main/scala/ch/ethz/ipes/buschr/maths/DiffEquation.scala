@@ -42,7 +42,7 @@ class DiffEquation(private var _matrix: Zmat) {
 	  * - Polynomial is a maatrix that will be multiplied by a vector [1 t t^2^ ...]' in the solution
 	  */
 	private var _particularSolution: Zmat = new Zmat(_matrix.nrow, 1)
-	private var _inhomogeneityExponents: Zmat = null
+	private var _inhomogeneityExponents: Zmat = _
 
 	// step 1: get eigenvalues and eigenvectors of matrix
 	private var _eigenvalueDecomposition = new Eig(_matrix)
@@ -263,10 +263,10 @@ class DiffEquation(private var _matrix: Zmat) {
 			var temp: Z = 0
 			// build chain for current vector
 			for (k <- j to lastUnchangedEigenvector by -1) {
-				temp += _generalEigenVectors(row, k) * (eig * t).exp * math.pow(t, j - k) / (2 to j - k).product
+				temp += _generalEigenVectors(row, k) * math.pow(t, j - k) / (2 to j - k).product
 			}
 			// multiply by constant
-			result += temp * _constants(j)
+			result += temp * _constants(j) * (eig * t).exp
 		}
 
 		// add inhomogeneous solution
@@ -288,6 +288,7 @@ class DiffEquation(private var _matrix: Zmat) {
 
 	def solutionVector(t: Double) = {
 		require(_appliedDataPoint, "No data point applied, solution not defined.")
+
 		var result = new Zmat(_generalEigenVectors.nrow, 1)
 
 		// add homogeneous solution
@@ -302,10 +303,10 @@ class DiffEquation(private var _matrix: Zmat) {
 			var temp = new Zmat(_generalEigenVectors.nrow, 1)
 			// build chain for current vector
 			for (k <- j to lastUnchangedEigenvector by -1) {
-				temp += (_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, k, k) * (eig * t).exp * math.pow(t, j - k) / (2 to j - k).product)
+				temp += _generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, k, k) * math.pow(t, j - k) / (2 to j - k).product
 			}
 			// multiply by constant
-			result += temp * _constants(j)
+			result += temp * _constants(j) * (eig * t).exp
 		}
 
 		// add inhomogeneous solution
@@ -320,6 +321,105 @@ class DiffEquation(private var _matrix: Zmat) {
 					vector(i, 0) = math.pow(t, i)
 				}
 				result += _particularSolution * vector
+		}
+
+		result
+	}
+
+	def derivedSolution(t: Double, row: Int = 0) = {
+		require(row >= 0, "Can't have a negative row.")
+		require(_appliedDataPoint, "No data point applied, solution not defined.")
+
+		var result: Z = 0
+
+		// add homogeneous solution
+		var lastUnchangedEigenvector = 0
+		for (j <- _generalEigenVectors.re.indices) {
+			val eig = _eigenvalueDecomposition.D.get(j)
+			if (DiffEquation.sameEigenvectors(_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, j, j).getZ.flatten,
+				_eigenvalueDecomposition.X.get(0, _eigenvalueDecomposition.X.nrow - 1, j, j).getZ.flatten,
+				5)) {
+				lastUnchangedEigenvector = j
+			}
+			var temp: Z = 0
+			// build chain for current vector
+			for (k <- j to lastUnchangedEigenvector by -1) {
+				temp += _generalEigenVectors(row, k) * math.pow(t, j - k) / (2 to j - k).product
+			}
+			temp *= eig
+			for (k <- j - 1 to lastUnchangedEigenvector by -1) {
+				temp += _generalEigenVectors(row, k) * math.pow(t, j - 1 - k) / (2 until j - k).product
+			}
+			// multiply by constant
+			result += temp * _constants(j) * (eig * t).exp
+		}
+
+		// add inhomogeneous solution
+		_typeOfInhomogeneity match {
+			case DiffEquation.Inhomogeneity.Zero => // do nothing
+			case DiffEquation.Inhomogeneity.Constant => // do nothing
+			case DiffEquation.Inhomogeneity.Exponential =>
+				result += (_particularSolution * new Zdiagmat(_inhomogeneityExponents.getZ.map(_.head.re), _inhomogeneityExponents.getZ.map(_.head.im))
+					* new Zmat(_inhomogeneityExponents.getZ.map(_.map(i => (i * t).exp)))) (row, 0)
+			case DiffEquation.Inhomogeneity.Polynomial =>
+				val vector = new Zmat(_particularSolution.ncol, 1)
+				val diffMatrix = new Zmat(_inhomogeneityExponents.ncol, _inhomogeneityExponents.ncol)
+				for (i <- 1 until _inhomogeneityExponents.ncol) {
+					diffMatrix(i, i - 1) = i
+				}
+				for (i <- 0 until vector.nrow) {
+					vector(i, 0) = math.pow(t, i)
+				}
+				result += (_particularSolution * diffMatrix * vector) (row, 0)
+		}
+
+		result
+	}
+
+	def derivedSolutionVector(t: Double) = {
+		require(_appliedDataPoint, "No data point applied, solution not defined.")
+
+		var result = new Zmat(_generalEigenVectors.nrow, 1)
+
+		// add homogeneous solution
+		var lastUnchangedEigenvector = 0
+		for (j <- _generalEigenVectors.re.indices) {
+			val eig = Z(_eigenvalueDecomposition.D.re(j), _eigenvalueDecomposition.D.im(j))
+			if (DiffEquation.sameEigenvectors(_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, j, j).getZ.flatten,
+				_eigenvalueDecomposition.X.get(0, _eigenvalueDecomposition.X.nrow - 1, j, j).getZ.flatten,
+				5)) {
+				lastUnchangedEigenvector = j
+			}
+			var temp = new Zmat(_generalEigenVectors.nrow, 1)
+			// build chain for current vector
+			for (k <- j to lastUnchangedEigenvector by -1) {
+				temp += (_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, k, k) * math.pow(t, j - k) / (2 to j - k).product)
+			}
+			temp *= eig
+			for (k <- j - 1 to lastUnchangedEigenvector by -1) {
+				temp += (_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, k, k) * math.pow(k, j - 1 - k) / (2 until j - k).product)
+			}
+			// multiply by constant
+			result += temp * _constants(j) * (eig * t).exp
+		}
+
+		// add inhomogeneous solution
+		_typeOfInhomogeneity match {
+			case DiffEquation.Inhomogeneity.Zero => // do nothing
+			case DiffEquation.Inhomogeneity.Constant => // do nothing
+			case DiffEquation.Inhomogeneity.Exponential =>
+				result += (_particularSolution * new Zdiagmat(_inhomogeneityExponents.getZ.map(_.head.re), _inhomogeneityExponents.getZ.map(_.head.im))
+					* new Zmat(_inhomogeneityExponents.getZ.map(_.map(i => (i * t).exp))))
+			case DiffEquation.Inhomogeneity.Polynomial =>
+				val vector = new Zmat(_particularSolution.ncol, 1)
+				val diffMatrix = new Zmat(_inhomogeneityExponents.ncol, _inhomogeneityExponents.ncol)
+				for (i <- 1 until _inhomogeneityExponents.ncol) {
+					diffMatrix(i, i - 1) = i
+				}
+				for (i <- 0 until vector.nrow) {
+					vector(i, 0) = math.pow(t, i)
+				}
+				result += _particularSolution * diffMatrix * vector
 		}
 
 		result

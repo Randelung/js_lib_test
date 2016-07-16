@@ -5,19 +5,21 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d40b7c0b-c8ba-4869-8a54-fc320b72c0a0" name="Default" comment="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator.&#10;&#10;">
+    <list default="true" id="d40b7c0b-c8ba-4869-8a54-fc320b72c0a0" name="Default" comment="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator.">
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/example/non-linear/nodemap.json" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/index-non-linear.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/NewtonRaphson.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_scala_lang_scala_library_2_11_8_jar.xml" afterPath="$PROJECT_DIR$/.idea/libraries/SBT__org_scala_lang_scala_library_2_11_8_jar.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/js_lib_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/js_lib_test.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/example/linear/circuit.json" afterPath="$PROJECT_DIR$/src/main/resources/example/linear/circuit.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/index-linear.html" afterPath="$PROJECT_DIR$/src/main/resources/index-linear.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/Vector2D.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/Vector2D.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/resources/example_circuit.json" afterPath="$PROJECT_DIR$/src/main/resources/example/linear/circuit.json" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/resources/example_nodemap.json" afterPath="$PROJECT_DIR$/src/main/resources/example/linear/nodemap.json" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/resources/index-dev.html" afterPath="$PROJECT_DIR$/src/main/resources/index-linear.html" />
     </list>
     <ignored path="Example.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -31,7 +33,6 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
   </component>
@@ -62,11 +63,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="CircuitAnalyzer.scala" pinned="false" current-in-tab="false">
+      <file leaf-file-name="CircuitAnalyzer.scala" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="592">
-              <caret line="37" column="66" selection-start-line="37" selection-start-column="66" selection-end-line="37" selection-end-column="66" />
+            <state relative-caret-position="16">
+              <caret line="47" column="61" selection-start-line="47" selection-start-column="61" selection-end-line="47" selection-end-column="61" />
               <folding>
                 <element signature="e#40#76#0" expanded="true" />
               </folding>
@@ -74,36 +75,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CircuitIllustrator.scala" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
-              <caret line="57" column="41" selection-start-line="57" selection-start-column="41" selection-end-line="57" selection-end-column="41" />
-              <folding>
-                <element signature="e#40#59#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MNA.scala" pinned="false" current-in-tab="true">
+      <file leaf-file-name="MNA.scala" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="208">
-              <caret line="220" column="5" selection-start-line="220" selection-start-column="5" selection-end-line="220" selection-end-column="5" />
+            <state relative-caret-position="7664">
+              <caret line="484" column="63" selection-start-line="484" selection-start-column="63" selection-end-line="484" selection-end-column="63" />
               <folding>
-                <element signature="e#35#62#0" expanded="true" />
+                <element signature="e#35#72#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="circuit.json" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="496">
-              <caret line="31" column="26" selection-start-line="31" selection-start-column="26" selection-end-line="31" selection-end-column="26" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -134,8 +113,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zutmat.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Z1.scala" />
         <option value="$PROJECT_DIR$/src/main/java/Jampack/Zhess.java" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zhess.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zhqrd.scala" />
@@ -164,7 +141,6 @@
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zdiagmat.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Eig.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/DiffEquationTest.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/Main.scala" />
         <option value="$PROJECT_DIR$/src/main/resources/example.json" />
         <option value="$PROJECT_DIR$/project/build.sbt" />
@@ -175,16 +151,19 @@
         <option value="$PROJECT_DIR$/src/main/resources/example_circuit.json" />
         <option value="$PROJECT_DIR$/src/main/resources/example_nodemap.json" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/Vector2D.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala" />
         <option value="$PROJECT_DIR$/src/main/resources/example/circuit.json" />
         <option value="$PROJECT_DIR$/src/main/resources/index-dev.html" />
-        <option value="$PROJECT_DIR$/src/main/resources/example/linear/circuit.json" />
-        <option value="$PROJECT_DIR$/src/main/resources/index-non-linear.html" />
-        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala" />
         <option value="$PROJECT_DIR$/src/main/resources/example/non-linear/nodemap.json" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" />
+        <option value="$PROJECT_DIR$/src/main/resources/index-linear.html" />
+        <option value="$PROJECT_DIR$/src/main/resources/index-non-linear.html" />
+        <option value="$PROJECT_DIR$/src/main/resources/example/linear/circuit.json" />
         <option value="$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/NewtonRaphson.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala" />
       </list>
     </option>
   </component>
@@ -199,7 +178,7 @@
     <treeState />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-8" />
+    <option name="x" value="1912" />
     <option name="y" value="-8" />
     <option name="width" value="1936" />
     <option name="height" value="1056" />
@@ -229,21 +208,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane">
-        <subPane />
-      </pane>
-      <pane id="Scope">
-        <subPane subId="Problems" />
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -640,6 +604,21 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope">
+        <subPane subId="Problems" />
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scratches" />
+      <pane id="PackagesPane">
+        <subPane />
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -716,11 +695,19 @@
       <option name="SHOW_LOGCAT_AUTOMATICALLY" value="true" />
       <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
       <option name="FORCE_STOP_RUNNING_APP" value="true" />
+      <option name="DEBUGGER_TYPE" value="Java" />
       <option name="USE_LAST_SELECTED_DEVICE" value="false" />
       <option name="PREFERRED_AVD" value="" />
+      <Java />
+      <Profilers>
+        <option name="GAPID_DISABLE_PCS" value="false" />
+      </Profilers>
       <option name="DEEP_LINK" value="" />
       <option name="ACTIVITY_CLASS" value="" />
-      <method />
+      <method>
+        <option name="Make" enabled="true" />
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
       <module name="" />
@@ -736,9 +723,17 @@
       <option name="SHOW_LOGCAT_AUTOMATICALLY" value="true" />
       <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
       <option name="FORCE_STOP_RUNNING_APP" value="true" />
+      <option name="DEBUGGER_TYPE" value="Java" />
       <option name="USE_LAST_SELECTED_DEVICE" value="false" />
       <option name="PREFERRED_AVD" value="" />
-      <method />
+      <Java />
+      <Profilers>
+        <option name="GAPID_DISABLE_PCS" value="false" />
+      </Profilers>
+      <method>
+        <option name="Make" enabled="true" />
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
     </configuration>
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="HTML_USED" value="false" />
@@ -873,19 +868,6 @@
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
-      <method />
-    </configuration>
-    <configuration default="true" type="SbtRunConfiguration" factoryName="SBT Task">
-      <setting name="tasks" value="" />
-      <setting name="vmparams" value="-Xms512M -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M" />
-      <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="ScalaScriptConsoleRunConfiguration" factoryName="Scala Console">
-      <module name="" />
-      <setting name="vmparams4" value="" />
-      <setting name="workingDirectory" value="$PROJECT_DIR$" />
-      <setting name="consoleArgs" value="-usejavacp" />
       <method />
     </configuration>
     <configuration default="true" type="ScalaTestRunConfiguration" factoryName="ScalaTest">
@@ -1081,16 +1063,17 @@
       <option name="project" value="LOCAL" />
       <updated>1467541541076</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator.">
+      <created>1467726556647</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1467726556647</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="MatrixTest - 2016.05.11 at 13h 41m 22s.xml">
-      <configuration name="MatrixTest" configurationId="ScalaTestRunConfiguration" />
-    </history-entry>
-    <history-entry file="MatrixTest - 2016.05.11 at 13h 42m 39s.xml">
-      <configuration name="MatrixTest" configurationId="ScalaTestRunConfiguration" />
-    </history-entry>
     <history-entry file="MatrixTest - 2016.05.11 at 13h 42m 53s.xml">
       <configuration name="MatrixTest" configurationId="ScalaTestRunConfiguration" />
     </history-entry>
@@ -1115,6 +1098,12 @@
     <history-entry file="ScalaTests_in_'java' - 2016.05.17 at 15h 47m 47s.xml">
       <configuration name="ScalaTests in 'java'" configurationId="ScalaTestRunConfiguration" />
     </history-entry>
+    <history-entry file="ScalaTests_in_'scala' - 2016.07.13 at 10h 28m 25s.xml">
+      <configuration name="ScalaTests in 'scala'" configurationId="ScalaTestRunConfiguration" />
+    </history-entry>
+    <history-entry file="ScalaTests_in_'scala' - 2016.07.13 at 10h 29m 57s.xml">
+      <configuration name="ScalaTests in 'scala'" configurationId="ScalaTestRunConfiguration" />
+    </history-entry>
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1126,35 +1115,35 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
+    <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.49520257" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.49520257" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="SBT" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.50479746" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32719395" sideWeight="0.5063966" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.4946695" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28787878" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28710726" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24946696" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24946696" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38786566" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-8" y="-20" width="1936" height="1056" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38786566" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-8" y="-20" width="1936" height="1056" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32719395" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32719395" sideWeight="0.4936034" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" x="92" y="92" width="1736" height="856" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.4968017" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -1177,7 +1166,8 @@
     <MESSAGE value="MNA almost complete.&#10;&#10;Current source implemented (not tested yet). Ground connections made (not tested yet).&#10;&#10;Changes undone from last time: no more inner resistance. Application should either throw an error or try to rectify by including a resistor.&#10;&#10;Could implement&#10;- mix polynomial with exponential inputs&#10;- data point vectors with different times" />
     <MESSAGE value="MNA now complete, including u_C transformations to solve any system. Rudimentary graphing and circuit illustration application.&#10;&#10;Could implement&#10;- mix polynomial with exponential inputs&#10;- data point vectors with different times" />
     <MESSAGE value="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator.&#10;&#10;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator.&#10;&#10;" />
+    <MESSAGE value="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator." />
+    <option name="LAST_COMMIT_MESSAGE" value="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1197,13 +1187,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/scala/JampackNew/Norm.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1004">
-          <caret line="2" column="7" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/excluded/Jampack/Zmat.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
@@ -1360,13 +1343,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="357" column="68" selection-start-line="357" selection-start-column="68" selection-end-line="357" selection-end-column="68" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/project/build.sbt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="32">
@@ -1381,13 +1357,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.sbt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="102" selection-start-line="17" selection-start-column="102" selection-end-line="17" selection-end-column="102" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/scala/JampackNew/MatrixTest.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="64">
@@ -1395,13 +1364,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/target/scala-2.11/classes/example_nodemap.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/target/scala-2.11/classes/example_nodemap.json" />
     <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/Grapher.scala" />
     <entry file="file://$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/MNATest.scala">
       <provider selected="true" editor-type-id="text-editor">
@@ -1414,7 +1377,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="608">
           <caret line="38" column="29" selection-start-line="38" selection-start-column="29" selection-end-line="38" selection-end-column="29" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1422,71 +1384,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="128">
           <caret line="8" column="15" selection-start-line="8" selection-start-column="15" selection-end-line="8" selection-end-column="15" />
-          <folding>
-            <element signature="e#29#70#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="37" column="34" selection-start-line="37" selection-start-column="34" selection-end-line="37" selection-end-column="34" />
-          <folding>
-            <element signature="e#40#81#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/index-linear.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="183" selection-start-line="17" selection-start-column="183" selection-end-line="17" selection-end-column="183" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/example/linear/circuit.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="784">
-          <caret line="71" column="16" selection-start-line="71" selection-start-column="16" selection-end-line="71" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/index-non-linear.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="191" selection-start-line="17" selection-start-column="191" selection-end-line="17" selection-end-column="191" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/example/linear/nodemap.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="816">
-          <caret line="89" column="17" selection-start-line="89" selection-start-column="17" selection-end-line="89" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="592">
-          <caret line="37" column="66" selection-start-line="37" selection-start-column="66" selection-end-line="37" selection-end-column="66" />
-          <folding>
-            <element signature="e#40#76#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="57" column="41" selection-start-line="57" selection-start-column="41" selection-end-line="57" selection-end-column="41" />
-          <folding>
-            <element signature="e#40#59#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1494,24 +1391,95 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="416">
           <caret line="26" column="10" selection-start-line="26" selection-start-column="10" selection-end-line="26" selection-end-column="10" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.sbt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="17" column="102" selection-start-line="17" selection-start-column="102" selection-end-line="17" selection-end-column="102" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="349">
+          <caret line="368" column="17" selection-start-line="364" selection-start-column="66" selection-end-line="368" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/index-linear.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="14" column="63" selection-start-line="14" selection-start-column="63" selection-end-line="14" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/index-non-linear.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="14" column="54" selection-start-line="14" selection-start-column="54" selection-end-line="14" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/example/linear/circuit.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="70" column="5" selection-start-line="70" selection-start-column="5" selection-end-line="70" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/example/linear/nodemap.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1424">
+          <caret line="89" column="17" selection-start-line="89" selection-start-column="17" selection-end-line="89" selection-end-column="17" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="496">
-          <caret line="31" column="26" selection-start-line="31" selection-start-column="26" selection-end-line="31" selection-end-column="26" />
-          <folding />
+        <state relative-caret-position="928">
+          <caret line="58" column="5" selection-start-line="58" selection-start-column="5" selection-end-line="58" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="138" column="63" selection-start-line="138" selection-start-column="63" selection-end-line="138" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-67">
+          <caret line="46" column="87" selection-start-line="46" selection-start-column="87" selection-end-line="46" selection-end-column="87" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/NewtonRaphson.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="15" column="24" selection-start-line="15" selection-start-column="24" selection-end-line="15" selection-end-column="24" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="220" column="5" selection-start-line="220" selection-start-column="5" selection-end-line="220" selection-end-column="5" />
+        <state relative-caret-position="7664">
+          <caret line="484" column="63" selection-start-line="484" selection-start-column="63" selection-end-line="484" selection-end-column="63" />
           <folding>
-            <element signature="e#35#62#0" expanded="true" />
+            <element signature="e#35#72#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="16">
+          <caret line="47" column="61" selection-start-line="47" selection-start-column="61" selection-end-line="47" selection-end-column="61" />
+          <folding>
+            <element signature="e#40#76#0" expanded="true" />
           </folding>
         </state>
       </provider>

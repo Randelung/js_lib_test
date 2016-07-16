@@ -23,7 +23,9 @@ object CircuitIllustrator {
 		val widthFactor = canvas.width / (gridWidth + 1)
 		val heightFactor = canvas.height / (gridHeight + 1)
 		context.beginPath()
+
 		netList.capacitors.foreach(i => {
+
 			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
 			val endVector = Vector2D(widthFactor * elementMap(i.name)._3, heightFactor * elementMap(i.name)._4)
 			val directionalVector = endVector - startVector
@@ -49,6 +51,7 @@ object CircuitIllustrator {
 					directionalVector.perpendicular.normed * 30)
 			}
 		})
+
 		netList.resistors.foreach(i => {
 
 			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
@@ -79,7 +82,9 @@ object CircuitIllustrator {
 				}
 			}
 		})
+
 		netList.inductors.foreach(i => {
+
 			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
 			val endVector = Vector2D(widthFactor * elementMap(i.name)._3, heightFactor * elementMap(i.name)._4)
 			val directionalVector = endVector - startVector
@@ -107,7 +112,36 @@ object CircuitIllustrator {
 			}
 		})
 
+		netList.diodes.foreach(i => {
+
+			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
+			val endVector = Vector2D(widthFactor * elementMap(i.name)._3, heightFactor * elementMap(i.name)._4)
+			val directionalVector = endVector - startVector
+			val width = 10
+			context.moveTo(startVector)
+			context.lineTo(endVector)
+			context.moveTo(startVector + directionalVector * 0.5 + directionalVector.normed * width * 0.866 + directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * width * 0.866 - directionalVector.perpendicular.normed * width)
+			context.stroke()
+			context.beginPath()
+			context.moveTo(startVector + directionalVector * 0.5 + directionalVector.normed * width * 0.866)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * width * 0.866 + directionalVector.perpendicular.normed * width)
+			context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * width * 0.866 - directionalVector.perpendicular.normed * width)
+			context.closePath()
+			context.fill()
+			context.beginPath()
+			if (startVector.y > endVector.y) {
+				context.fillText(i.name, startVector + directionalVector * 0.5 - directionalVector.normed * 8 +
+					directionalVector.perpendicular.normed * 18)
+			}
+			else {
+				context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.normed * 8 -
+					directionalVector.perpendicular.normed * 18)
+			}
+		})
+
 		netList.inputs.foreach(i => {
+
 			val startVector = Vector2D(widthFactor * elementMap(i.name)._1, heightFactor * elementMap(i.name)._2)
 			val endVector = Vector2D(widthFactor * elementMap(i.name)._3, heightFactor * elementMap(i.name)._4)
 			val directionalVector = endVector - startVector
@@ -211,7 +245,9 @@ object CircuitIllustrator {
 					}
 			}
 		})
+
 		netList.grounds.foreach(i => {
+
 			val groundNodeVector = Vector2D(widthFactor * elementMap("g_" + i)._1, heightFactor * elementMap("g_" + i)._2)
 			context.beginPath()
 			context.moveTo(groundNodeVector)
@@ -223,7 +259,9 @@ object CircuitIllustrator {
 			context.moveTo(groundNodeVector +(-2, 18))
 			context.lineTo(groundNodeVector +(2, 18))
 		})
+
 		nodeMap.values.foreach(i => {
+
 			if (i.length > 1) {
 				context.moveTo(widthFactor * i.head._1, heightFactor * i.head._2)
 				for (j <- 1 until i.length) {

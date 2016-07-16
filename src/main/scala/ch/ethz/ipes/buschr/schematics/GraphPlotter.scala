@@ -78,8 +78,8 @@ class GraphPlotter(canvas: html.Canvas, startX: Double, endX: Double, startY: Do
 				zeroVector = Vector2D(leftMargin, canvas.height - bottomMargin)
 			}
 			else {
-				maxValue = results.withFilter(i => enabled(results.indexOf(i))).map(_.max).max * 1.1
-				minValue = results.withFilter(i => enabled(results.indexOf(i))).map(_.min).min * 1.1
+				maxValue = results.withFilter(i => enabled(results.indexOf(i))).map(_.max).max
+				minValue = results.withFilter(i => enabled(results.indexOf(i))).map(_.min).min
 				if (minValue > 0) {
 					zeroVector = Vector2D(leftMargin, canvas.height - bottomMargin)
 				}
@@ -87,7 +87,7 @@ class GraphPlotter(canvas: html.Canvas, startX: Double, endX: Double, startY: Do
 					zeroVector = Vector2D(leftMargin, topMargin)
 				}
 				else {
-					zeroVector = Vector2D(leftMargin, canvas.height - bottomMargin - minValue.abs * (canvas.height - topMargin - bottomMargin) / (maxValue - minValue))
+					zeroVector = Vector2D(leftMargin, canvas.height - bottomMargin - minValue.abs * (canvas.height - topMargin - bottomMargin - 20) / (maxValue - minValue) - 10)
 				}
 			}
 		}
@@ -97,7 +97,7 @@ class GraphPlotter(canvas: html.Canvas, startX: Double, endX: Double, startY: Do
 	private def redrawData(): Unit = {
 
 		context.clearRect(0, 0, canvas.width, canvas.height)
-		val horizontalScale = (canvas.height - topMargin - bottomMargin) / (maxValue - minValue)
+		val horizontalScale = (canvas.height - topMargin - bottomMargin - 20) / (maxValue - minValue)
 		context.textAlign = "start"
 		for (i <- results.indices) {
 			if (enabled(i)) {
@@ -107,10 +107,10 @@ class GraphPlotter(canvas: html.Canvas, startX: Double, endX: Double, startY: Do
 				for (j <- 1 until results(i).length) {
 					context.lineTo(leftMargin + j, zeroVector.y - results(i)(j) * horizontalScale)
 				}
-				context.moveTo(leftMargin + 10 + i * 80, canvas.height - bottomMargin - 4)
-				context.lineTo(leftMargin + 30 + i * 80, canvas.height - bottomMargin - 4)
+				context.moveTo(leftMargin + 10 + i * 80, canvas.height - bottomMargin + 10)
+				context.lineTo(leftMargin + 30 + i * 80, canvas.height - bottomMargin + 10)
 				context.stroke()
-				context.fillText(names(i), leftMargin + 35 + i * 80, canvas.height - bottomMargin)
+				context.fillText(names(i), leftMargin + 35 + i * 80, canvas.height - bottomMargin + 14)
 			}
 		}
 		redrawAxes()

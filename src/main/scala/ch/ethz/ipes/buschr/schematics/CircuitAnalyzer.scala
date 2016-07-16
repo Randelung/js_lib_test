@@ -1,7 +1,7 @@
 package ch.ethz.ipes.buschr.schematics
 
 import ch.ethz.ipes.buschr.maths.MNA
-import ch.ethz.ipes.buschr.maths.MNA.NetList
+import ch.ethz.ipes.buschr.maths.MNA.{NetList, Resistor}
 import org.scalajs.dom.{Event, XMLHttpRequest, html}
 
 import scala.scalajs.js
@@ -34,9 +34,18 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 				xhr.open("GET", urlNodemap, async = true)
 				xhr.send()
 			}
-
-			CircuitAnalyzer.mna = new MNA(CircuitAnalyzer.netlist)
 			CircuitAnalyzer.graph = GraphPlotter(canvasGraph, 8 * math.Pi)
+
+			CircuitAnalyzer.MNATreeRoot = CircuitAnalyzer.MNATree(CircuitAnalyzer.netlist, parent = null, diodeConducting = null, diodeBlocking = null)
+
+			buildTree(CircuitAnalyzer.MNATreeRoot)
+
+			var temp = CircuitAnalyzer.MNATreeRoot
+			while (temp.diodeBlocking != null) {
+				temp = temp.diodeBlocking
+			}
+			CircuitAnalyzer.mna = temp.mna
+			CircuitAnalyzer.mna.applyStartingConditions(null)
 		}
 	}
 	xhr.open("GET", urlNetlist, async = true)
@@ -53,6 +62,24 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 	canvasGraph.height = canvasGraph.getBoundingClientRect().height.toInt
 	canvasGraph.width = canvasGraph.getBoundingClientRect().width.toInt
 	val canvasReady = true
+
+	def buildTree(curretNode: CircuitAnalyzer.MNATree): Unit = {
+
+		if (curretNode.netlist.diodes.nonEmpty) {
+			val netlistConducting = curretNode.netlist.copy
+			val netlistBlocking = curretNode.netlist.copy
+			netlistConducting.resistors += Resistor(netlistConducting.diodes.head.name, netlistConducting.diodes.head.startNode,
+				netlistConducting.diodes.head.endNode, 0)
+			netlistBlocking.resistors += Resistor(netlistBlocking.diodes.head.name, netlistBlocking.diodes.head.startNode,
+				netlistBlocking.diodes.head.endNode, 1e15)
+			netlistConducting.diodes.remove(0)
+			netlistBlocking.diodes.remove(0)
+			curretNode.diodeBlocking = CircuitAnalyzer.MNATree(netlistBlocking, curretNode, null, null)
+			curretNode.diodeConducting = CircuitAnalyzer.MNATree(netlistConducting, curretNode, null, null)
+			buildTree(curretNode.diodeConducting)
+			buildTree(curretNode.diodeBlocking)
+		}
+	}
 }
 
 @JSExport("button")
@@ -61,6 +88,7 @@ object CircuitAnalyzer {
 	var mna: MNA = _
 	var graph: GraphPlotter = _
 	var netlist: NetList = _
+	var MNATreeRoot: MNATree = _
 
 	def elementMapFromJSON(json: String): (Int, Int, Map[String, (Int, Int, Int, Int)], Map[Int, js.Array[(Int, Int)]]) = {
 
@@ -76,6 +104,11 @@ object CircuitAnalyzer {
 				i.locations.asInstanceOf[js.Array[js.Dynamic]].map(j => (j.x.asInstanceOf[Int], j.y.asInstanceOf[Int]))
 		})
 		(parsedJSON.grid.width.asInstanceOf[Int], parsedJSON.grid.height.asInstanceOf[Int], elementMap, nodeMap)
+	}
+
+	case class MNATree(netlist: NetList, parent: MNATree, var diodeConducting: MNATree, var diodeBlocking: MNATree) {
+
+		lazy val mna = new MNA(netlist)
 	}
 
 	private var button1pressed = 0
@@ -142,6 +175,40 @@ object CircuitAnalyzer {
 				2
 			case 2 =>
 				graph.enableFunction("i_" + netlist.inductors.head.name)
+				1
+		}
+	}
+
+	private var button5pressed = 0
+
+	@JSExport
+	def button5(): Unit = {
+		button5pressed = button5pressed match {
+			case 0 =>
+				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.derivedElementVoltage(netlist.inductors.head, t), "du_" + netlist.inductors.head.name + "/dt")
+				1
+			case 1 =>
+				graph.disableFunction("du_" + netlist.inductors.head.name + "/dt")
+				2
+			case 2 =>
+				graph.enableFunction("du_" + netlist.inductors.head.name + "/dt")
+				1
+		}
+	}
+
+	private var button6pressed = 0
+
+	@JSExport
+	def button6(): Unit = {
+		button6pressed = button6pressed match {
+			case 0 =>
+				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.derivedElementCurrent(netlist.inductors.head, t), "di_" + netlist.inductors.head.name + "/dt")
+				1
+			case 1 =>
+				graph.disableFunction("di_" + netlist.inductors.head.name + "/dt")
+				2
+			case 2 =>
+				graph.enableFunction("di_" + netlist.inductors.head.name + "/dt")
 				1
 		}
 	}
