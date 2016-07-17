@@ -5,16 +5,16 @@
     <option name="SCOPE_TYPE" value="3" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d40b7c0b-c8ba-4869-8a54-fc320b72c0a0" name="Default" comment="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/example/non-linear/nodemap.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/index-non-linear.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/NewtonRaphson.scala" />
+    <list default="true" id="d40b7c0b-c8ba-4869-8a54-fc320b72c0a0" name="Default" comment="Diodes working now. Regular switches are a pain. Not sure if I'll include.">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/example/rectifier/circuit.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/example/rectifier/nodemap.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/index-rectifier.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_scala_lang_scala_library_2_11_8_jar.xml" afterPath="$PROJECT_DIR$/.idea/libraries/SBT__org_scala_lang_scala_library_2_11_8_jar.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/js_lib_test.iml" afterPath="$PROJECT_DIR$/.idea/modules/js_lib_test.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/example/linear/circuit.json" afterPath="$PROJECT_DIR$/src/main/resources/example/linear/circuit.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/index-linear.html" afterPath="$PROJECT_DIR$/src/main/resources/index-linear.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.sbt" afterPath="$PROJECT_DIR$/build.sbt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json" afterPath="$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/resources/index-non-linear.html" afterPath="$PROJECT_DIR$/src/main/resources/index-non-linear.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala" afterPath="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala" />
@@ -62,32 +62,7 @@
     <favorites_list name="Example" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="CircuitAnalyzer.scala" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="16">
-              <caret line="47" column="61" selection-start-line="47" selection-start-column="61" selection-end-line="47" selection-end-column="61" />
-              <folding>
-                <element signature="e#40#76#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MNA.scala" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7664">
-              <caret line="484" column="63" selection-start-line="484" selection-start-column="63" selection-end-line="484" selection-end-column="63" />
-              <folding>
-                <element signature="e#35#72#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -113,9 +88,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/Jampack/Zhess.java" />
-        <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zhess.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Zhqrd.scala" />
         <option value="$PROJECT_DIR$/src/main/java/Jampack/Eig.java" />
         <option value="$PROJECT_DIR$/src/main/java/Jampack/Schur.java" />
         <option value="$PROJECT_DIR$/src/main/scala/JampackNew/Schur.scala" />
@@ -144,7 +116,6 @@
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/Main.scala" />
         <option value="$PROJECT_DIR$/src/main/resources/example.json" />
         <option value="$PROJECT_DIR$/project/build.sbt" />
-        <option value="$PROJECT_DIR$/build.sbt" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/Grapher.scala" />
         <option value="$PROJECT_DIR$/src/test/scala/ch/ethz/ipes/buschr/maths/MNATest.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/package.scala" />
@@ -154,16 +125,20 @@
         <option value="$PROJECT_DIR$/src/main/resources/example/circuit.json" />
         <option value="$PROJECT_DIR$/src/main/resources/index-dev.html" />
         <option value="$PROJECT_DIR$/src/main/resources/example/non-linear/nodemap.json" />
-        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" />
         <option value="$PROJECT_DIR$/src/main/resources/index-linear.html" />
-        <option value="$PROJECT_DIR$/src/main/resources/index-non-linear.html" />
         <option value="$PROJECT_DIR$/src/main/resources/example/linear/circuit.json" />
-        <option value="$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json" />
-        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/NewtonRaphson.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" />
+        <option value="$PROJECT_DIR$/src/main/resources/index-non-linear.html" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala" />
+        <option value="$PROJECT_DIR$/build.sbt" />
+        <option value="$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json" />
         <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala" />
+        <option value="$PROJECT_DIR$/src/main/resources/example/rectifier/circuit.json" />
+        <option value="$PROJECT_DIR$/src/main/resources/example/rectifier/nodemap.json" />
+        <option value="$PROJECT_DIR$/src/main/resources/index-rectifier.html" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala" />
       </list>
     </option>
   </component>
@@ -208,6 +183,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -360,40 +336,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="GraphPlotter.scala" />
-              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="DiffSolver" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="js_lib_test" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scala" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="buschr" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="schematics" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="CircuitAnalyzer.scala" />
               <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
             </PATH_ELEMENT>
@@ -487,6 +429,40 @@
               <option name="myItemId" value="buschr" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="maths" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="DiffEquation.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="DiffSolver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js_lib_test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="buschr" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -507,6 +483,36 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="resources" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="DiffSolver" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js_lib_test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="resources" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="example" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="rectifier" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -604,6 +610,9 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="PackagesPane">
+        <subPane />
+      </pane>
       <pane id="Scope">
         <subPane subId="Problems" />
         <subPane subId="Project Files">
@@ -615,14 +624,10 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="PackagesPane">
-        <subPane />
-      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics" />
@@ -656,23 +661,26 @@
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="org.scalatest.FlatSpec" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\resources" />
+      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\resources\example" />
+      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\java\excluded" />
+      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\scala\excluded" />
+    </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="ch.ethz.ipes.buschr.maths" />
       <recent name="jama" />
       <recent name="ch.ethz.ipes.buschr.schematics.test" />
       <recent name="ch.ethz.ipes.buschr.schematics.facades" />
     </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\resources" />
-      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\scala\JampackNew" />
-    </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="org.netlib.lapack" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\resources\example" />
-      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\java\excluded" />
-      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\scala\excluded" />
+      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\resources\example\rectifier" />
+      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\resources" />
+      <recent name="D:\Desktop\master_thesis\js_lib_test\src\main\scala\JampackNew" />
     </key>
   </component>
   <component name="RunManager">
@@ -704,10 +712,7 @@
       </Profilers>
       <option name="DEEP_LINK" value="" />
       <option name="ACTIVITY_CLASS" value="" />
-      <method>
-        <option name="Make" enabled="true" />
-        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-      </method>
+      <method />
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
       <module name="" />
@@ -730,10 +735,7 @@
       <Profilers>
         <option name="GAPID_DISABLE_PCS" value="false" />
       </Profilers>
-      <method>
-        <option name="Make" enabled="true" />
-        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-      </method>
+      <method />
     </configuration>
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="HTML_USED" value="false" />
@@ -973,7 +975,7 @@
     </configuration>
   </component>
   <component name="SbtLocalSettings">
-    <option name="lastUpdateTimestamp" value="1467228692929" />
+    <option name="lastUpdateTimestamp" value="1468789017402" />
     <option name="availableProjects">
       <map>
         <entry>
@@ -1070,7 +1072,14 @@
       <option name="project" value="LOCAL" />
       <updated>1467726556647</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Drawing diodes, replacing them with resistors (either very large or 0)">
+      <created>1468668285743</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1468668285743</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1120,6 +1129,7 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.49520257" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32719395" sideWeight="0.4936034" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="SBT" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1130,7 +1140,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28710726" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24946696" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24946696" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1140,7 +1150,6 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32719395" sideWeight="0.4936034" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" x="92" y="92" width="1736" height="856" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1167,7 +1176,9 @@
     <MESSAGE value="MNA now complete, including u_C transformations to solve any system. Rudimentary graphing and circuit illustration application.&#10;&#10;Could implement&#10;- mix polynomial with exponential inputs&#10;- data point vectors with different times" />
     <MESSAGE value="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator.&#10;&#10;" />
     <MESSAGE value="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator." />
-    <option name="LAST_COMMIT_MESSAGE" value="Basic graphing application (example package). Linear example working, with auto-adjusting graph, plot enabling and disabling buttons, and of course a circuit illustrator." />
+    <MESSAGE value="Drawing diodes, replacing them with resistors (either very large or 0)" />
+    <MESSAGE value="Diodes working now. Regular switches are a pain. Not sure if I'll include." />
+    <option name="LAST_COMMIT_MESSAGE" value="Diodes working now. Regular switches are a pain. Not sure if I'll include." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -1187,23 +1198,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/excluded/Jampack/Zmat.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="20" column="20" selection-start-line="20" selection-start-column="20" selection-end-line="20" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/excluded/Jampack/Norm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-48">
-          <caret line="12" column="13" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Jama/Matrix.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/Jama/SingularValueDecomposition.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/Jama/util/Maths.java" />
     <entry file="file://$PROJECT_DIR$/src/main/scala/JampackNew/Solve.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="32">
@@ -1343,13 +1337,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/build.sbt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="32">
-          <caret line="2" column="51" selection-start-line="2" selection-start-column="51" selection-end-line="2" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/project/build.properties">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1394,31 +1381,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.sbt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="102" selection-start-line="17" selection-start-column="102" selection-end-line="17" selection-end-column="102" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="349">
-          <caret line="368" column="17" selection-start-line="364" selection-start-column="66" selection-end-line="368" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/resources/index-linear.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="224">
           <caret line="14" column="63" selection-start-line="14" selection-start-column="63" selection-end-line="14" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/index-non-linear.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="14" column="54" selection-start-line="14" selection-start-column="54" selection-end-line="14" selection-end-column="54" />
         </state>
       </provider>
     </entry>
@@ -1436,27 +1402,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="928">
-          <caret line="58" column="5" selection-start-line="58" selection-start-column="5" selection-end-line="58" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="138" column="63" selection-start-line="138" selection-start-column="63" selection-end-line="138" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-67">
-          <caret line="46" column="87" selection-start-line="46" selection-start-column="87" selection-end-line="46" selection-end-column="87" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/NewtonRaphson.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
@@ -1464,23 +1409,113 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$USER_HOME$/.ivy2/cache/org.scala-js/scalajs-dom_sjs0.6_2.11/srcs/scalajs-dom_sjs0.6_2.11-0.8.2-sources.jar!/org/scalajs/dom/raw/lib.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="322">
+          <caret line="1942" column="5" selection-start-line="1942" selection-start-column="5" selection-end-line="1942" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/index-opt.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/index-non-linear.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="256">
+          <caret line="16" column="48" selection-start-line="16" selection-start-column="48" selection-end-line="16" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/project/build.sbt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="2" column="51" selection-start-line="2" selection-start-column="51" selection-end-line="2" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/DiffEquation.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4193">
+          <caret line="163" column="20" selection-start-line="163" selection-start-column="20" selection-end-line="163" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.sbt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="19" column="27" selection-start-line="19" selection-start-column="27" selection-end-line="19" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/example/non-linear/circuit.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="496">
+          <caret line="31" column="26" selection-start-line="31" selection-start-column="26" selection-end-line="31" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitIllustrator.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="557">
+          <caret line="239" column="121" selection-start-line="239" selection-start-column="121" selection-end-line="239" selection-end-column="121" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/example/rectifier/nodemap.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="7" column="29" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/example/rectifier/circuit.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="48">
+          <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/index-rectifier.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="9" column="50" selection-start-line="9" selection-start-column="50" selection-end-line="9" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/maths/MNA.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7664">
-          <caret line="484" column="63" selection-start-line="484" selection-start-column="63" selection-end-line="484" selection-end-column="63" />
-          <folding>
-            <element signature="e#35#72#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="560">
+          <caret line="424" column="22" selection-start-line="424" selection-start-column="22" selection-end-line="424" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/GraphPlotter.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="381">
+          <caret line="80" column="38" selection-start-line="80" selection-start-column="38" selection-end-line="80" selection-end-column="38" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/ch/ethz/ipes/buschr/schematics/CircuitAnalyzer.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="16">
-          <caret line="47" column="61" selection-start-line="47" selection-start-column="61" selection-end-line="47" selection-end-column="61" />
-          <folding>
-            <element signature="e#40#76#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="605">
+          <caret line="93" column="60" selection-start-line="93" selection-start-column="60" selection-end-line="93" selection-end-column="60" />
+          <folding />
         </state>
       </provider>
     </entry>

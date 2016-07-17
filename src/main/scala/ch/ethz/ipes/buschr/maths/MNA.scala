@@ -1,7 +1,6 @@
 package ch.ethz.ipes.buschr.maths
 
-import JampackNew.{Z, Zdiagmat, Zmat}
-import ch.ethz.ipes.buschr.maths.MNA.NetList
+import JampackNew.{Eye, Z, Zdiagmat, Zmat}
 
 import scala.collection.mutable.ListBuffer
 import scala.scalajs.js
@@ -12,9 +11,24 @@ import scala.scalajs.js.JSON
   * @param netlist Netlist to parse into a DAE system
   * @author Randolph Busch
   */
-class MNA(private val netlist: MNA.NetList) {
+//noinspection ConvertNullInitializerToUnderscore
+class MNA(val netlist: MNA.NetList) {
 
 	private var _netlist = netlist.copy
+
+	private var P: Zmat = null
+	private var Ptranspose: Zmat = null
+	private var Q: Zmat = null
+	private var S: Zmat = null
+	private var T: Zmat = null
+	private var PAQinv: Zmat = null
+	private var SBTinv: Zmat = null
+	private var PBT: Zmat = null
+	private var SBQ: Zmat = null
+	private var M: Zmat = null
+	private var u: Zmat = null
+	private var diffEquation: DiffEquation = null
+	private var QmTSBTinvSBQ: Zmat = null
 
 	// enumerate nodes. nodes in the NetList don't necessarily correspond to IDs given here, since they could be anything
 	// as long as they are consistent
@@ -236,48 +250,84 @@ class MNA(private val netlist: MNA.NetList) {
 		}
 	}
 
-	private var P = new Zmat(row.length, A.ncol)
-	private var Q = new Zmat(A.nrow, col.length)
-	for (i <- row.indices) {
-		P(i, row(i)) = 1
-	}
-	for (i <- col.indices) {
-		Q(col(i), i) = 1
-	}
+	if (col.nonEmpty && col.length < A.nrow) {
+		// netlist is DAE system
 
-	private var S = new Zmat(A.nrow - row.length, A.ncol)
-	private var T = new Zmat(A.nrow, A.ncol - col.length)
-	j = 0
-	private var Ptranspose = P.transpose
-	for (i <- 0 until P.ncol) {
-		if (Ptranspose(i).forall(_ == Z(0, 0))) {
-			S(j, i) = 1
-			j += 1
+		P = new Zmat(row.length, A.ncol)
+		Q = new Zmat(A.nrow, col.length)
+		for (i <- row.indices) {
+			P(i, row(i)) = 1
 		}
-	}
-	j = 0
-	for (i <- 0 until Q.nrow) {
-		if (Q(i).forall(_ == Z(0, 0))) {
-			T(i, j) = 1
-			j += 1
+		for (i <- col.indices) {
+			Q(col(i), i) = 1
 		}
+
+		S = new Zmat(A.nrow - row.length, A.ncol)
+		T = new Zmat(A.nrow, A.ncol - col.length)
+		j = 0
+		Ptranspose = P.transpose
+		for (i <- 0 until P.ncol) {
+			if (Ptranspose(i).forall(_ == Z(0, 0))) {
+				S(j, i) = 1
+				j += 1
+			}
+		}
+		j = 0
+		for (i <- 0 until Q.nrow) {
+			if (Q(i).forall(_ == Z(0, 0))) {
+				T(i, j) = 1
+				j += 1
+			}
+		}
+		PAQinv = (P * A * Q).inv
+		SBTinv = (S * B * T).inv
+		PBT = P * B * T
+		SBQ = S * B * Q
+
+		M = PAQinv * (-P * B * Q + PBT * SBTinv * SBQ)
+		u = -PAQinv * PBT * SBTinv * S * U1
+
+		diffEquation = new DiffEquation(M)
+		diffEquation.applyInhomogeneity(u, U2)
+
+		QmTSBTinvSBQ = Q - T * SBTinv * SBQ
 	}
-	private var PAQinv = (P * A * Q).inv
-	private var SBTinv = (S * B * T).inv
-	private var PBT = P * B * T
-	private var SBQ = S * B * Q
+	else if (col.length == A.nrow) {
+		// netlist is pure ODE
 
-	private var M = PAQinv * (-P * B * Q + PBT * SBTinv * SBQ)
-	private var u = -PAQinv * PBT * SBTinv * S * U1
+		P = Eye.o(A.nrow)
+		Q = Eye.o(A.nrow)
+	}
+	else {
+		// netlist is pure linear
+		S = Eye.o(A.nrow)
+		T = Eye.o(A.nrow)
+	}
 
-	private var diffEquation = new DiffEquation(M)
-	diffEquation.applyInhomogeneity(u, U2)
+	private var _appliedDataPoint = false
 
-	private var QmTSBTinvSBQ = Q - T * SBTinv * SBQ
+	def appliedDataPoint = _appliedDataPoint
 
-	var appliedStartingConditions = false
+	def applyDataPoint(t: Double, dataVector: Array[Double]): Unit = {
+		if (diffEquation == null) {
+			_appliedDataPoint = true
+			return
+		}
+
+		if (dataVector == null) {
+			diffEquation.applyDataPoint(t, Array.fill(P.nrow)(0d))
+		}
+		else {
+			diffEquation.applyDataPoint(t, dataVector)
+		}
+		_appliedDataPoint = true
+	}
 
 	def applyStartingConditions(startingConditions: Array[Double]): Unit = {
+		if (diffEquation == null) {
+			_appliedDataPoint = true
+			return
+		}
 
 		if (startingConditions == null) {
 			diffEquation.applyStartingConditions(Array.fill(P.nrow)(0))
@@ -285,65 +335,100 @@ class MNA(private val netlist: MNA.NetList) {
 		else {
 			diffEquation.applyStartingConditions(startingConditions)
 		}
-		appliedStartingConditions = true
+		_appliedDataPoint = true
 	}
 
 	def getStateVector(t: Double): Array[Double] = {
-		require(appliedStartingConditions, "Need starting conditions first.")
+		require(_appliedDataPoint, "Need starting conditions first.")
 
-		if (_netlist.inputs.head.inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
-			((QmTSBTinvSBQ * diffEquation.solutionVector(t)) +
-				(T * SBTinv * S * U1 * new Zmat(U2.getZ.map(_.map(i => (i * t).exp))))).re.map(_.head)
+		if (diffEquation != null) {
+			diffEquation.solutionVector(t).getZ.map(_.head.re)
 		}
 		else {
-			val array = Array.tabulate(U1.ncol)(i => Array(math.pow(t, i)))
-			val array2 = Array.fill(U1.ncol, 1)(0d)
-			(QmTSBTinvSBQ * diffEquation.solutionVector(t) +
-				T * SBTinv * S * U1 * new Zmat(array, array2)).re.map(_.head)
+			null
 		}
 	}
 
 	private def solution(t: Double, index: Int): Double = {
 		require(index >= 0 && index < A.nrow, "Index must be positive integer in the size bounds.")
-		require(appliedStartingConditions, "Need starting conditions first.")
-		// x = Q * x_diff + T * x_linear
-		// x_linear = -inv(S B T) S B Q x_diff + inv(S B T) S b
-		if (_netlist.inputs.head.inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
-			(QmTSBTinvSBQ.get(index, index, 0, Q.ncol - 1) * diffEquation.solutionVector(t)) (0, 0).re +
-				(T.get(index, index, 0, S.nrow - 1) * SBTinv * S * U1 * new Zmat(U2.getZ.map(_.map(i => (i * t).exp)))) (0, 0).re
+		require(_appliedDataPoint, "Need starting conditions first.")
+
+		if (col.nonEmpty && col.length < A.nrow) {
+			// x = Q * x_diff + T * x_linear
+			// x_linear = -inv(S B T) S B Q x_diff + inv(S B T) S b
+			if (_netlist.inputs.head.inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
+				(QmTSBTinvSBQ.get(index, index, 0, Q.ncol - 1) * diffEquation.solutionVector(t)) (0, 0).re +
+					(T.get(index, index, 0, S.nrow - 1) * SBTinv * S * U1 * new Zmat(U2.getZ.map(_.map(i => (i * t).exp)))) (0, 0).re
+			}
+			else {
+				val array = Array.tabulate(U1.ncol)(i => Array(math.pow(t, i)))
+				val array2 = Array.fill(U1.ncol, 1)(0d)
+				(QmTSBTinvSBQ.get(index, index, 0, Q.ncol - 1) * diffEquation.solutionVector(t)) (0, 0).re +
+					(T.get(index, index, 0, S.nrow - 1) * SBTinv * S * U1 * new Zmat(array, array2)) (0, 0).re
+			}
+		}
+		else if (col.length == A.nrow) {
+			// no linear parts, S and T are empty
+			// x = Q * x_diff
+			(Q.get(index, index, 0, Q.ncol - 1) * diffEquation.solutionVector(t)) (0, 0).re
 		}
 		else {
-			val array = Array.tabulate(U1.ncol)(i => Array(math.pow(t, i)))
-			val array2 = Array.fill(U1.ncol, 1)(0d)
-			(QmTSBTinvSBQ.get(index, index, 0, Q.ncol - 1) * diffEquation.solutionVector(t)) (0, 0).re +
-				(T.get(index, index, 0, S.nrow - 1) * SBTinv * S * U1 * new Zmat(array, array2)) (0, 0).re
+			// no diff parts, P and Q are empty.
+			// x = inv(B) * b
+			if (_netlist.inputs.head.inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
+				(B.inv.get(index, index, 0, B.nrow - 1) * U1 * new Zmat(U2.getZ.map(_.map(i => (i * t).exp)))) (0, 0).re
+			}
+			else {
+				val array = Array.tabulate(U1.ncol)(i => Array(math.pow(t, i)))
+				val array2 = Array.fill(U1.ncol, 1)(0d)
+				(B.inv.get(index, index, 0, B.nrow - 1) * U1 * new Zmat(array, array2)) (0, 0).re
+			}
 		}
 	}
 
 	private def derivedSolution(t: Double, index: Int): Double = {
 		require(index >= 0 && index < A.nrow, "Index must be positive integer in the size bounds.")
-		require(appliedStartingConditions, "Need starting conditions first.")
+		require(_appliedDataPoint, "Need starting conditions first.")
 
-		if (_netlist.inputs.head.inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
-			(QmTSBTinvSBQ.get(index, index, 0, Q.ncol - 1) * diffEquation.derivedSolutionVector(t)) (0, 0).re +
-				(T.get(index, index, 0, S.nrow - 1) * SBTinv * S * U1 * new Zdiagmat(U2.getZ.map(_.head.re), U2.getZ.map(_.head.im)) *
-					new Zmat(U2.getZ.map(_.map(i => (i * t).exp)))) (0, 0).re
+		if (col.nonEmpty && col.length < A.nrow) {
+			if (_netlist.inputs.head.inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
+				(QmTSBTinvSBQ.get(index, index, 0, Q.ncol - 1) * diffEquation.derivedSolutionVector(t)) (0, 0).re +
+					(T.get(index, index, 0, S.nrow - 1) * SBTinv * S * U1 * new Zdiagmat(U2.getZ.map(_.head.re), U2.getZ.map(_.head.im)) *
+						new Zmat(U2.getZ.map(_.map(i => (i * t).exp)))) (0, 0).re
+			}
+			else {
+				val array = Array.tabulate(U1.ncol)(i => Array(math.pow(t, i)))
+				val array2 = Array.fill(U1.ncol, 1)(0d)
+				val diffMatrix = new Zmat(U1.ncol, U1.ncol)
+				for (i <- 1 until U1.ncol) {
+					diffMatrix(i, i - 1) = i
+				}
+				(QmTSBTinvSBQ.get(index, index, 0, Q.ncol - 1) * diffEquation.derivedSolutionVector(t)) (0, 0).re +
+					(T.get(index, index, 0, S.nrow - 1) * SBTinv * S * U1 * diffMatrix * new Zmat(array, array2)) (0, 0).re
+			}
+		}
+		else if (col.length == A.nrow) {
+			// no linear parts, S and T are empty
+			(Q.get(index, index, 0, Q.ncol - 1) * diffEquation.derivedSolutionVector(t)) (0, 0).re
 		}
 		else {
-			val array = Array.tabulate(U1.ncol)(i => Array(math.pow(t, i)))
-			val array2 = Array.fill(U1.ncol, 1)(0d)
-			val diffMatrix = new Zmat(U1.ncol, U1.ncol)
-			for (i <- 1 until U1.ncol) {
-				diffMatrix(i, i - 1) = i
+			if (_netlist.inputs.head.inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
+				(B.inv.get(index, index, 0, B.nrow - 1) * U1 * new Zdiagmat(U2.getZ.map(_.head.re), U2.getZ.map(_.head.im)) * new Zmat(U2.getZ.map(_.map(i => (i * t).exp)))) (0, 0).re
 			}
-			(QmTSBTinvSBQ.get(index, index, 0, Q.ncol - 1) * diffEquation.derivedSolutionVector(t)) (0, 0).re +
-				(T.get(index, index, 0, S.nrow - 1) * SBTinv * S * U1 * diffMatrix * new Zmat(array, array2)) (0, 0).re
+			else {
+				val array = Array.tabulate(U1.ncol)(i => Array(math.pow(t, i)))
+				val array2 = Array.fill(U1.ncol, 1)(0d)
+				val diffArray = new Zmat(Array.ofDim[Double](U1.ncol, U1.ncol), array2)
+				for (i <- 1 until diffArray.nrow) {
+					diffArray(i, i - 1) = i
+				}
+				(B.inv.get(index, index, 0, B.nrow - 1) * U1 * diffArray * new Zmat(array, array2)) (0, 0).re
+			}
 		}
 	}
 
 	override def clone(): MNA = {
-		val copy = new MNA(new NetList(js.Array(), js.Array(), js.Array(), js.Array(), js.Array(), js.Array()))
-		copy._netlist = _netlist.copy
+		val copy = new MNA(_netlist)
 		copy.nodes = nodes.clone()
 		copy.j = j
 		copy.vectorLength = vectorLength
@@ -355,100 +440,91 @@ class MNA(private val netlist: MNA.NetList) {
 		copy.col = col.clone()
 		copy.row = row.clone()
 		copy.Atranspose = Atranspose.clone()
-		copy.P = P.clone()
-		copy.Q = Q.clone()
-		copy.S = S.clone()
-		copy.T = T.clone()
-		copy.Ptranspose = Ptranspose.clone()
-		copy.PAQinv = PAQinv.clone()
-		copy.SBTinv = SBTinv.clone()
-		copy.PBT = PBT.clone()
-		copy.SBQ = SBQ.clone()
-		copy.M = M.clone()
-		copy.u = u.clone()
-		copy.diffEquation = diffEquation.clone()
-		copy.QmTSBTinvSBQ = QmTSBTinvSBQ.clone()
+		copy.P = if (P == null) null else P.clone()
+		copy.Q = if (Q == null) null else Q.clone()
+		copy.S = if (S == null) null else S.clone()
+		copy.T = if (T == null) null else T.clone()
+		copy.Ptranspose = if (Ptranspose == null) null else Ptranspose.clone()
+		copy.PAQinv = if (PAQinv == null) null else PAQinv.clone()
+		copy.SBTinv = if (SBTinv == null) null else SBTinv.clone()
+		copy.PBT = if (PBT == null) null else PBT.clone()
+		copy.SBQ = if (SBQ == null) null else SBQ.clone()
+		copy.M = if (M == null) null else M.clone()
+		copy.u = if (u == null) null else u.clone()
+		copy.diffEquation = if (diffEquation == null) null else diffEquation.clone()
+		copy.QmTSBTinvSBQ = if (QmTSBTinvSBQ == null) null else QmTSBTinvSBQ.clone()
+		copy._appliedDataPoint = _appliedDataPoint
 		copy
 	}
 
-	def elementVoltage(element: MNA.Capacitor, t: Double): Double = {
-		require(_netlist.capacitors.contains(element), "Element not in netlist.")
+	def elementVoltage(element: MNA.Element, t: Double): Double = {
+		element match {
+			case _: MNA.Capacitor =>
+				require(_netlist.capacitors.contains(element), "Element not in netlist.")
+			case _: MNA.Inductor =>
+				require(_netlist.inductors.contains(element), "Element not in netlist.")
+			case _: MNA.Resistor =>
+				require(_netlist.resistors.contains(element), "Element not in netlist.")
+			case _: MNA.Input =>
+				require(_netlist.inputs.contains(element), "Element not in netlist.")
+			case _ =>
+				throw new IllegalArgumentException("Unknown element type.")
+		}
 		solution(t, nodes.indexOf(element.startNode)) - solution(t, nodes.indexOf(element.endNode))
 	}
 
-	def elementVoltage(element: MNA.Resistor, t: Double): Double = {
-		require(_netlist.resistors.contains(element), "Element not in netlist.")
-		solution(t, nodes.indexOf(element.startNode)) - solution(t, nodes.indexOf(element.endNode))
+	def elementCurrent(element: MNA.Element, t: Double): Double = {
+		element match {
+			case _: MNA.Capacitor =>
+				require(_netlist.capacitors.contains(element), "Element not in netlist.")
+				solution(t, nodes.length + _netlist.capacitors.length + _netlist.capacitors.indexOf(element))
+			case _: MNA.Resistor =>
+				require(_netlist.resistors.contains(element), "Element not in netlist.")
+				solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.indexOf(element))
+			case _: MNA.Inductor =>
+				require(_netlist.inductors.contains(element), "Element not in netlist.")
+				solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.indexOf(element))
+			case _: MNA.Input =>
+				require(_netlist.inputs.contains(element), "Element not in netlist.")
+				solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + _netlist.inputs.indexOf(element))
+			case _ =>
+				throw new IllegalArgumentException("Unknown element type.")
+		}
 	}
 
-	def elementVoltage(element: MNA.Inductor, t: Double): Double = {
-		require(_netlist.inductors.contains(element), "Element not in netlist.")
-		solution(t, nodes.indexOf(element.startNode)) - solution(t, nodes.indexOf(element.endNode))
-	}
-
-	def elementVoltage(element: MNA.Input, t: Double): Double = {
-		require(_netlist.inputs.contains(element), "Element not in netlist.")
-		solution(t, nodes.indexOf(element.startNode)) - solution(t, nodes.indexOf(element.endNode))
-	}
-
-	def elementCurrent(element: MNA.Capacitor, t: Double): Double = {
-		require(_netlist.capacitors.contains(element), "Element not in netlist.")
-		solution(t, nodes.length + _netlist.capacitors.length + _netlist.capacitors.indexOf(element))
-	}
-
-	def elementCurrent(element: MNA.Resistor, t: Double): Double = {
-		require(_netlist.resistors.contains(element), "Element not in netlist.")
-		solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.indexOf(element))
-	}
-
-	def elementCurrent(element: MNA.Inductor, t: Double): Double = {
-		require(_netlist.inductors.contains(element), "Element not in netlist.")
-		solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.indexOf(element))
-	}
-
-	def elementCurrent(element: MNA.Input, t: Double): Double = {
-		require(_netlist.inputs.contains(element), "Element not in netlist.")
-		solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + _netlist.inputs.indexOf(element))
-	}
-
-	def derivedElementVoltage(element: MNA.Capacitor, t: Double): Double = {
-		require(_netlist.capacitors.contains(element), "Element not in netlist.")
+	def derivedElementVoltage(element: MNA.Element, t: Double): Double = {
+		element match {
+			case _: MNA.Capacitor =>
+				require(_netlist.capacitors.contains(element), "Element not in netlist.")
+			case _: MNA.Inductor =>
+				require(_netlist.inductors.contains(element), "Element not in netlist.")
+			case _: MNA.Resistor =>
+				require(_netlist.resistors.contains(element), "Element not in netlist.")
+			case _: MNA.Input =>
+				require(_netlist.inputs.contains(element), "Element not in netlist.")
+			case _ =>
+				throw new IllegalArgumentException("Unknown element type.")
+		}
 		derivedSolution(t, nodes.indexOf(element.startNode)) - derivedSolution(t, nodes.indexOf(element.endNode))
 	}
 
-	def derivedElementVoltage(element: MNA.Resistor, t: Double): Double = {
-		require(_netlist.resistors.contains(element), "Element not in netlist.")
-		derivedSolution(t, nodes.indexOf(element.startNode)) - derivedSolution(t, nodes.indexOf(element.endNode))
-	}
-
-	def derivedElementVoltage(element: MNA.Inductor, t: Double): Double = {
-		require(_netlist.inductors.contains(element), "Element not in netlist.")
-		derivedSolution(t, nodes.indexOf(element.startNode)) - derivedSolution(t, nodes.indexOf(element.endNode))
-	}
-
-	def derivedElementVoltage(element: MNA.Input, t: Double): Double = {
-		require(_netlist.inputs.contains(element), "Element not in netlist.")
-		derivedSolution(t, nodes.indexOf(element.startNode)) - derivedSolution(t, nodes.indexOf(element.endNode))
-	}
-
-	def derivedElementCurrent(element: MNA.Capacitor, t: Double): Double = {
-		require(_netlist.capacitors.contains(element), "Element not in netlist.")
-		derivedSolution(t, nodes.length + _netlist.capacitors.length + _netlist.capacitors.indexOf(element))
-	}
-
-	def derivedElementCurrent(element: MNA.Resistor, t: Double): Double = {
-		require(_netlist.resistors.contains(element), "Element not in netlist.")
-		derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.indexOf(element))
-	}
-
-	def derivedElementCurrent(element: MNA.Inductor, t: Double): Double = {
-		require(_netlist.inductors.contains(element), "Element not in netlist.")
-		derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.indexOf(element))
-	}
-
-	def derivedElementCurrent(element: MNA.Input, t: Double): Double = {
-		require(_netlist.inputs.contains(element), "Element not in netlist.")
-		derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + _netlist.inputs.indexOf(element))
+	def derivedElementCurrent(element: MNA.Element, t: Double): Double = {
+		element match {
+			case _: MNA.Capacitor =>
+				require(_netlist.capacitors.contains(element), "Element not in netlist.")
+				derivedSolution(t, nodes.length + _netlist.capacitors.length + _netlist.capacitors.indexOf(element))
+			case _: MNA.Resistor =>
+				require(_netlist.resistors.contains(element), "Element not in netlist.")
+				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.indexOf(element))
+			case _: MNA.Inductor =>
+				require(_netlist.inductors.contains(element), "Element not in netlist.")
+				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.indexOf(element))
+			case _: MNA.Input =>
+				require(_netlist.inputs.contains(element), "Element not in netlist.")
+				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + _netlist.inputs.indexOf(element))
+			case _ =>
+				throw new IllegalArgumentException("Unknown element type.")
+		}
 	}
 }
 
@@ -460,25 +536,25 @@ object MNA {
 		(netlist, new MNA(netlist))
 	}
 
-	case class Capacitor(name: String, startNode: Int, endNode: Int, value: Z) {
+	case class Capacitor(name: String, startNode: Int, endNode: Int, value: Z) extends Element {
 
 		def copy() = Capacitor(name, startNode, endNode, value.copy())
 	}
 
-	case class Diode(name: String, startNode: Int, endNode: Int)
+	case class Diode(name: String, startNode: Int, endNode: Int) extends Element
 
-	case class Inductor(name: String, startNode: Int, endNode: Int, value: Z) {
+	case class Inductor(name: String, startNode: Int, endNode: Int, value: Z) extends Element {
 
 		def copy() = Inductor(name, startNode, endNode, value.copy())
 	}
 
-	case class Resistor(name: String, startNode: Int, endNode: Int, value: Z) {
+	case class Resistor(name: String, startNode: Int, endNode: Int, value: Z) extends Element {
 
 		def copy() = Resistor(name, startNode, endNode, value.copy())
 	}
 
 	case class Input(name: String, startNode: Int, endNode: Int, inhomogeneityType: Input.InhomogeneityType.Value,
-					 inputType: Input.InputType.Value, coefficients: Array[Z], exponents: Array[Z]) {
+					 inputType: Input.InputType.Value, coefficients: Array[Z], exponents: Array[Z]) extends Element {
 
 		def copy() = Input(name, startNode, endNode, inhomogeneityType, inputType,
 			if (coefficients == null) null else coefficients.clone(),
@@ -487,6 +563,13 @@ object MNA {
 		override def toString =
 			s"Input($name, $startNode, $endNode, $inhomogeneityType, $inputType, " +
 				s"${if (coefficients != null) coefficients.deep else coefficients}, ${if (exponents != null) exponents.deep else exponents})"
+	}
+
+	trait Element {
+
+		val name: String
+		val startNode: Int
+		val endNode: Int
 	}
 
 	object Input {
@@ -516,7 +599,7 @@ object MNA {
 					   var resistors: js.Array[Resistor], var diodes: js.Array[Diode],
 					   var inputs: js.Array[Input], var grounds: js.Array[Int]) {
 
-		def apply(name: String) = {
+		def apply(name: String): Element = {
 
 			if (capacitors.map(_.name).contains(name)) {
 				capacitors(capacitors.map(_.name).indexOf(name))
@@ -530,6 +613,7 @@ object MNA {
 			else if (inputs.map(_.name).contains(name)) {
 				inputs(inputs.map(_.name).indexOf(name))
 			}
+			else throw new IllegalArgumentException("Unknown name.")
 		}
 
 		def copy: NetList = {

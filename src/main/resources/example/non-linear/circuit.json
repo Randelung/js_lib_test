@@ -46,7 +46,7 @@
 			"startNode": 0,
 			"endNode": 3,
 			"inputType": "voltageSource",
-			"inhomogeneityType": "constant",
+			"inhomogeneityType": "exponential",
 			"coefficients": [
 				{
 					"realValue": 1,
@@ -54,6 +54,10 @@
 				}
 			],
 			"exponents": [
+				{
+					"realValue": 0,
+					"imagValue": 0
+				}
 			]
 		}
 	]

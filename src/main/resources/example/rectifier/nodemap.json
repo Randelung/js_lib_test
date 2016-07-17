@@ -1,0 +1,108 @@
+{
+	"grid": {
+		"width": 5,
+		"height": 4
+	},
+	"map": [
+		{
+			"elementName": "R",
+			"startX": 5,
+			"endX": 5,
+			"startY": 2,
+			"endY": 4
+		},
+		{
+			"elementName": "U",
+			"startX": 1,
+			"endX": 1,
+			"startY": 1,
+			"endY": 3
+		},
+		{
+			"elementName": "D1",
+			"startX": 3,
+			"endX": 4,
+			"startY": 1,
+			"endY": 2
+		},
+		{
+			"elementName": "D2",
+			"startX": 2,
+			"endX": 3,
+			"startY": 2,
+			"endY": 1
+		},
+		{
+			"elementName": "D3",
+			"startX": 3,
+			"endX": 4,
+			"startY": 3,
+			"endY": 2
+		},
+		{
+			"elementName": "D4",
+			"startX": 2,
+			"endX": 3,
+			"startY": 2,
+			"endY": 3
+		}
+	],
+	"spreadNodes": [
+		{
+			"node": 0,
+			"locations": [
+				{
+					"x": 1,
+					"y": 1
+				},
+				{
+					"x": 3,
+					"y": 1
+				}
+			]
+		},
+		{
+			"node": 1,
+			"locations": [
+				{
+					"x": 4,
+					"y": 2
+				},
+				{
+					"x": 5,
+					"y": 2
+				}
+			]
+		},
+		{
+			"node": 2,
+			"locations": [
+				{
+					"x": 2,
+					"y": 2
+				},
+				{
+					"x": 2,
+					"y": 4
+				},
+				{
+					"x": 5,
+					"y": 4
+				}
+			]
+		},
+		{
+			"node": 3,
+			"locations": [
+				{
+					"x": 1,
+					"y": 3
+				},
+				{
+					"x": 3,
+					"y": 3
+				}
+			]
+		}
+	]
+}

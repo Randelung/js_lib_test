@@ -1,31 +1,30 @@
 package ch.ethz.ipes.buschr.schematics
 
-import ch.ethz.ipes.buschr.maths.Vector2D
+import ch.ethz.ipes.buschr.maths.{MNA, Vector2D}
 import org.scalajs.dom._
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.Breaks._
 
 /**
   * Created by Randolph Busch on 03/07/16.
   */
-class GraphPlotter(canvas: html.Canvas, startX: Double, endX: Double, startY: Double, endY: Double, autoAdjustY: Boolean) {
+class GraphPlotter(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, startX: Double, endX: Double, startY: Double, endY: Double, autoAdjustY: Boolean) {
 	require(startX < endX, "Graphing range must be greater than 0.")
 	require(autoAdjustY || startY < endY, "Graphing range must be greater than 0.")
 
-	val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
-	context.lineWidth = 2
-	context.lineCap = "square"
-	context.font = "12px Arial"
-	val topMargin = 20
-	val rightMargin = 20
-	val leftMargin = 50
-	val bottomMargin = 30
-	var zeroVector = Vector2D(leftMargin, canvas.height - bottomMargin)
-	context.beginPath()
-	context.moveTo(zeroVector)
-	context.lineTo(leftMargin, topMargin)
-	context.stroke()
+	private val context = canvas.getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+	private val topMargin = 20
+	private val rightMargin = 20
+	private val leftMargin = 50
+	private val bottomMargin = 30
+	private val pixelWidth = canvas.width - leftMargin - rightMargin
+	private val unitWidth = endX - startX
+	private val pixelsPerUnit = pixelWidth / unitWidth
+	private val mnaTracker = Array.ofDim[MNA](pixelWidth)
+	private val stepSize = unitWidth / pixelWidth
 
+	private var zeroVector = Vector2D(leftMargin, canvas.height - bottomMargin)
 	private var maxValue = 1d
 	private var minValue = 0d
 	private var results = ArrayBuffer[Array[Double]]()
@@ -34,15 +33,160 @@ class GraphPlotter(canvas: html.Canvas, startX: Double, endX: Double, startY: Do
 	private var enabled = ArrayBuffer[Boolean]()
 	private var _nextDefaultColor = 0
 
+	context.lineWidth = 2
+	context.lineCap = "square"
+	context.font = "12px Arial"
+
+	// fill diodeCurrentData and mnaTracker
+	private var currentMNA: MNA = _
+	private val currentMNAmask = Array.fill(mnaTreeRoot.netlist.diodes.length)(false)
+	private var t = 0d
+	//noinspection ConvertNullInitializerToUnderscore
+	private var lastState: Array[Double] = null
+	for (i <- 0 until pixelWidth) {
+		var stableStateFound = false
+		var invalidAppliedT = false
+		while (!stableStateFound) {
+			var currentTree = mnaTreeRoot
+			currentMNAmask.foreach(b => currentTree = if (b) currentTree.diodeConducting else currentTree.diodeBlocking)
+			currentMNA = currentTree.mna
+			if (lastState == null) {
+				currentMNA.applyStartingConditions(lastState)
+			}
+			if (invalidAppliedT) {
+				currentMNA.applyDataPoint(t - stepSize, lastState)
+				invalidAppliedT = false
+			}
+
+			breakable {
+				mnaTreeRoot.netlist.diodes.indices.withFilter(j => currentMNAmask(j)).foreach(d => {
+					if (currentMNA.elementVoltage(currentMNA.netlist(mnaTreeRoot.netlist.diodes(d).name), t) < 0) {
+						currentMNAmask(d) = false
+						invalidAppliedT = true
+						break
+					}
+				})
+				mnaTreeRoot.netlist.diodes.indices.withFilter(j => !currentMNAmask(j)).foreach(d => {
+					if (currentMNA.elementVoltage(currentMNA.netlist(mnaTreeRoot.netlist.diodes(d).name), t) > 0) {
+						currentMNAmask(d) = true
+						invalidAppliedT = true
+						break
+					}
+				})
+				stableStateFound = true
+			}
+		}
+
+		mnaTracker(i) = currentMNA.clone()
+		println(mnaTracker(i).netlist)
+		lastState = currentMNA.getStateVector(t)
+		t += stepSize
+	}
+
 	private def nextDefaultColor = _nextDefaultColor
 
-	// IntelliJ warns of unused method, but it's _nextDefaultColor's setter, and the project doesn't compile without it,
-	// so believe me, it's needed.
+	//noinspection ScalaUnusedSymbol
 	private def nextDefaultColor_=(value: Int) = _nextDefaultColor = value % GraphPlotter.defaultColors.length
 
-	val pixelsPerUnit = (canvas.width - leftMargin - rightMargin) / (endX - startX)
-
 	redrawAxes()
+
+	def plotElementCurrent(elementName: String, color: String = null): Unit = {
+
+		val result = Array.ofDim[Double](pixelWidth)
+		var t = startX
+		var j = 0
+		while (j < pixelWidth) {
+			result(j) = mnaTracker(j).elementCurrent(mnaTracker(j).netlist(elementName), t)
+			t += stepSize
+			j += 1
+		}
+		results += result
+
+		if (color == null) {
+			colors += GraphPlotter.defaultColors(nextDefaultColor)
+			nextDefaultColor += 1
+		}
+		else {
+			colors += color
+		}
+
+		names += s"i_$elementName"
+		enabled += true
+		adjustYLimits()
+	}
+
+	def plotElementVoltage(elementName: String, color: String = null): Unit = {
+
+		if (color == null) {
+			colors += GraphPlotter.defaultColors(nextDefaultColor)
+			nextDefaultColor += 1
+		}
+		else {
+			colors += color
+		}
+
+		names += s"u_$elementName"
+		enabled += true
+		val result = Array.ofDim[Double](pixelWidth)
+		var t = startX
+		var j = 0
+		while (j < pixelWidth) {
+			result(j) = mnaTracker(j).elementVoltage(mnaTracker(j).netlist(elementName), t)
+			println(result(j))
+			t += stepSize
+			j += 1
+		}
+		results += result
+		adjustYLimits()
+	}
+
+	def plotDerivedElementCurrent(elementName: String, color: String = null): Unit = {
+
+		if (color == null) {
+			colors += GraphPlotter.defaultColors(nextDefaultColor)
+			nextDefaultColor += 1
+		}
+		else {
+			colors += color
+		}
+
+		names += s"di_$elementName/dt"
+		enabled += true
+		val result = Array.ofDim[Double](pixelWidth)
+		var t = startX
+		var j = 0
+		while (j < pixelWidth) {
+			result(j) = mnaTracker(j).derivedElementCurrent(mnaTracker(j).netlist(elementName), t)
+			t += stepSize
+			j += 1
+		}
+		results += result
+		adjustYLimits()
+	}
+
+	def plotDerivedElementVoltage(elementName: String, color: String = null): Unit = {
+
+		if (color == null) {
+			colors += GraphPlotter.defaultColors(nextDefaultColor)
+			nextDefaultColor += 1
+		}
+		else {
+			colors += color
+		}
+
+		names += s"du_$elementName/dt"
+		enabled += true
+		val result = Array.ofDim[Double](pixelWidth)
+		var t = startX
+		var j = 0
+		while (j < pixelWidth) {
+			result(j) = mnaTracker(j).derivedElementVoltage(mnaTracker(j).netlist(elementName), t)
+			t += stepSize
+			j += 1
+		}
+		results += result
+		adjustYLimits()
+	}
 
 	def plotFunction(f: Double => Double, name: String, color: String = null): Unit = {
 
@@ -56,13 +200,12 @@ class GraphPlotter(canvas: html.Canvas, startX: Double, endX: Double, startY: Do
 
 		names += name
 		enabled += true
-		val result = Array.ofDim[Double](canvas.width - leftMargin - rightMargin)
-		val stepSize = (endX - startX) / (canvas.width - leftMargin - rightMargin)
-		var i = startX
+		val result = Array.ofDim[Double](pixelWidth)
+		var t = startX
 		var j = 0
-		while (i < endX) {
-			result(j) = f(i)
-			i += stepSize
+		while (j < pixelWidth) {
+			result(j) = f(t)
+			t += stepSize
 			j += 1
 		}
 		results += result
@@ -126,13 +269,20 @@ class GraphPlotter(canvas: html.Canvas, startX: Double, endX: Double, startY: Do
 		context.lineTo(canvas.width - rightMargin, zeroVector.y)
 		context.stroke()
 		context.textAlign = "right"
-		context.fillText("%.2f".format(maxValue), leftMargin - 2, topMargin + 5)
-		context.fillText("%.2f".format(minValue), leftMargin - 2, canvas.height - bottomMargin + 5)
 		if (minValue < 0 && maxValue > 0) {
+			context.fillText("%.2f".format(maxValue), leftMargin - 2, topMargin + 15)
+			context.fillText("%.2f".format(minValue), leftMargin - 2, canvas.height - bottomMargin - 5)
 			context.fillText("%.2f".format(0.0), zeroVector + Vector2D(-2, 5))
 		}
+		else if (minValue >= 0 && maxValue >= 0) {
+			context.fillText("%.2f".format(maxValue), leftMargin - 2, topMargin + 15)
+			context.fillText("%.2f".format(minValue), leftMargin - 2, canvas.height - bottomMargin + 5)
+			context.fillText("%.2f".format((maxValue - minValue) / 2), leftMargin - 2, (canvas.height + topMargin - bottomMargin) / 2 + 5)
+		}
 		else {
-			context.fillText("%.2f".format((maxValue - minValue) / 2), leftMargin - 2, canvas.height / 2 + 5)
+			context.fillText("%.2f".format(maxValue), leftMargin - 2, topMargin + 5)
+			context.fillText("%.2f".format(minValue), leftMargin - 2, canvas.height - bottomMargin - 15)
+			context.fillText("%.2f".format((maxValue - minValue) / 2), leftMargin - 2, (canvas.height + topMargin - bottomMargin) / 2 - 5)
 		}
 		context.textAlign = "center"
 		for (i <- 1 to endX.toInt) {
@@ -155,15 +305,17 @@ class GraphPlotter(canvas: html.Canvas, startX: Double, endX: Double, startY: Do
 
 object GraphPlotter {
 
-	def apply(canvas: html.Canvas, endX: Double) = new GraphPlotter(canvas, 0, endX, 0, 0, true)
+	def apply(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, endX: Double) =
+		new GraphPlotter(canvas, mnaTreeRoot, 0, endX, 0, 0, true)
 
-	def apply(canvas: html.Canvas, startX: Double, endX: Double) = new GraphPlotter(canvas, startX, endX, 0, 0, true)
+	def apply(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, startX: Double, endX: Double) =
+		new GraphPlotter(canvas, mnaTreeRoot, startX, endX, 0, 0, true)
 
-	def apply(canvas: html.Canvas, endX: Double, startY: Double, endY: Double) =
-		new GraphPlotter(canvas, 0, endX, startY, endY, false)
+	def apply(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, endX: Double, startY: Double, endY: Double) =
+		new GraphPlotter(canvas, mnaTreeRoot, 0, endX, startY, endY, false)
 
-	def apply(canvas: html.Canvas, startX: Double, endX: Double, startY: Double, endY: Double) =
-		new GraphPlotter(canvas, startX, endX, startY, endY, false)
+	def apply(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, startX: Double, endX: Double, startY: Double, endY: Double) =
+		new GraphPlotter(canvas, mnaTreeRoot, startX, endX, startY, endY, false)
 
 	val defaultColors = Array(
 		"#0072BD",

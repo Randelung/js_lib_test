@@ -134,6 +134,12 @@ object CircuitIllustrator {
 				context.fillText(i.name, startVector + directionalVector * 0.5 - directionalVector.normed * 8 +
 					directionalVector.perpendicular.normed * 18)
 			}
+			else if ((startVector.y == endVector.y) && (startVector.x < endVector.x)) {
+				context.fillText(i.name, startVector + directionalVector * 0.5 - directionalVector.perpendicular.normed * 18)
+			}
+			else if ((startVector.y == endVector.y) && (startVector.x > endVector.x)) {
+				context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.perpendicular.normed * 18)
+			}
 			else {
 				context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.normed * 8 -
 					directionalVector.perpendicular.normed * 18)
@@ -224,24 +230,15 @@ object CircuitIllustrator {
 							context.arc(startVector + directionalVector * 0.5, 20, 0, 2 * math.Pi)
 							context.stroke()
 							context.beginPath()
-							context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 10 +
-								directionalVector.perpendicular.normed * 5)
-							context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 10 -
-								directionalVector.perpendicular.normed * 5)
-							context.moveTo(startVector + directionalVector * 0.5 - directionalVector.normed * 15)
-							context.lineTo(startVector + directionalVector * 0.5 - directionalVector.normed * 5)
-							context.moveTo(startVector + directionalVector * 0.5 + directionalVector.normed * 10 +
-								directionalVector.perpendicular.normed * 5)
-							context.lineTo(startVector + directionalVector * 0.5 + directionalVector.normed * 10 -
-								directionalVector.perpendicular.normed * 5)
-							if (startVector.y > endVector.y) {
-								context.fillText(i.name, startVector + directionalVector * 0.5 +
-									directionalVector.normed * 8 + directionalVector.perpendicular.normed * 30)
-							}
-							else {
-								context.fillText(i.name, startVector + directionalVector * 0.5 +
-									directionalVector.normed * 8 - directionalVector.perpendicular.normed * 30)
-							}
+							val temp = context.font
+							val temp2 = context.textAlign
+							context.font = "36pt Arial"
+							context.textAlign = "center"
+							context.fillText("~", startVector + directionalVector * 0.5 + directionalVector.normed * 16)
+							context.font = temp
+							context.textAlign = temp2
+							context.fillText(i.name, startVector + directionalVector * 0.5 + directionalVector.normed * 8 -
+								directionalVector.perpendicular.normed * 25)
 					}
 			}
 		})

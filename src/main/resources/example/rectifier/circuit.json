@@ -1,0 +1,62 @@
+{
+	"resistors": [
+		{
+			"name": "R",
+			"startNode": 1,
+			"endNode": 2,
+			"realValue": 1,
+			"imagValue": 0
+		}
+	],
+	"inputs": [
+		{
+			"name": "U",
+			"startNode": 0,
+			"endNode": 3,
+			"inputType": "voltageSource",
+			"inhomogeneityType": "exponential",
+			"coefficients": [
+				{
+					"realValue": 0.0,
+					"imagValue": 0.5
+				},
+				{
+					"realValue": 0.0,
+					"imagValue": -0.5
+				}
+			],
+			"exponents": [
+				{
+					"realValue": 0.0,
+					"imagValue": -1.0
+				},
+				{
+					"realValue": 0.0,
+					"imagValue": 1.0
+				}
+			]
+		}
+	],
+	"diodes": [
+		{
+			"name": "D1",
+			"startNode": 0,
+			"endNode": 1
+		},
+		{
+			"name": "D2",
+			"startNode": 2,
+			"endNode": 0
+		},
+		{
+			"name": "D3",
+			"startNode": 3,
+			"endNode": 1
+		},
+		{
+			"name": "D4",
+			"startNode": 2,
+			"endNode": 3
+		}
+	]
+}

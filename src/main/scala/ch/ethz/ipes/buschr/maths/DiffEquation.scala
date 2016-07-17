@@ -164,9 +164,7 @@ class DiffEquation(private var _matrix: Zmat) {
 	private var _constants = Array.ofDim[Z](_matrix.nrow)
 
 	def applyStartingConditions(vector: Array[Double]): Unit = {
-		require(vector.length == _constants.length, s"Vector needs to be of size ${
-			_constants.length
-		} x 1.")
+		require(vector.length == _constants.length, s"Vector needs to be of size ${_constants.length} x 1.")
 
 		_appliedDataPoint = true
 		val vectorMatrix = new Zmat(vector.map(Array(_)))
@@ -440,6 +438,7 @@ class DiffEquation(private var _matrix: Zmat) {
 		copy._matrix = _matrix.clone()
 		copy._appliedDataPoint = _appliedDataPoint
 		copy._typeOfInhomogeneity = _typeOfInhomogeneity
+		copy._inhomogeneityExponents = _inhomogeneityExponents.clone()
 		copy._particularSolution = _particularSolution.clone()
 		copy._eigenvalueDecomposition = _eigenvalueDecomposition.clone()
 		copy._generalEigenVectors = _generalEigenVectors.clone()

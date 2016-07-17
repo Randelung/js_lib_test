@@ -34,18 +34,11 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 				xhr.open("GET", urlNodemap, async = true)
 				xhr.send()
 			}
-			CircuitAnalyzer.graph = GraphPlotter(canvasGraph, 8 * math.Pi)
+			CircuitAnalyzer.MNATreeRoot = CircuitAnalyzer.MNATree(CircuitAnalyzer.netlist, diodeConducting = null, diodeBlocking = null)
 
-			CircuitAnalyzer.MNATreeRoot = CircuitAnalyzer.MNATree(CircuitAnalyzer.netlist, parent = null, diodeConducting = null, diodeBlocking = null)
+			CircuitAnalyzer.buildTree(CircuitAnalyzer.MNATreeRoot)
 
-			buildTree(CircuitAnalyzer.MNATreeRoot)
-
-			var temp = CircuitAnalyzer.MNATreeRoot
-			while (temp.diodeBlocking != null) {
-				temp = temp.diodeBlocking
-			}
-			CircuitAnalyzer.mna = temp.mna
-			CircuitAnalyzer.mna.applyStartingConditions(null)
+			CircuitAnalyzer.graph = GraphPlotter(canvasGraph, CircuitAnalyzer.MNATreeRoot, 8 * math.Pi)
 		}
 	}
 	xhr.open("GET", urlNetlist, async = true)
@@ -61,25 +54,6 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 	canvasGraph.style.width = divCircuit.style.maxWidth
 	canvasGraph.height = canvasGraph.getBoundingClientRect().height.toInt
 	canvasGraph.width = canvasGraph.getBoundingClientRect().width.toInt
-	val canvasReady = true
-
-	def buildTree(curretNode: CircuitAnalyzer.MNATree): Unit = {
-
-		if (curretNode.netlist.diodes.nonEmpty) {
-			val netlistConducting = curretNode.netlist.copy
-			val netlistBlocking = curretNode.netlist.copy
-			netlistConducting.resistors += Resistor(netlistConducting.diodes.head.name, netlistConducting.diodes.head.startNode,
-				netlistConducting.diodes.head.endNode, 0)
-			netlistBlocking.resistors += Resistor(netlistBlocking.diodes.head.name, netlistBlocking.diodes.head.startNode,
-				netlistBlocking.diodes.head.endNode, 1e15)
-			netlistConducting.diodes.remove(0)
-			netlistBlocking.diodes.remove(0)
-			curretNode.diodeBlocking = CircuitAnalyzer.MNATree(netlistBlocking, curretNode, null, null)
-			curretNode.diodeConducting = CircuitAnalyzer.MNATree(netlistConducting, curretNode, null, null)
-			buildTree(curretNode.diodeConducting)
-			buildTree(curretNode.diodeBlocking)
-		}
-	}
 }
 
 @JSExport("button")
@@ -106,9 +80,27 @@ object CircuitAnalyzer {
 		(parsedJSON.grid.width.asInstanceOf[Int], parsedJSON.grid.height.asInstanceOf[Int], elementMap, nodeMap)
 	}
 
-	case class MNATree(netlist: NetList, parent: MNATree, var diodeConducting: MNATree, var diodeBlocking: MNATree) {
+	case class MNATree(netlist: NetList, var diodeConducting: MNATree, var diodeBlocking: MNATree) {
 
 		lazy val mna = new MNA(netlist)
+	}
+
+	def buildTree(currentNode: CircuitAnalyzer.MNATree): Unit = {
+
+		if (currentNode.netlist.diodes.nonEmpty) {
+			val netlistConducting = currentNode.netlist.copy
+			val netlistBlocking = currentNode.netlist.copy
+			netlistConducting.resistors += Resistor(netlistConducting.diodes.head.name, netlistConducting.diodes.head.startNode,
+				netlistConducting.diodes.head.endNode, 1e-15)
+			netlistBlocking.resistors += Resistor(netlistBlocking.diodes.head.name, netlistBlocking.diodes.head.startNode,
+				netlistBlocking.diodes.head.endNode, 1e15)
+			netlistConducting.diodes.remove(0)
+			netlistBlocking.diodes.remove(0)
+			currentNode.diodeBlocking = CircuitAnalyzer.MNATree(netlistBlocking, null, null)
+			currentNode.diodeConducting = CircuitAnalyzer.MNATree(netlistConducting, null, null)
+			buildTree(currentNode.diodeConducting)
+			buildTree(currentNode.diodeBlocking)
+		}
 	}
 
 	private var button1pressed = 0
@@ -117,7 +109,7 @@ object CircuitAnalyzer {
 	def button1(): Unit = {
 		button1pressed = button1pressed match {
 			case 0 =>
-				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementVoltage(netlist.capacitors.head, t), "u_" + netlist.capacitors.head.name)
+				CircuitAnalyzer.graph.plotElementVoltage(netlist.capacitors.head.name)
 				1
 			case 1 =>
 				graph.disableFunction("u_" + netlist.capacitors.head.name)
@@ -134,7 +126,7 @@ object CircuitAnalyzer {
 	def button2(): Unit = {
 		button2pressed = button2pressed match {
 			case 0 =>
-				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementCurrent(netlist.capacitors.head, t), "i_" + netlist.capacitors.head.name)
+				CircuitAnalyzer.graph.plotElementCurrent(netlist.capacitors.head.name)
 				1
 			case 1 =>
 				graph.disableFunction("i_" + netlist.capacitors.head.name)
@@ -151,7 +143,7 @@ object CircuitAnalyzer {
 	def button3(): Unit = {
 		button3pressed = button3pressed match {
 			case 0 =>
-				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementVoltage(netlist.inductors.head, t), "u_" + netlist.inductors.head.name)
+				CircuitAnalyzer.graph.plotElementVoltage(netlist.inductors.head.name)
 				1
 			case 1 =>
 				graph.disableFunction("u_" + netlist.inductors.head.name)
@@ -168,7 +160,7 @@ object CircuitAnalyzer {
 	def button4(): Unit = {
 		button4pressed = button4pressed match {
 			case 0 =>
-				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.elementCurrent(netlist.inductors.head, t), "i_" + netlist.inductors.head.name)
+				CircuitAnalyzer.graph.plotElementCurrent(netlist.inductors.head.name)
 				1
 			case 1 =>
 				graph.disableFunction("i_" + netlist.inductors.head.name)
@@ -185,7 +177,7 @@ object CircuitAnalyzer {
 	def button5(): Unit = {
 		button5pressed = button5pressed match {
 			case 0 =>
-				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.derivedElementVoltage(netlist.inductors.head, t), "du_" + netlist.inductors.head.name + "/dt")
+				CircuitAnalyzer.graph.plotDerivedElementVoltage(netlist.inductors.head.name)
 				1
 			case 1 =>
 				graph.disableFunction("du_" + netlist.inductors.head.name + "/dt")
@@ -202,13 +194,64 @@ object CircuitAnalyzer {
 	def button6(): Unit = {
 		button6pressed = button6pressed match {
 			case 0 =>
-				CircuitAnalyzer.graph.plotFunction(t => CircuitAnalyzer.mna.derivedElementCurrent(netlist.inductors.head, t), "di_" + netlist.inductors.head.name + "/dt")
+				CircuitAnalyzer.graph.plotDerivedElementCurrent(netlist.inductors.head.name)
 				1
 			case 1 =>
 				graph.disableFunction("di_" + netlist.inductors.head.name + "/dt")
 				2
 			case 2 =>
 				graph.enableFunction("di_" + netlist.inductors.head.name + "/dt")
+				1
+		}
+	}
+
+	private var button7pressed = 0
+
+	@JSExport
+	def button7(): Unit = {
+		button7pressed = button7pressed match {
+			case 0 =>
+				CircuitAnalyzer.graph.plotElementVoltage(netlist.diodes.head.name)
+				1
+			case 1 =>
+				graph.disableFunction(s"u_${netlist.diodes.head.name}")
+				2
+			case 2 =>
+				graph.enableFunction(s"u_${netlist.diodes.head.name}")
+				1
+		}
+	}
+
+	private var button8pressed = 0
+
+	@JSExport
+	def button8(): Unit = {
+		button8pressed = button8pressed match {
+			case 0 =>
+				CircuitAnalyzer.graph.plotElementCurrent(netlist.diodes.head.name)
+				1
+			case 1 =>
+				graph.disableFunction(s"i_${netlist.diodes.head.name}")
+				2
+			case 2 =>
+				graph.enableFunction(s"i_${netlist.diodes.head.name}")
+				1
+		}
+	}
+
+	private var button9pressed = 0
+
+	@JSExport
+	def button9(): Unit = {
+		button9pressed = button9pressed match {
+			case 0 =>
+				CircuitAnalyzer.graph.plotElementVoltage(netlist.resistors.head.name)
+				1
+			case 1 =>
+				graph.disableFunction(s"i_${netlist.diodes.head.name}")
+				2
+			case 2 =>
+				graph.enableFunction(s"i_${netlist.diodes.head.name}")
 				1
 		}
 	}
