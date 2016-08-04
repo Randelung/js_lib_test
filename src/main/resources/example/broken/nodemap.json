@@ -1,0 +1,44 @@
+{
+	"grid": {
+		"width": 2,
+		"height": 2
+	},
+	"map": [
+		{
+			"elementName": "L",
+			"startX": 2,
+			"endX": 2,
+			"startY": 1,
+			"endY": 2
+		},
+		{
+			"elementName": "U",
+			"startX": 1,
+			"endX": 1,
+			"startY": 1,
+			"endY": 2
+		},
+		{
+			"elementName": "R",
+			"startX": 1,
+			"endX": 2,
+			"startY": 1,
+			"endY": 1
+		}
+	],
+	"spreadNodes": [
+		{
+			"node": 1,
+			"locations": [
+				{
+					"x": 1,
+					"y": 2
+				},
+				{
+					"x": 2,
+					"y": 2
+				}
+			]
+		}
+	]
+}

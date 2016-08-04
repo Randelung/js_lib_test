@@ -49,11 +49,13 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 	canvasCircuit.style.width = divCircuit.style.maxWidth
 	canvasCircuit.height = canvasCircuit.getBoundingClientRect().height.toInt
 	canvasCircuit.width = canvasCircuit.getBoundingClientRect().width.toInt
-	divGraph.appendChild(canvasGraph)
-	canvasGraph.style.height = divGraph.style.maxHeight
-	canvasGraph.style.width = divCircuit.style.maxWidth
-	canvasGraph.height = canvasGraph.getBoundingClientRect().height.toInt
-	canvasGraph.width = canvasGraph.getBoundingClientRect().width.toInt
+	if (divGraph != null) {
+		divGraph.appendChild(canvasGraph)
+		canvasGraph.style.height = divGraph.style.maxHeight
+		canvasGraph.style.width = divCircuit.style.maxWidth
+		canvasGraph.height = canvasGraph.getBoundingClientRect().height.toInt
+		canvasGraph.width = canvasGraph.getBoundingClientRect().width.toInt
+	}
 }
 
 @JSExport("button")
@@ -64,6 +66,11 @@ object CircuitAnalyzer {
 	var netlist: NetList = _
 	var MNATreeRoot: MNATree = _
 
+	/** parse element map from JSON to a map from element to corner positions.
+	  *
+	  * @param json String to parse
+	  * @return
+	  */
 	def elementMapFromJSON(json: String): (Int, Int, Map[String, (Int, Int, Int, Int)], Map[Int, js.Array[(Int, Int)]]) = {
 
 		val parsedJSON = JSON.parse(json)
@@ -80,11 +87,21 @@ object CircuitAnalyzer {
 		(parsedJSON.grid.width.asInstanceOf[Int], parsedJSON.grid.height.asInstanceOf[Int], elementMap, nodeMap)
 	}
 
+	/** Holding class for a tree to keep track of diode replacements
+	  *
+	  * @param netlist         Netlist pertaining to the MNA
+	  * @param diodeConducting Child with the first diode replaced by a low resistor
+	  * @param diodeBlocking   Child with the first diode replaced by a high resistor
+	  */
 	case class MNATree(netlist: NetList, var diodeConducting: MNATree, var diodeBlocking: MNATree) {
 
 		lazy val mna = new MNA(netlist)
 	}
 
+	/** Creates a tree of diode replacements starting with the given node.
+	  *
+	  * @param currentNode Root of the tree to be created.
+	  */
 	def buildTree(currentNode: CircuitAnalyzer.MNATree): Unit = {
 
 		if (currentNode.netlist.diodes.nonEmpty) {
@@ -102,6 +119,13 @@ object CircuitAnalyzer {
 			buildTree(currentNode.diodeBlocking)
 		}
 	}
+
+	// What follows are special cases of button methods that correspond to some of the calls made in the examples. They
+	// are the reason some variables are global when they wouldn't have to be. A better interface could have been created
+	// where the object has a global function that accepts a name and will plot that accordingly. However, it's just an
+	// example.
+
+	// http://willachen.com/willame/1-0EJX6TLiqAREXg_R2BObwQ.png :D
 
 	private var button1pressed = 0
 

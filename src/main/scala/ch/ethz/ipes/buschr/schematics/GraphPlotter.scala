@@ -78,7 +78,6 @@ class GraphPlotter(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, st
 		}
 
 		mnaTracker(i) = currentMNA.clone()
-		println(mnaTracker(i).netlist)
 		lastState = currentMNA.getStateVector(t)
 		t += stepSize
 	}
@@ -132,7 +131,6 @@ class GraphPlotter(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, st
 		var j = 0
 		while (j < pixelWidth) {
 			result(j) = mnaTracker(j).elementVoltage(mnaTracker(j).netlist(elementName), t)
-			println(result(j))
 			t += stepSize
 			j += 1
 		}

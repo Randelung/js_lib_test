@@ -14,7 +14,7 @@ import scala.scalajs.js.JSON
 //noinspection ConvertNullInitializerToUnderscore
 class MNA(val netlist: MNA.NetList) {
 
-	private var _netlist = netlist.copy
+	private val _netlist = netlist.copy
 
 	private var P: Zmat = null
 	private var Ptranspose: Zmat = null
@@ -30,8 +30,8 @@ class MNA(val netlist: MNA.NetList) {
 	private var diffEquation: DiffEquation = null
 	private var QmTSBTinvSBQ: Zmat = null
 
-	// enumerate nodes. nodes in the NetList don't necessarily correspond to IDs given here, since they could be anything
-	// as long as they are consistent
+	// enumerate nodes. nodes in the NetList don't necessarily correspond to IDs given here, since their name could be
+	// anything as long as they are consistent
 	private var nodes = ListBuffer[Int]()
 	_netlist.capacitors.foreach(i => {
 		if (!nodes.contains(i.startNode)) {
@@ -99,6 +99,7 @@ class MNA(val netlist: MNA.NetList) {
 	})*/
 
 	// solution vector is stacked values of all node potentials and all element currents. sources are elements.
+	// additionally, all capacitors get an extra variable to account for the derivative of the node difference.
 	private var vectorLength = nodes.length + 2 * _netlist.capacitors.length + _netlist.resistors.length + _netlist.inductors.length +
 		_netlist.inputs.length
 
@@ -293,24 +294,22 @@ class MNA(val netlist: MNA.NetList) {
 		QmTSBTinvSBQ = Q - T * SBTinv * SBQ
 	}
 	else if (col.length == A.nrow) {
-		// netlist is pure ODE
+		// netlist is pure ODE; never actually happens since there's at least two nodes that result in KCL equations,
+		// which are linear.
 
 		P = Eye.o(A.nrow)
 		Q = Eye.o(A.nrow)
 	}
 	else {
-		// netlist is pure linear
+		// netlist is purely linear
 		S = Eye.o(A.nrow)
 		T = Eye.o(A.nrow)
 	}
 
-	private var _appliedDataPoint = false
-
-	def appliedDataPoint = _appliedDataPoint
+	def appliedDataPoint = if (diffEquation == null) true else diffEquation.appliedDataPoint
 
 	def applyDataPoint(t: Double, dataVector: Array[Double]): Unit = {
 		if (diffEquation == null) {
-			_appliedDataPoint = true
 			return
 		}
 
@@ -320,12 +319,10 @@ class MNA(val netlist: MNA.NetList) {
 		else {
 			diffEquation.applyDataPoint(t, dataVector)
 		}
-		_appliedDataPoint = true
 	}
 
 	def applyStartingConditions(startingConditions: Array[Double]): Unit = {
 		if (diffEquation == null) {
-			_appliedDataPoint = true
 			return
 		}
 
@@ -335,11 +332,10 @@ class MNA(val netlist: MNA.NetList) {
 		else {
 			diffEquation.applyStartingConditions(startingConditions)
 		}
-		_appliedDataPoint = true
 	}
 
 	def getStateVector(t: Double): Array[Double] = {
-		require(_appliedDataPoint, "Need starting conditions first.")
+		require(appliedDataPoint, "Need starting conditions first.")
 
 		if (diffEquation != null) {
 			diffEquation.solutionVector(t).getZ.map(_.head.re)
@@ -351,7 +347,7 @@ class MNA(val netlist: MNA.NetList) {
 
 	private def solution(t: Double, index: Int): Double = {
 		require(index >= 0 && index < A.nrow, "Index must be positive integer in the size bounds.")
-		require(_appliedDataPoint, "Need starting conditions first.")
+		require(appliedDataPoint, "Need starting conditions first.")
 
 		if (col.nonEmpty && col.length < A.nrow) {
 			// x = Q * x_diff + T * x_linear
@@ -388,7 +384,7 @@ class MNA(val netlist: MNA.NetList) {
 
 	private def derivedSolution(t: Double, index: Int): Double = {
 		require(index >= 0 && index < A.nrow, "Index must be positive integer in the size bounds.")
-		require(_appliedDataPoint, "Need starting conditions first.")
+		require(appliedDataPoint, "Need starting conditions first.")
 
 		if (col.nonEmpty && col.length < A.nrow) {
 			if (_netlist.inputs.head.inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
@@ -453,7 +449,6 @@ class MNA(val netlist: MNA.NetList) {
 		copy.u = if (u == null) null else u.clone()
 		copy.diffEquation = if (diffEquation == null) null else diffEquation.clone()
 		copy.QmTSBTinvSBQ = if (QmTSBTinvSBQ == null) null else QmTSBTinvSBQ.clone()
-		copy._appliedDataPoint = _appliedDataPoint
 		copy
 	}
 

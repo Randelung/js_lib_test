@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Example Scala.js application</title>
+		<meta http-equiv = "Content-Type" content = "text/html; charset=UTF-8" />
+	</head>
+	<body style = "margin: auto; max-width: 800px;">
+
+		<div id = "divCircuit" style = "margin: auto; max-width: 800px; max-height: 400px;"></div>
+		<button onclick = "button().button1()">u_C</button>
+		<button onclick = "button().button2()">i_C</button>
+		<button onclick = "button().button3()">u_L</button>
+		<button onclick = "button().button4()">i_L</button>
+		<button onclick = "button().button5()">du_L/dt</button>
+		<button onclick = "button().button6()">di_L/dt</button>
+		<div id = "divGraph" style = "margin: auto; max-width: 800px; max-height: 400px;"></div>
+
+		<script type = "text/javascript" src = "../diffsolver-fastopt.js"></script>
+		<script type = "text/javascript" src = "/workbench.js"></script>
+		<script>new ch.ethz.ipes.buschr.schematics.CircuitAnalyzer(document.getElementById("divCircuit"), "example/broken/circuit.json", document.getElementById("divGraph"), "example/broken/nodemap.json");</script>
+	</body>
+</html>

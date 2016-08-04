@@ -10,7 +10,7 @@ import scala.util.control.Breaks._
   * coefficients of the equation solved to y^n^ = Ay^n-1^ + ... Dy, which becomes [A B C ... D].
   * The process is as follows:
   *
-  * $ 1. Solve homogeneous first order problem given by y' = _matrix * y. This results in the object
+  * $ 1. Solve homogeneous first order problem given by y' = `_matrix` * y. This results in the object
   * `_eigenvalueDecomposition`, which contains the eigenvalues in D and the respective eigenvectors in X. Eigenvalues
   * and eigenvectors can be obtained using `eigenValues` and `eigenVectors` respectively. This is done automatically at
   * object creation.
@@ -19,12 +19,15 @@ import scala.util.control.Breaks._
   * `generalEigenVectors`. This is done automatically at object creation.
   *
   * $ 3. (Optional) Add a non-homogeneous term to the right side, i.e. y' = Ay' + g. g can be either a constant, a
-  * polynomial term, an exponential term or a mixture thereof. This is done by request using `applyInhomogeneity`
+  * polynomial term or an exponential term. A mixture thereof is not supported. This is done by request using
+  * `applyInhomogeneity`.
   *
   * $ 4. Add a data point to fix constants. This populates `_constants`, which is not directly obtainable. This step is
-  * invoked using `applyStartingConditions` or `applyDataPoint`.
+  * invoked using `applyDataPoint` or `applyStartingConditions`, which is called if the data point is at `t = 0`.
   *
-  * $ 5. Create a function handle using `solution` that allows direct function evaluation up to y^n-1^.
+  * $ 5. Evaluate the solution for either a single line in the solution vector or the whole vector. As Scala is
+  * functional, this method can be used as a function handle elsewhere; however, if the matrix or data point are changed
+  * the solution will change while the function handle stays valid.
   *
   * @param _matrix Matrix A in y'= Ax
   */
@@ -43,6 +46,7 @@ class DiffEquation(private var _matrix: Zmat) {
 	  */
 	private var _particularSolution: Zmat = new Zmat(_matrix.nrow, 1)
 	private var _inhomogeneityExponents: Zmat = _
+	private var _constants = Array.ofDim[Z](_matrix.nrow)
 
 	// step 1: get eigenvalues and eigenvectors of matrix
 	private var _eigenvalueDecomposition = new Eig(_matrix)
@@ -51,9 +55,13 @@ class DiffEquation(private var _matrix: Zmat) {
 	private var _generalEigenVectors = eigenVectors
 	private var _seenEigs: Map[Z, Int] = Map()
 	private var _usedSVD: Map[Z, JamaSVD] = Map()
+	// iterate through all eigenvalues
 	for (j <- _eigenvalueDecomposition.D.re.indices) {
+		// eigenvalues are stored as real and complex part. combine for easier comparison.
 		val eig = Z(_eigenvalueDecomposition.D.re(j), _eigenvalueDecomposition.D.im(j))
+		// if the eigenvalue has appeared previously
 		if (_seenEigs.contains(eig.round(5))) {
+			// look for the appropriate eigenvector
 			var foundBefore = false
 			breakable {
 				val v = _generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, j, j).getZ.flatten
@@ -81,14 +89,16 @@ class DiffEquation(private var _matrix: Zmat) {
 				// create new generalized eigenvector using (A - eig*I)v2 = v1, resp. v2 = pinv(A - eig*I) * v1
 				// pinv(X) = V * pinv(S) * U', and pinv(S) is the inverse of each non-zero element (non-square matrices not treated)
 				v = svd.V * svd.S.pinv * svd.U.transpose.conj * v
+				// add new generalized vector into matrix
 				_generalEigenVectors.put(0, _generalEigenVectors.nrow - 1, j, j, v)
 			}
-			// else i haven't encountered this vector before, so it's good
+			// else i haven't encountered this vector before, so it's a unique vector
 
 			// increment count of eigenvector
 			_seenEigs += (eig.round(5) -> (_seenEigs(eig.round(5)) + 1))
 		}
 		else {
+			// new eigenvector, don't need to do anything
 			_seenEigs += (eig.round(5) -> 1)
 		}
 	}
@@ -107,6 +117,7 @@ class DiffEquation(private var _matrix: Zmat) {
 	def applyInhomogeneity(coefficients: Zmat, exponents: Zmat): Unit = {
 		if (exponents == null) {
 			if (coefficients == null) {
+				// default case, but possible to solve y' = Ay + 0 after having solved y' = Ay + B
 				_typeOfInhomogeneity = DiffEquation.Inhomogeneity.Zero
 				_inhomogeneityExponents = null
 				_particularSolution = null
@@ -156,17 +167,21 @@ class DiffEquation(private var _matrix: Zmat) {
 				_particularSolution = DiffEquation.solveSylvesterEquation(_matrix, diffMatrix, -coefficients)
 			}
 		}
+		// new inhomogeneity, so new coefficients need to be calculated.
 		_appliedDataPoint = false
 	}
 
 	// step 4: apply data point to fix constants
 	//TODO maybe implement a method that takes a t[] and allows different points in time for each differentiation?
-	private var _constants = Array.ofDim[Z](_matrix.nrow)
 
+	/** Apply data point with `t = 0`.
+	  *
+	  * @param vector Array of starting conditions for each line of `_matrix`
+	  */
 	def applyStartingConditions(vector: Array[Double]): Unit = {
 		require(vector.length == _constants.length, s"Vector needs to be of size ${_constants.length} x 1.")
 
-		_appliedDataPoint = true
+		// puts vector in a matrix to allow easier manipulation.
 		val vectorMatrix = new Zmat(vector.map(Array(_)))
 		_typeOfInhomogeneity match {
 			case DiffEquation.Inhomogeneity.Zero =>
@@ -187,6 +202,8 @@ class DiffEquation(private var _matrix: Zmat) {
 				_generalEigenVectors.solve(vectorMatrix - new Zmat(_particularSolution.getZ.map(i => Array(i.head))))
 					.get(0, vector.length - 1, 0, 0).getZ.map(_.head).copyToArray(_constants)
 		}
+		// allow evaluation of solution
+		_appliedDataPoint = true
 	}
 
 	def applyDataPoint(t: Double, vector: Array[Double]): Unit = {
@@ -195,14 +212,15 @@ class DiffEquation(private var _matrix: Zmat) {
 		} x 1.")
 
 		if (t == 0) {
+			// specialized case, as many elements either become 0 or 1.
 			applyStartingConditions(vector)
 			return
 		}
 
-		_appliedDataPoint = true
-
 		// calculate vectors scaled with their respective chain coefficients
 		var scaledVectors = _generalEigenVectors.clone()
+		// tracks the last vector in _generalEigenVectors that's equal to the eigenvectors, i.e. already unique. A new
+		// unique eigenvector triggers a reset of chain length.
 		var lastUnchangedEigenvector = 0
 		for (j <- _generalEigenVectors.re.indices) {
 			if (DiffEquation.sameEigenvectors(_generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, j, j).getZ.flatten,
@@ -210,18 +228,21 @@ class DiffEquation(private var _matrix: Zmat) {
 				5)) {
 				lastUnchangedEigenvector = j
 			}
+			// collect results of each chain element
 			var temp: Zmat = new Zmat(Array.fill[Z](_generalEigenVectors.nrow, 1)(0))
 			// build chain for current vector
 			for (k <- j to lastUnchangedEigenvector by -1) {
 				temp += _generalEigenVectors.get(0, _generalEigenVectors.nrow - 1, k, k) * math.pow(t, j - k) / (2 to j - k).product
 			}
+			// add scaled chain vector to matrix
 			scaledVectors.put(0, scaledVectors.nrow - 1, j, j, temp)
 		}
+
 		// multiply exp(eig * t) in to the matrix using a diagonal matrix
 		val temp = (_eigenvalueDecomposition.D.re, _eigenvalueDecomposition.D.im).zipped.map((i, j) => (new Z(i, j) * t).exp)
 		scaledVectors *= new Zdiagmat(temp.map(_.re), temp.map(_.im))
 
-		// put vector in matrix so it can be solved against
+		// put starting conditions in matrix form so it can be solved against
 		var vectorMatrix = new Zmat(vector.length, 1)
 		vectorMatrix.put(0, vector.length - 1, 0, 0, new Zmat(vector.map(Array(_))))
 
@@ -240,9 +261,18 @@ class DiffEquation(private var _matrix: Zmat) {
 				vectorMatrix -= _particularSolution * vector
 		}
 		scaledVectors.solve(vectorMatrix).get(0, vector.length - 1, 0, 0).getZ.map(_.head).copyToArray(_constants)
+
+		_appliedDataPoint = true
 	}
 
-	// step 5: pick up solution to the problem.
+	// step 5: evaluate up solution to the problem.
+	/** Evaulates a row of the solution vector at time `t`.
+	  *
+	  * @param t   Time point at which to evaluate the solution.
+	  * @param row Row in the solution vector that's supposed to be evaluated. Default is 0, as n-order ODEs have the
+	  *            solution in row 0.
+	  * @return Result
+	  */
 	def solution(t: Double, row: Int = 0) = {
 		require(row >= 0, "Can't have a negative row.")
 		require(_appliedDataPoint, "No data point applied, solution not defined.")
@@ -284,6 +314,11 @@ class DiffEquation(private var _matrix: Zmat) {
 		result
 	}
 
+	/** Returns the whole solution vector at time `t`.
+	  *
+	  * @param t Point in time at which to evaluate system.
+	  * @return Result
+	  */
 	def solutionVector(t: Double) = {
 		require(_appliedDataPoint, "No data point applied, solution not defined.")
 
@@ -324,6 +359,12 @@ class DiffEquation(private var _matrix: Zmat) {
 		result
 	}
 
+	/** Returns first derivative at point `t`.
+	  *
+	  * @param t   Point in time at which to evaluate solution row.
+	  * @param row Row to evaulate. Default is zero because of n-order ODEs.
+	  * @return Result
+	  */
 	def derivedSolution(t: Double, row: Int = 0) = {
 		require(row >= 0, "Can't have a negative row.")
 		require(_appliedDataPoint, "No data point applied, solution not defined.")
@@ -374,6 +415,11 @@ class DiffEquation(private var _matrix: Zmat) {
 		result
 	}
 
+	/** Evaulates whole solution vector at time `t`.
+	  *
+	  * @param t Point in time at which to evaluate solution.
+	  * @return Result
+	  */
 	def derivedSolutionVector(t: Double) = {
 		require(_appliedDataPoint, "No data point applied, solution not defined.")
 
@@ -423,16 +469,40 @@ class DiffEquation(private var _matrix: Zmat) {
 		result
 	}
 
+	/** Copy of `_matrix`. Edits have no effect on this system.
+	  *
+	  * @return
+	  */
 	def matrix = _matrix.clone()
 
+	/** Copy of the eigenvalues of `_matrix`. Edits have no effect on this system.
+	  *
+	  * @return
+	  */
 	def eigenValues = (_eigenvalueDecomposition.D.re, _eigenvalueDecomposition.D.im).zipped.map(new Z(_, _))
 
+	/** Copy of the eigenvectors of `_matrix`. Edits have no effect on this system.
+	  *
+	  * @return
+	  */
 	def eigenVectors = _eigenvalueDecomposition.X.clone()
 
+	/** Copy of the general eigenvectors of `_matrix`. Edits have no effect on this system.
+	  *
+	  * @return
+	  */
 	def generalEigenVectors = _generalEigenVectors.clone()
 
+	/** Check if a data point was applied.
+	  *
+	  * @return
+	  */
 	def appliedDataPoint = _appliedDataPoint
 
+	/** Returns a copy of this object without solving anything again.
+	  *
+	  * @return
+	  */
 	override def clone(): DiffEquation = {
 		val copy = new DiffEquation(new Zmat(Array[Array[Z]](Array(1))))
 		copy._matrix = _matrix.clone()
@@ -469,6 +539,13 @@ object DiffEquation {
 		new DiffEquation(matrix)
 	}
 
+	/** Checks if two (eigen)vectors are the same, i.e. checks if v1 = C * v2 holds for a given precision.
+	  *
+	  * @param v1        First vector
+	  * @param v2        Second vector
+	  * @param precision Decimal precision to use in compares
+	  * @return
+	  */
 	private def sameEigenvectors(v1: Array[Z], v2: Array[Z], precision: Int): Boolean = {
 		var v1abs = v1.map(i => i * i).sum.sqrt
 		var v2abs = v2.map(i => i * i).sum.sqrt
@@ -493,6 +570,8 @@ object DiffEquation {
 	def solveSylvesterEquation(A: Zmat, B: Zmat, C: Zmat): Zmat = {
 		require(A.nrow == A.ncol && B.nrow == B.ncol && C.nrow == A.nrow && C.ncol == B.ncol,
 			"Matrix dimensions must agree.")
+
+		println(s"A$A\nB$B\nC$C\n")
 
 		// the new dimensions are m*n x m*n or m*n x 1.
 		val dimension = A.nrow * B.nrow

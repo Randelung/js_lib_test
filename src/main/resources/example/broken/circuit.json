@@ -1,0 +1,49 @@
+{
+	"resistors": [
+		{
+			"name": "R",
+			"startNode": 0,
+			"endNode": 1,
+			"realValue": 1,
+			"imagValue": 0
+		}
+	],
+	"inductors": [
+		{
+			"name": "L",
+			"startNode": 1,
+			"endNode": 2,
+			"realValue": 1,
+			"imagValue": 0.0
+		}
+	],
+	"inputs": [
+		{
+			"name": "U",
+			"startNode": 0,
+			"endNode": 2,
+			"inputType": "voltageSource",
+			"inhomogeneityType": "exponential",
+			"coefficients": [
+				{
+					"realValue": 0.0,
+					"imagValue": 0.5
+				},
+				{
+					"realValue": 0.0,
+					"imagValue": -0.5
+				}
+			],
+			"exponents": [
+				{
+					"realValue": -1,
+					"imagValue": 0
+				},
+				{
+					"realValue": 1,
+					"imagValue": 0
+				}
+			]
+		}
+	]
+}

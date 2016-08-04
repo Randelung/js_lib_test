@@ -4,7 +4,7 @@ import JampackNew.{Zdiagmat, Zmat}
 
 import scala.util.control.Breaks._
 
-/** Jama SVD algorithm, adapted for scala. Only accepts real matrices. */
+/** JAMA SVD algorithm, adapted for scala. Only accepts real matrices. */
 class JamaSVD(Arg: Zmat) {
 	require(Arg.im.forall(_.forall(_ == 0)), "Matrix must be real.")
 
