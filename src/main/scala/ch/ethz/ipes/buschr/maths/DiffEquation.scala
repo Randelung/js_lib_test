@@ -32,7 +32,7 @@ import scala.util.control.Breaks._
   * @param _matrix Matrix A in y'= Ax
   */
 class DiffEquation(private var _matrix: Zmat) {
-	require(_matrix.nrow == _matrix.ncol && _matrix.rank == _matrix.nrow, "Matrix must be full rank.")
+	require(_matrix.nrow == _matrix.ncol /* && _matrix.rank == _matrix.nrow*/ , "Matrix must be square.")
 
 	//step 0: initialisation. only have the matrix so far, so inhomogeneity is zero. also no data point yet to fix constants.
 	private var _appliedDataPoint = false
@@ -508,7 +508,7 @@ class DiffEquation(private var _matrix: Zmat) {
 		copy._matrix = _matrix.clone()
 		copy._appliedDataPoint = _appliedDataPoint
 		copy._typeOfInhomogeneity = _typeOfInhomogeneity
-		copy._inhomogeneityExponents = _inhomogeneityExponents.clone()
+		copy._inhomogeneityExponents = if (_inhomogeneityExponents == null) null else _inhomogeneityExponents.clone()
 		copy._particularSolution = _particularSolution.clone()
 		copy._eigenvalueDecomposition = _eigenvalueDecomposition.clone()
 		copy._generalEigenVectors = _generalEigenVectors.clone()
@@ -570,8 +570,6 @@ object DiffEquation {
 	def solveSylvesterEquation(A: Zmat, B: Zmat, C: Zmat): Zmat = {
 		require(A.nrow == A.ncol && B.nrow == B.ncol && C.nrow == A.nrow && C.ncol == B.ncol,
 			"Matrix dimensions must agree.")
-
-		println(s"A$A\nB$B\nC$C\n")
 
 		// the new dimensions are m*n x m*n or m*n x 1.
 		val dimension = A.nrow * B.nrow

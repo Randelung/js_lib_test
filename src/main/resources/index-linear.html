@@ -7,12 +7,12 @@
 	<body style = "margin: auto; max-width: 800px;">
 
 		<div id = "divCircuit" style = "margin: auto; max-width: 800px; max-height: 400px;"></div>
-		<button onclick = "button().button1()">u_C1</button>
-		<button onclick = "button().button2()">i_C1</button>
-		<button onclick = "button().button3()">u_L</button>
-		<button onclick = "button().button4()">i_L</button>
-		<button onclick = "button().button5()">du_L/dt</button>
-		<button onclick = "button().button6()">di_L/dt</button>
+		<button onclick = "button().plotVoltageButton('C1')">u_C1</button>
+		<button onclick = "button().plotCurrentButton('C1')">i_C1</button>
+		<button onclick = "button().plotVoltageButton('L')">u_L</button>
+		<button onclick = "button().plotCurrentButton('L')">i_L</button>
+		<button onclick = "button().plotDerivedVoltageButton('L')">du_L/dt</button>
+		<button onclick = "button().plotDerivedCurrentButton('L')">di_L/dt</button>
 		<div id = "divGraph" style = "margin: auto; max-width: 800px; max-height: 400px;"></div>
 
 		<script type = "text/javascript" src = "../diffsolver-fastopt.js"></script>

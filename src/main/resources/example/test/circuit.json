@@ -1,27 +1,27 @@
 {
-	"capacitors": [
+	"resistors": [
 		{
-			"name": "C",
+			"name": "R",
 			"startNode": 0,
 			"endNode": 1,
-			"realValue": 0.1,
+			"realValue": 1,
 			"imagValue": 0
 		}
 	],
-	"inductors": [
+	"capacitors": [
 		{
-			"name": "L",
+			"name": "C",
 			"startNode": 1,
 			"endNode": 2,
-			"realValue": 0.1,
-			"imagValue": 0.0
+			"realValue": 1,
+			"imagValue": 0
 		}
 	],
 	"inputs": [
 		{
 			"name": "U",
 			"startNode": 0,
-			"endNode": 2,
+			"endNode": 3,
 			"inputType": "voltageSource",
 			"inhomogeneityType": "exponential",
 			"coefficients": [
@@ -37,13 +37,20 @@
 			"exponents": [
 				{
 					"realValue": 0,
-					"imagValue": -10
+					"imagValue": -1
 				},
 				{
 					"realValue": 0,
-					"imagValue": 10
+					"imagValue": 1
 				}
 			]
+		}
+	],
+	"diodes": [
+		{
+			"name": "D1",
+			"startNode": 2,
+			"endNode": 3
 		}
 	]
 }

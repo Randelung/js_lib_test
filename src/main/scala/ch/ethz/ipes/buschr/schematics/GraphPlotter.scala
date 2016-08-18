@@ -1,10 +1,12 @@
 package ch.ethz.ipes.buschr.schematics
 
+import ch.ethz.ipes.buschr.maths.MNA.InternalDiode
+import ch.ethz.ipes.buschr.maths.root.NewtonRaphson
+import ch.ethz.ipes.buschr.maths.root.NewtonRaphson.MaximumIterationsReachedException
 import ch.ethz.ipes.buschr.maths.{MNA, Vector2D}
 import org.scalajs.dom._
 
-import scala.collection.mutable.ArrayBuffer
-import scala.util.control.Breaks._
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
   * Created by Randolph Busch on 03/07/16.
@@ -37,48 +39,163 @@ class GraphPlotter(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, st
 	context.lineCap = "square"
 	context.font = "12px Arial"
 
-	// fill diodeCurrentData and mnaTracker
-	private var currentMNA: MNA = _
-	private val currentMNAmask = Array.fill(mnaTreeRoot.netlist.diodes.length)(false)
+	// find first stable state. Can't just assume any diode state as it might separate the circuit.
 	private var t = 0d
-	//noinspection ConvertNullInitializerToUnderscore
-	private var lastState: Array[Double] = null
-	for (i <- 0 until pixelWidth) {
-		var stableStateFound = false
-		var invalidAppliedT = false
-		while (!stableStateFound) {
-			var currentTree = mnaTreeRoot
-			currentMNAmask.foreach(b => currentTree = if (b) currentTree.diodeConducting else currentTree.diodeBlocking)
-			currentMNA = currentTree.mna
-			if (lastState == null) {
-				currentMNA.applyStartingConditions(lastState)
-			}
-			if (invalidAppliedT) {
-				currentMNA.applyDataPoint(t - stepSize, lastState)
-				invalidAppliedT = false
-			}
+	private val currentMNAmask = Array.ofDim[Boolean](mnaTreeRoot.netlist.diodes.length)
+	private var currentMNA: MNA = _
+	println(s"t = $t")
 
-			breakable {
-				mnaTreeRoot.netlist.diodes.indices.withFilter(j => currentMNAmask(j)).foreach(d => {
-					if (currentMNA.elementVoltage(currentMNA.netlist(mnaTreeRoot.netlist.diodes(d).name), t) < 0) {
-						currentMNAmask(d) = false
-						invalidAppliedT = true
-						break
+	private var markedDiodes = ListBuffer[Int]()
+	mnaTreeRoot.netlist.diodes.indices.copyToBuffer(markedDiodes)
+
+	if (markedDiodes.isEmpty) {
+		mnaTracker(0) = mnaTreeRoot.mna
+		try {
+			mnaTracker(0).applyStartingConditions(null)
+		}
+		catch {
+			case e: Exception => println(s"Failed to apply starting conditions: ${e.getMessage}")
+		}
+	}
+	else {
+		println(s"Added all diodes to list of marked diodes as initialization.")
+
+		var possibleMNAs = ListBuffer[MNA]()
+		for (j <- 0 until 1 << markedDiodes.length) {
+			var currentTree = mnaTreeRoot
+			var shift = 0
+			for (k <- currentMNAmask.indices) {
+				if (!markedDiodes.contains(k)) {
+					currentTree = if (currentMNAmask(k)) currentTree.diodeConducting else currentTree.diodeBlocking
+				}
+				else {
+					currentTree = if (((j >> shift) & 1) == 1) currentTree.diodeConducting else currentTree.diodeBlocking
+					shift += 1
+				}
+			}
+			try {
+				currentTree.mna.applyStartingConditions(null)
+
+				if (markedDiodes.forall(k => {
+					((currentTree.mna.elementCurrent(currentTree.mna.netlist(mnaTreeRoot.netlist.diodes(k).name), 0) >= 0) &&
+						currentTree.mna.netlist(mnaTreeRoot.netlist.diodes(k).name).asInstanceOf[InternalDiode].conducting) ||
+						((currentTree.mna.elementCurrent(currentTree.mna.netlist(mnaTreeRoot.netlist.diodes(k).name), 0) <= 0) &&
+							(!currentTree.mna.netlist(mnaTreeRoot.netlist.diodes(k).name).asInstanceOf[InternalDiode].conducting))
+				})) {
+					println("possible: " + currentTree.mna.netlist)
+					possibleMNAs += currentTree.mna
+				}
+			}
+			catch {
+				case e: JampackNew.JampackException =>
+				case e: Exception => println(e.getMessage)
+			}
+		}
+		if (possibleMNAs.isEmpty) {
+			Console.err.println("no mna found")
+		}
+		else {
+			if (possibleMNAs.length > 1) {
+				println("more than one viable mna found")
+			}
+			println("accepted: " + possibleMNAs.head.netlist)
+			currentMNA = possibleMNAs.head
+			for (j <- currentMNAmask.indices) {
+				currentMNAmask(j) = currentMNA.netlist.diodes(j).asInstanceOf[InternalDiode].conducting
+			}
+			println(s"New currentMNAmask = ${currentMNAmask.deep}")
+			mnaTracker(0) = currentMNA.clone()
+		}
+	}
+
+	t += stepSize
+
+	// fill diodeCurrentData and mnaTracker
+	for (i <- 1 until pixelWidth) {
+		println(s"t = $t")
+
+		markedDiodes = ListBuffer[Int]()
+
+		mnaTreeRoot.netlist.diodes.indices.withFilter(j => currentMNAmask(j)).foreach(d => {
+			if (currentMNA.elementCurrent(currentMNA.netlist(mnaTreeRoot.netlist.diodes(d).name), t) <= 0) {
+				println(s"Added $d (${mnaTreeRoot.netlist.diodes(d).name}) to list of marked diodes (from conducting to blocking).")
+				markedDiodes += d
+			}
+		})
+		mnaTreeRoot.netlist.diodes.indices.withFilter(j => !currentMNAmask(j)).foreach(d => {
+			if (currentMNA.elementVoltage(currentMNA.netlist(mnaTreeRoot.netlist.diodes(d).name), t) > 0) {
+				println(s"Added $d (${mnaTreeRoot.netlist.diodes(d).name}) to list of marked diodes (from blocking to conducting).")
+				markedDiodes += d
+			}
+		})
+
+		if (markedDiodes.isEmpty) {
+			mnaTracker(i) = mnaTracker(i - 1)
+		}
+		else {
+			var tZero = t
+			markedDiodes.foreach(d => {
+				try {
+					val temp = NewtonRaphson.findRoot(time => currentMNA.elementCurrent(currentMNA.netlist(mnaTreeRoot.netlist.diodes(d).name), time),
+						time => currentMNA.derivedElementCurrent(currentMNA.netlist(mnaTreeRoot.netlist.diodes(d).name), time), t)
+					if (temp < tZero) {
+						tZero = temp
+						println(s"NewtonRaphson: new tZero = $tZero")
+					}
+				}
+				catch {
+					case _: MaximumIterationsReachedException => println("NewtonRaphson: maximum iteration count exceeded.")
+				}
+			})
+
+			var possibleMNAs = ListBuffer[MNA]()
+			for (j <- 0 until 1 << markedDiodes.length) {
+				var currentTree = mnaTreeRoot
+				var shift = 0
+				currentMNAmask.indices.foreach(k => {
+					if (!markedDiodes.contains(k)) {
+						currentTree = if (currentMNAmask(k)) currentTree.diodeConducting else currentTree.diodeBlocking
+					}
+					else {
+						currentTree = if (((j >> shift) & 1) == 1) currentTree.diodeConducting else currentTree.diodeBlocking
+						shift += 1
 					}
 				})
-				mnaTreeRoot.netlist.diodes.indices.withFilter(j => !currentMNAmask(j)).foreach(d => {
-					if (currentMNA.elementVoltage(currentMNA.netlist(mnaTreeRoot.netlist.diodes(d).name), t) > 0) {
-						currentMNAmask(d) = true
-						invalidAppliedT = true
-						break
+				try {
+					currentTree.mna.applyDataPoint(tZero, mnaTracker(i - 1).getStateVector(tZero))
+
+					if (markedDiodes.forall(k => {
+						((currentTree.mna.derivedElementVoltage(currentTree.mna.netlist(mnaTreeRoot.netlist.diodes(k).name), tZero) >= 0) &&
+							currentTree.mna.netlist(mnaTreeRoot.netlist.diodes(k).name).asInstanceOf[InternalDiode].conducting) ||
+							((currentTree.mna.derivedElementVoltage(currentTree.mna.netlist(mnaTreeRoot.netlist.diodes(k).name), tZero) <= 0) &&
+								(!currentTree.mna.netlist(mnaTreeRoot.netlist.diodes(k).name).asInstanceOf[InternalDiode].conducting))
+					})) {
+						println("possible: " + currentTree.mna.netlist)
+						possibleMNAs += currentTree.mna
 					}
-				})
-				stableStateFound = true
+				}
+				catch {
+					case e: JampackNew.JampackException =>
+					case e: Exception => println(e.getMessage)
+				}
+			}
+			if (possibleMNAs.isEmpty) {
+				Console.err.println("no mna found")
+			}
+			else {
+				if (possibleMNAs.length > 1) {
+					println("more than one viable mna found")
+				}
+				println("accepted: " + possibleMNAs.head.netlist)
+				currentMNA = possibleMNAs.head
+				for (j <- currentMNAmask.indices) {
+					currentMNAmask(j) = currentMNA.netlist.diodes(j).asInstanceOf[InternalDiode].conducting
+				}
+				println(s"New currentMNAmask = ${currentMNAmask.deep}")
+				mnaTracker(i) = currentMNA.clone()
 			}
 		}
 
-		mnaTracker(i) = currentMNA.clone()
-		lastState = currentMNA.getStateVector(t)
 		t += stepSize
 	}
 
@@ -95,7 +212,12 @@ class GraphPlotter(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, st
 		var t = startX
 		var j = 0
 		while (j < pixelWidth) {
-			result(j) = mnaTracker(j).elementCurrent(mnaTracker(j).netlist(elementName), t)
+			try {
+				result(j) = mnaTracker(j).elementCurrent(mnaTracker(j).netlist(elementName), t)
+			}
+			catch {
+				case e: Exception => println(e.getMessage)
+			}
 			t += stepSize
 			j += 1
 		}
@@ -130,7 +252,12 @@ class GraphPlotter(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, st
 		var t = startX
 		var j = 0
 		while (j < pixelWidth) {
-			result(j) = mnaTracker(j).elementVoltage(mnaTracker(j).netlist(elementName), t)
+			try {
+				result(j) = mnaTracker(j).elementVoltage(mnaTracker(j).netlist(elementName), t)
+			}
+			catch {
+				case e: Exception => println(e.getMessage)
+			}
 			t += stepSize
 			j += 1
 		}

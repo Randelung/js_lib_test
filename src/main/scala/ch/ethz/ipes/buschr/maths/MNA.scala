@@ -13,8 +13,11 @@ import scala.scalajs.js.JSON
   */
 //noinspection ConvertNullInitializerToUnderscore
 class MNA(val netlist: MNA.NetList) {
+	require(netlist.diodes.forall(_.isInstanceOf[MNA.InternalDiode]), "Diodes not initialized.")
 
 	private val _netlist = netlist.copy
+
+	private val filteredDiodes = _netlist.diodes.filter(_.asInstanceOf[MNA.InternalDiode].conducting)
 
 	private var P: Zmat = null
 	private var Ptranspose: Zmat = null
@@ -50,6 +53,14 @@ class MNA(val netlist: MNA.NetList) {
 		}
 	})
 	_netlist.resistors.foreach(i => {
+		if (!nodes.contains(i.startNode)) {
+			nodes += i.startNode
+		}
+		if (!nodes.contains(i.endNode)) {
+			nodes += i.endNode
+		}
+	})
+	filteredDiodes.foreach(i => {
 		if (!nodes.contains(i.startNode)) {
 			nodes += i.startNode
 		}
@@ -100,8 +111,8 @@ class MNA(val netlist: MNA.NetList) {
 
 	// solution vector is stacked values of all node potentials and all element currents. sources are elements.
 	// additionally, all capacitors get an extra variable to account for the derivative of the node difference.
-	private var vectorLength = nodes.length + 2 * _netlist.capacitors.length + _netlist.resistors.length + _netlist.inductors.length +
-		_netlist.inputs.length
+	private var vectorLength = nodes.length + 2 * _netlist.capacitors.length + _netlist.resistors.length +
+		filteredDiodes.length + _netlist.inductors.length + _netlist.inputs.length
 
 	// enumerate input exponents to optimize input matrix sizes
 	private var inputExponents = ListBuffer[Z]()
@@ -163,13 +174,25 @@ class MNA(val netlist: MNA.NetList) {
 				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + j) = 1
 			}
 		}
+		for (j <- filteredDiodes.indices) {
+			if (filteredDiodes(j).startNode == nodes(i)) {
+				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length +
+					_netlist.resistors.length + j) = -1
+			}
+			else if (filteredDiodes(j).endNode == nodes(i)) {
+				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length +
+					_netlist.resistors.length + j) = 1
+			}
+		}
 		for (j <- _netlist.inputs.indices) {
 			if (_netlist.inputs(j).startNode == nodes(i)) {
 				// input current is from end to start
-				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + j) = 1
+				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length +
+					filteredDiodes.length + j) = 1
 			}
 			else if (_netlist.inputs(j).endNode == nodes(i)) {
-				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + j) = -1
+				B(i, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length +
+					filteredDiodes.length + j) = -1
 			}
 		}
 	}
@@ -207,6 +230,13 @@ class MNA(val netlist: MNA.NetList) {
 		B(matrixIndex, matrixIndex) = _netlist.resistors(i).value
 	}
 
+	// KVL for diodes is the same as for resistors, except that it is filtered by conducting state first. Resistance is 0.
+	for (i <- filteredDiodes.indices) {
+		val matrixIndex = nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + i
+		B(matrixIndex, nodes.indexOf(filteredDiodes(i).startNode)) = -1
+		B(matrixIndex, nodes.indexOf(filteredDiodes(i).endNode)) = 1
+	}
+
 	for (i <- _netlist.inputs.indices) {
 		_netlist.inputs(i).inputType match {
 			case MNA.Input.InputType.currentSource =>
@@ -217,7 +247,8 @@ class MNA(val netlist: MNA.NetList) {
 				}
 			case MNA.Input.InputType.voltageSource =>
 				// KVL for inputs: potential(startNode) - potential(endNode) = u_I (which is input)
-				val matrixIndex = nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + i
+				val matrixIndex = nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length +
+					filteredDiodes.length + i
 				B(matrixIndex, nodes.indexOf(_netlist.inputs(i).startNode)) = 1
 				B(matrixIndex, nodes.indexOf(_netlist.inputs(i).endNode)) = -1
 				if (_netlist.inputs(i).inhomogeneityType == MNA.Input.InhomogeneityType.exponential) {
@@ -428,11 +459,11 @@ class MNA(val netlist: MNA.NetList) {
 		copy.nodes = nodes.clone()
 		copy.j = j
 		copy.vectorLength = vectorLength
-		copy.inputExponents = inputExponents.clone()
+		copy.inputExponents = if (inputExponents == null) null else inputExponents.clone()
 		copy.A = A.clone()
 		copy.B = B.clone()
 		copy.U1 = U1.clone()
-		copy.U2 = U2.clone()
+		copy.U2 = if (U2 == null) null else U2.clone()
 		copy.col = col.clone()
 		copy.row = row.clone()
 		copy.Atranspose = Atranspose.clone()
@@ -455,13 +486,15 @@ class MNA(val netlist: MNA.NetList) {
 	def elementVoltage(element: MNA.Element, t: Double): Double = {
 		element match {
 			case _: MNA.Capacitor =>
-				require(_netlist.capacitors.contains(element), "Element not in netlist.")
+				require(_netlist.capacitors.map(_.name).contains(element.name), "Element not in netlist.")
 			case _: MNA.Inductor =>
-				require(_netlist.inductors.contains(element), "Element not in netlist.")
+				require(_netlist.inductors.map(_.name).contains(element.name), "Element not in netlist.")
 			case _: MNA.Resistor =>
-				require(_netlist.resistors.contains(element), "Element not in netlist.")
+				require(_netlist.resistors.map(_.name).contains(element.name), "Element not in netlist.")
+			case _: MNA.Diode | _: MNA.InternalDiode =>
+				require(_netlist.diodes.map(_.name).contains(element.name), "Element not in netlist.")
 			case _: MNA.Input =>
-				require(_netlist.inputs.contains(element), "Element not in netlist.")
+				require(_netlist.inputs.map(_.name).contains(element.name), "Element not in netlist.")
 			case _ =>
 				throw new IllegalArgumentException("Unknown element type.")
 		}
@@ -471,17 +504,27 @@ class MNA(val netlist: MNA.NetList) {
 	def elementCurrent(element: MNA.Element, t: Double): Double = {
 		element match {
 			case _: MNA.Capacitor =>
-				require(_netlist.capacitors.contains(element), "Element not in netlist.")
-				solution(t, nodes.length + _netlist.capacitors.length + _netlist.capacitors.indexOf(element))
+				require(_netlist.capacitors.map(_.name).contains(element.name), "Element not in netlist.")
+				solution(t, nodes.length + _netlist.capacitors.length + _netlist.capacitors.map(_.name).indexOf(element.name))
 			case _: MNA.Resistor =>
-				require(_netlist.resistors.contains(element), "Element not in netlist.")
-				solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.indexOf(element))
+				require(_netlist.resistors.map(_.name).contains(element.name), "Element not in netlist.")
+				solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.map(_.name).indexOf(element.name))
+			case _: MNA.Diode | _: MNA.InternalDiode =>
+				require(_netlist.diodes.map(_.name).contains(element.name), "Element not in netlist.")
+				if (_netlist.diodes(_netlist.diodes.map(_.name).indexOf(element.name)).asInstanceOf[MNA.InternalDiode].conducting) {
+					solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length +
+						_netlist.resistors.length + filteredDiodes.map(_.name).indexOf(element.name))
+				}
+				else {
+					0
+				}
 			case _: MNA.Inductor =>
-				require(_netlist.inductors.contains(element), "Element not in netlist.")
-				solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.indexOf(element))
+				require(_netlist.inductors.map(_.name).contains(element.name), "Element not in netlist.")
+				solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.map(_.name).indexOf(element.name))
 			case _: MNA.Input =>
-				require(_netlist.inputs.contains(element), "Element not in netlist.")
-				solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + _netlist.inputs.indexOf(element))
+				require(_netlist.inputs.map(_.name).contains(element.name), "Element not in netlist.")
+				solution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length +
+					_netlist.resistors.length + filteredDiodes.length + _netlist.inputs.map(_.name).indexOf(element.name))
 			case _ =>
 				throw new IllegalArgumentException("Unknown element type.")
 		}
@@ -490,13 +533,15 @@ class MNA(val netlist: MNA.NetList) {
 	def derivedElementVoltage(element: MNA.Element, t: Double): Double = {
 		element match {
 			case _: MNA.Capacitor =>
-				require(_netlist.capacitors.contains(element), "Element not in netlist.")
+				require(_netlist.capacitors.map(_.name).contains(element.name), "Element not in netlist.")
 			case _: MNA.Inductor =>
-				require(_netlist.inductors.contains(element), "Element not in netlist.")
+				require(_netlist.inductors.map(_.name).contains(element.name), "Element not in netlist.")
 			case _: MNA.Resistor =>
-				require(_netlist.resistors.contains(element), "Element not in netlist.")
+				require(_netlist.resistors.map(_.name).contains(element.name), "Element not in netlist.")
+			case _: MNA.Diode | _: MNA.InternalDiode =>
+				require(_netlist.diodes.map(_.name).contains(element.name), "Element not in netlist.")
 			case _: MNA.Input =>
-				require(_netlist.inputs.contains(element), "Element not in netlist.")
+				require(_netlist.inputs.map(_.name).contains(element.name), "Element not in netlist.")
 			case _ =>
 				throw new IllegalArgumentException("Unknown element type.")
 		}
@@ -506,21 +551,33 @@ class MNA(val netlist: MNA.NetList) {
 	def derivedElementCurrent(element: MNA.Element, t: Double): Double = {
 		element match {
 			case _: MNA.Capacitor =>
-				require(_netlist.capacitors.contains(element), "Element not in netlist.")
-				derivedSolution(t, nodes.length + _netlist.capacitors.length + _netlist.capacitors.indexOf(element))
+				require(_netlist.capacitors.map(_.name).contains(element.name), "Element not in netlist.")
+				derivedSolution(t, nodes.length + _netlist.capacitors.length + _netlist.capacitors.map(_.name).indexOf(element.name))
 			case _: MNA.Resistor =>
-				require(_netlist.resistors.contains(element), "Element not in netlist.")
-				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.indexOf(element))
+				require(_netlist.resistors.map(_.name).contains(element.name), "Element not in netlist.")
+				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.map(_.name).indexOf(element.name))
+			case _: MNA.Diode | _: MNA.InternalDiode =>
+				require(_netlist.diodes.map(_.name).contains(element.name), "Element not in netlist.")
+				if (filteredDiodes.map(_.name).contains(element.name)) {
+					derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length +
+						_netlist.resistors.length + filteredDiodes.map(_.name).indexOf(element.name))
+				}
+				else {
+					0
+				}
 			case _: MNA.Inductor =>
-				require(_netlist.inductors.contains(element), "Element not in netlist.")
-				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.indexOf(element))
+				require(_netlist.inductors.map(_.name).contains(element.name), "Element not in netlist.")
+				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + filteredDiodes.map(_.name).indexOf(element.name))
 			case _: MNA.Input =>
-				require(_netlist.inputs.contains(element), "Element not in netlist.")
-				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length + _netlist.resistors.length + _netlist.inputs.indexOf(element))
+				require(_netlist.inputs.map(_.name).contains(element.name), "Element not in netlist.")
+				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length +
+					_netlist.resistors.length + filteredDiodes.length + _netlist.inputs.map(_.name).indexOf(element.name))
 			case _ =>
 				throw new IllegalArgumentException("Unknown element type.")
 		}
 	}
+
+	def systemMatrices = (A, B)
 }
 
 object MNA {
@@ -536,7 +593,21 @@ object MNA {
 		def copy() = Capacitor(name, startNode, endNode, value.copy())
 	}
 
-	case class Diode(name: String, startNode: Int, endNode: Int) extends Element
+	class Diode(val name: String, val startNode: Int, val endNode: Int) extends Element {
+
+		def copy() = new Diode(name, startNode, endNode)
+
+		override def toString: String = s"Diode($name, $startNode, $endNode)"
+	}
+
+	// track state info for static system analysis. Extends Diode to fit into normal Diode array.
+	case class InternalDiode(override val name: String, override val startNode: Int, override val endNode: Int, conducting: Boolean)
+		extends Diode(name, startNode, endNode) {
+
+		override def toString: String = s"InternalDiode($name, $startNode, $endNode, $conducting)"
+
+		override def copy(): Diode = InternalDiode(name, startNode, endNode, conducting)
+	}
 
 	case class Inductor(name: String, startNode: Int, endNode: Int, value: Z) extends Element {
 
@@ -604,6 +675,9 @@ object MNA {
 			}
 			else if (resistors.map(_.name).contains(name)) {
 				resistors(resistors.map(_.name).indexOf(name))
+			}
+			else if (diodes.map(_.name).contains(name)) {
+				diodes(diodes.map(_.name).indexOf(name))
 			}
 			else if (inputs.map(_.name).contains(name)) {
 				inputs(inputs.map(_.name).indexOf(name))
@@ -691,7 +765,7 @@ object MNA {
 			}
 			else {
 				parsedJSON.diodes.asInstanceOf[js.Array[js.Dynamic]]
-					.map(i => Diode(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int]))
+					.map(i => new Diode(i.name.asInstanceOf[String], i.startNode.asInstanceOf[Int], i.endNode.asInstanceOf[Int]))
 			}
 
 			val grounds = if (js.isUndefined(parsedJSON.grounds)) {

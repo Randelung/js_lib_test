@@ -61,6 +61,7 @@ class MNATest extends FlatSpec with Matchers {
 			"], \"grounds\": [{\"node\": 2}]" +
 			"}"*/
 		val (netlist, mna) = MNA.fromJSON(json)
+		mna.applyStartingConditions(null)
 		var t = 0d
 		print("u_C1 = [")
 		while (t < 4 * math.Pi) {
@@ -132,7 +133,7 @@ class MNATest extends FlatSpec with Matchers {
 		}
 		println("];")
 		t = 0
-		print("i_I = [")
+		print("i_U = [")
 		while (t < 4 * math.Pi) {
 			print("%.3f".format(mna.elementCurrent(netlist.inputs(0), t)) + ",")
 			t += 0.1

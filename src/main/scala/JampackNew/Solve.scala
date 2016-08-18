@@ -68,7 +68,7 @@ object Solve {
 				X.re(i)(j) = X.re(i)(j) - U.re(i)(k) * X.re(k)(j) + U.im(i)(k) * X.im(k)(j)
 				X.im(i)(j) = X.im(i)(j) - U.im(i)(k) * X.re(k)(j) - U.re(i)(k) * X.im(k)(j)
 			}
-			if (U.re(i)(i) == 0.0 && U.im(i)(i) == 0.0) throw new JampackException("Zero diagonal in solving riangular system")
+			if (U.re(i)(i) == 0.0 && U.im(i)(i) == 0.0) throw new JampackException(s"Zero diagonal in solving triangular system")
 			x = X.get0(i, j) / U.get0(i, i)
 			X.put0(i, j, x)
 		}

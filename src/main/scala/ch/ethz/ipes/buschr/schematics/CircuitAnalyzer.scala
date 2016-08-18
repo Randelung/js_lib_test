@@ -1,12 +1,13 @@
 package ch.ethz.ipes.buschr.schematics
 
 import ch.ethz.ipes.buschr.maths.MNA
-import ch.ethz.ipes.buschr.maths.MNA.{NetList, Resistor}
+import ch.ethz.ipes.buschr.maths.MNA.NetList
 import org.scalajs.dom.{Event, XMLHttpRequest, html}
 
 import scala.scalajs.js
 import scala.scalajs.js.JSON
 import scala.scalajs.js.annotation.JSExport
+import scala.util.control.Breaks._
 import scalatags.JsDom.all._
 
 @JSExport
@@ -38,7 +39,12 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 
 			CircuitAnalyzer.buildTree(CircuitAnalyzer.MNATreeRoot)
 
-			CircuitAnalyzer.graph = GraphPlotter(canvasGraph, CircuitAnalyzer.MNATreeRoot, 8 * math.Pi)
+			try {
+				CircuitAnalyzer.graph = GraphPlotter(canvasGraph, CircuitAnalyzer.MNATreeRoot, 8 * math.Pi)
+			}
+			catch {
+				case e: Exception => e.printStackTrace()
+			}
 		}
 	}
 	xhr.open("GET", urlNetlist, async = true)
@@ -61,7 +67,6 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 @JSExport("button")
 object CircuitAnalyzer {
 
-	var mna: MNA = _
 	var graph: GraphPlotter = _
 	var netlist: NetList = _
 	var MNATreeRoot: MNATree = _
@@ -98,185 +103,137 @@ object CircuitAnalyzer {
 		lazy val mna = new MNA(netlist)
 	}
 
+	/** New way to analyze diodes by using static state information for each state (blocking or conducting).
+	  *
+	  * The new approach uses 0 resistance and open connections instead of 1e15 and 1e-15 ohm resistors. An internalDiode
+	  * class tracks the current state of each diode and allows thus addition in the MNA. This improves matrix size and
+	  * thus speed, besides getting rid of one approximation.
+	  */
+
 	/** Creates a tree of diode replacements starting with the given node.
 	  *
 	  * @param currentNode Root of the tree to be created.
 	  */
-	def buildTree(currentNode: CircuitAnalyzer.MNATree): Unit = {
+	private def buildTree(currentNode: CircuitAnalyzer.MNATree): Unit = {
 
-		if (currentNode.netlist.diodes.nonEmpty) {
-			val netlistConducting = currentNode.netlist.copy
-			val netlistBlocking = currentNode.netlist.copy
-			netlistConducting.resistors += Resistor(netlistConducting.diodes.head.name, netlistConducting.diodes.head.startNode,
-				netlistConducting.diodes.head.endNode, 1e-15)
-			netlistBlocking.resistors += Resistor(netlistBlocking.diodes.head.name, netlistBlocking.diodes.head.startNode,
-				netlistBlocking.diodes.head.endNode, 1e15)
-			netlistConducting.diodes.remove(0)
-			netlistBlocking.diodes.remove(0)
-			currentNode.diodeBlocking = CircuitAnalyzer.MNATree(netlistBlocking, null, null)
-			currentNode.diodeConducting = CircuitAnalyzer.MNATree(netlistConducting, null, null)
-			buildTree(currentNode.diodeConducting)
-			buildTree(currentNode.diodeBlocking)
+		// find first non-internalDiode diode to replace
+		var i = 0
+		breakable {
+			while (i < currentNode.netlist.diodes.length) {
+				if (!currentNode.netlist.diodes(i).isInstanceOf[MNA.InternalDiode]) {
+					break
+				}
+
+				i += 1
+			}
+		}
+		if (i == netlist.diodes.length) {
+			return
+		}
+
+		val netlistConducting = currentNode.netlist.copy
+		val netlistBlocking = currentNode.netlist.copy
+		netlistConducting.diodes(i) = MNA.InternalDiode(currentNode.netlist.diodes(i).name, currentNode.netlist.diodes(i).startNode,
+			currentNode.netlist.diodes(i).endNode, conducting = true)
+		netlistBlocking.diodes(i) = MNA.InternalDiode(currentNode.netlist.diodes(i).name, currentNode.netlist.diodes(i).startNode,
+			currentNode.netlist.diodes(i).endNode, conducting = false)
+		/*netlistConducting.resistors += Resistor(netlistConducting.diodes.head.name, netlistConducting.diodes.head.startNode,
+			netlistConducting.diodes.head.endNode, 0)
+		netlistBlocking.resistors += Resistor(netlistBlocking.diodes.head.name, netlistBlocking.diodes.head.startNode,
+			netlistBlocking.diodes.head.endNode, 1e15)
+		netlistConducting.diodes.remove(0)
+		netlistBlocking.diodes.remove(0)*/
+		currentNode.diodeBlocking = CircuitAnalyzer.MNATree(netlistBlocking, null, null)
+		currentNode.diodeConducting = CircuitAnalyzer.MNATree(netlistConducting, null, null)
+		buildTree(currentNode.diodeConducting)
+		buildTree(currentNode.diodeBlocking)
+	}
+
+	private var plotStatesVoltages = Map[String, Boolean]()
+
+	@JSExport
+	def plotVoltageButton(name: String) = {
+
+		try {
+			plotStatesVoltages += name -> (plotStatesVoltages(name) match {
+				case true =>
+					graph.disableFunction("u_" + name)
+					false
+				case false =>
+					graph.enableFunction("u_" + name)
+					true
+			})
+		}
+		catch {
+			case _: NoSuchElementException =>
+				graph.plotElementVoltage(name)
+				plotStatesVoltages += name -> true
 		}
 	}
 
-	// What follows are special cases of button methods that correspond to some of the calls made in the examples. They
-	// are the reason some variables are global when they wouldn't have to be. A better interface could have been created
-	// where the object has a global function that accepts a name and will plot that accordingly. However, it's just an
-	// example.
-
-	// http://willachen.com/willame/1-0EJX6TLiqAREXg_R2BObwQ.png :D
-
-	private var button1pressed = 0
+	private var plotStatesCurrents = Map[String, Boolean]()
 
 	@JSExport
-	def button1(): Unit = {
-		button1pressed = button1pressed match {
-			case 0 =>
-				CircuitAnalyzer.graph.plotElementVoltage(netlist.capacitors.head.name)
-				1
-			case 1 =>
-				graph.disableFunction("u_" + netlist.capacitors.head.name)
-				2
-			case 2 =>
-				graph.enableFunction("u_" + netlist.capacitors.head.name)
-				1
+	def plotCurrentButton(name: String) = {
+
+		try {
+			plotStatesCurrents += name -> (plotStatesCurrents(name) match {
+				case true =>
+					graph.disableFunction("i_" + name)
+					false
+				case false =>
+					graph.enableFunction("i_" + name)
+					true
+			})
+		}
+		catch {
+			case _: NoSuchElementException =>
+				graph.plotElementCurrent(name)
+				plotStatesCurrents += name -> true
 		}
 	}
 
-	private var button2pressed = 0
+	private var plotStatesDerivedVoltages = Map[String, Boolean]()
 
 	@JSExport
-	def button2(): Unit = {
-		button2pressed = button2pressed match {
-			case 0 =>
-				CircuitAnalyzer.graph.plotElementCurrent(netlist.capacitors.head.name)
-				1
-			case 1 =>
-				graph.disableFunction("i_" + netlist.capacitors.head.name)
-				2
-			case 2 =>
-				graph.enableFunction("i_" + netlist.capacitors.head.name)
-				1
+	def plotDerivedVoltageButton(name: String) = {
+
+		try {
+			plotStatesDerivedVoltages += name -> (plotStatesDerivedVoltages(name) match {
+				case true =>
+					graph.disableFunction("du_" + name + "/dt")
+					false
+				case false =>
+					graph.enableFunction("du_" + name + "/dt")
+					true
+			})
+		}
+		catch {
+			case _: NoSuchElementException =>
+				graph.plotDerivedElementVoltage(name)
+				plotStatesDerivedVoltages += name -> true
 		}
 	}
 
-	private var button3pressed = 0
+	private var plotStatesDerivedCurrents = Map[String, Boolean]()
 
 	@JSExport
-	def button3(): Unit = {
-		button3pressed = button3pressed match {
-			case 0 =>
-				CircuitAnalyzer.graph.plotElementVoltage(netlist.inductors.head.name)
-				1
-			case 1 =>
-				graph.disableFunction("u_" + netlist.inductors.head.name)
-				2
-			case 2 =>
-				graph.enableFunction("u_" + netlist.inductors.head.name)
-				1
+	def plotDerivedCurrentButton(name: String) = {
+
+		try {
+			plotStatesDerivedCurrents += name -> (plotStatesDerivedCurrents(name) match {
+				case true =>
+					graph.disableFunction("di_" + name + "/dt")
+					false
+				case false =>
+					graph.enableFunction("di_" + name + "/dt")
+					true
+			})
 		}
-	}
-
-	private var button4pressed = 0
-
-	@JSExport
-	def button4(): Unit = {
-		button4pressed = button4pressed match {
-			case 0 =>
-				CircuitAnalyzer.graph.plotElementCurrent(netlist.inductors.head.name)
-				1
-			case 1 =>
-				graph.disableFunction("i_" + netlist.inductors.head.name)
-				2
-			case 2 =>
-				graph.enableFunction("i_" + netlist.inductors.head.name)
-				1
-		}
-	}
-
-	private var button5pressed = 0
-
-	@JSExport
-	def button5(): Unit = {
-		button5pressed = button5pressed match {
-			case 0 =>
-				CircuitAnalyzer.graph.plotDerivedElementVoltage(netlist.inductors.head.name)
-				1
-			case 1 =>
-				graph.disableFunction("du_" + netlist.inductors.head.name + "/dt")
-				2
-			case 2 =>
-				graph.enableFunction("du_" + netlist.inductors.head.name + "/dt")
-				1
-		}
-	}
-
-	private var button6pressed = 0
-
-	@JSExport
-	def button6(): Unit = {
-		button6pressed = button6pressed match {
-			case 0 =>
-				CircuitAnalyzer.graph.plotDerivedElementCurrent(netlist.inductors.head.name)
-				1
-			case 1 =>
-				graph.disableFunction("di_" + netlist.inductors.head.name + "/dt")
-				2
-			case 2 =>
-				graph.enableFunction("di_" + netlist.inductors.head.name + "/dt")
-				1
-		}
-	}
-
-	private var button7pressed = 0
-
-	@JSExport
-	def button7(): Unit = {
-		button7pressed = button7pressed match {
-			case 0 =>
-				CircuitAnalyzer.graph.plotElementVoltage(netlist.diodes.head.name)
-				1
-			case 1 =>
-				graph.disableFunction(s"u_${netlist.diodes.head.name}")
-				2
-			case 2 =>
-				graph.enableFunction(s"u_${netlist.diodes.head.name}")
-				1
-		}
-	}
-
-	private var button8pressed = 0
-
-	@JSExport
-	def button8(): Unit = {
-		button8pressed = button8pressed match {
-			case 0 =>
-				CircuitAnalyzer.graph.plotElementCurrent(netlist.diodes.head.name)
-				1
-			case 1 =>
-				graph.disableFunction(s"i_${netlist.diodes.head.name}")
-				2
-			case 2 =>
-				graph.enableFunction(s"i_${netlist.diodes.head.name}")
-				1
-		}
-	}
-
-	private var button9pressed = 0
-
-	@JSExport
-	def button9(): Unit = {
-		button9pressed = button9pressed match {
-			case 0 =>
-				CircuitAnalyzer.graph.plotElementVoltage(netlist.resistors.head.name)
-				1
-			case 1 =>
-				graph.disableFunction(s"i_${netlist.diodes.head.name}")
-				2
-			case 2 =>
-				graph.enableFunction(s"i_${netlist.diodes.head.name}")
-				1
+		catch {
+			case _: NoSuchElementException =>
+				graph.plotDerivedElementCurrent(name)
+				plotStatesDerivedCurrents += name -> true
 		}
 	}
 
