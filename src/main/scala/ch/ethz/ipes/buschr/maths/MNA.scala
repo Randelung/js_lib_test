@@ -625,7 +625,7 @@ class MNA(val netlist: MNA.NetList) {
 				}
 			case _: MNA.Inductor =>
 				require(_netlist.inductors.map(_.name).contains(element.name), "Element not in netlist.")
-				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + filteredDiodes.map(_.name).indexOf(element.name))
+				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.map(_.name).indexOf(element.name))
 			case _: MNA.Input =>
 				require(_netlist.inputs.map(_.name).contains(element.name), "Element not in netlist.")
 				derivedSolution(t, nodes.length + 2 * _netlist.capacitors.length + _netlist.inductors.length +
