@@ -9,7 +9,7 @@ import org.scalajs.dom._
 import scala.scalajs.js
 
 /**
-  * Created by Randolph Busch on 03/07/16.
+  * Draws a circuit using a node map and netlist.
   */
 object CircuitIllustrator {
 

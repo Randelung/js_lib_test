@@ -10,21 +10,30 @@ import scala.scalajs.js.annotation.JSExport
 import scala.util.control.Breaks._
 import scalatags.JsDom.all._
 
+/** Demo application that creates two canvasses, one for the circuit illustration, one for the plot.
+  *
+  * @param divCircuit A div element inside which the circuit illustration is to be done
+  * @param urlNetlist The url to the netlist so that the XHR will recognise its location
+  * @param divGraph A div element inside which the graph plot is to be done
+  * @param urlElementMap The url to the element map so that the XHR will ecognise its location
+  */
 @JSExport
-class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.Div = null, urlNodemap: String = null) {
-	if (divGraph != null) require(urlNodemap != null, "divGraph and urlNodemap must be given together.")
-	if (urlNodemap != null) require(divGraph != null, "divGraph and urlNodemap must be given together.")
+class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.Div = null, urlElementMap: String = null) {
+	if (divGraph != null) require(urlElementMap != null, "divGraph and urlNodemap must be given together.")
+	if (urlElementMap != null) require(divGraph != null, "divGraph and urlNodemap must be given together.")
 	require(divCircuit != null && urlNetlist != null, "Arguments can't be null.")
 
+	// create canvasses
 	val canvasCircuit = canvas(id := "canvasCircuit")("Get a proper browser!").render
 	val canvasGraph = canvas(id := "canvasGraph")("Get a proper browser!").render
 
+	// create XHR object
 	val xhr = new XMLHttpRequest()
 	xhr.onreadystatechange = (e: Event) => {
 
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			CircuitAnalyzer.netlist = NetList.fromJSON(xhr.responseText)
-			if (urlNodemap != null) {
+			if (urlElementMap != null) {
 				xhr.onreadystatechange = (event: Event) => {
 
 					if (xhr.readyState == 4 && xhr.status == 200) {
@@ -32,29 +41,35 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 						CircuitIllustrator.drawCircuit(canvasCircuit, gridWidth, gridHeight, elementMap, nodeMap, CircuitAnalyzer.netlist)
 					}
 				}
-				xhr.open("GET", urlNodemap, async = true)
+				// fetch element map
+				xhr.open("GET", urlElementMap, async = true)
 				xhr.send()
 			}
+			// parse JSON into netlist and MNA
 			CircuitAnalyzer.MNATreeRoot = CircuitAnalyzer.MNATree(CircuitAnalyzer.netlist, diodeConducting = null, diodeBlocking = null)
 
+			// create all combinations of open/closed diodes
 			CircuitAnalyzer.buildTree(CircuitAnalyzer.MNATreeRoot)
 
 			try {
 				CircuitAnalyzer.graph = GraphPlotter(canvasGraph, CircuitAnalyzer.MNATreeRoot, 8 * math.Pi)
 			}
 			catch {
-				case e: Exception => e.printStackTrace()
+				case e: Exception => Console.err.println(e.getMessage)
 			}
 		}
 	}
+	// fetch netlist
 	xhr.open("GET", urlNetlist, async = true)
 	xhr.send()
 
+	// put circuit canvas in webpage and set coordinate system
 	divCircuit.appendChild(canvasCircuit)
 	canvasCircuit.style.height = divCircuit.style.maxHeight
 	canvasCircuit.style.width = divCircuit.style.maxWidth
 	canvasCircuit.height = canvasCircuit.getBoundingClientRect().height.toInt
 	canvasCircuit.width = canvasCircuit.getBoundingClientRect().width.toInt
+	// put graph canvas into webpage and set coordinate system
 	if (divGraph != null) {
 		divGraph.appendChild(canvasGraph)
 		canvasGraph.style.height = divGraph.style.maxHeight
@@ -64,9 +79,11 @@ class CircuitAnalyzer(divCircuit: html.Div, urlNetlist: String, divGraph: html.D
 	}
 }
 
+/** Convenience methods to allow external access to functionality. Object is available as "button". */
 @JSExport("button")
 object CircuitAnalyzer {
 
+	@JSExport
 	var graph: GraphPlotter = _
 	var netlist: NetList = _
 	var MNATreeRoot: MNATree = _
@@ -108,9 +125,6 @@ object CircuitAnalyzer {
 	  * The new approach uses 0 resistance and open connections instead of 1e15 and 1e-15 ohm resistors. An internalDiode
 	  * class tracks the current state of each diode and allows thus addition in the MNA. This improves matrix size and
 	  * thus speed, besides getting rid of one approximation.
-	  */
-
-	/** Creates a tree of diode replacements starting with the given node.
 	  *
 	  * @param currentNode Root of the tree to be created.
 	  */
@@ -137,104 +151,10 @@ object CircuitAnalyzer {
 			currentNode.netlist.diodes(i).endNode, conducting = true)
 		netlistBlocking.diodes(i) = MNA.InternalDiode(currentNode.netlist.diodes(i).name, currentNode.netlist.diodes(i).startNode,
 			currentNode.netlist.diodes(i).endNode, conducting = false)
-		/*netlistConducting.resistors += Resistor(netlistConducting.diodes.head.name, netlistConducting.diodes.head.startNode,
-			netlistConducting.diodes.head.endNode, 0)
-		netlistBlocking.resistors += Resistor(netlistBlocking.diodes.head.name, netlistBlocking.diodes.head.startNode,
-			netlistBlocking.diodes.head.endNode, 1e15)
-		netlistConducting.diodes.remove(0)
-		netlistBlocking.diodes.remove(0)*/
 		currentNode.diodeBlocking = CircuitAnalyzer.MNATree(netlistBlocking, null, null)
 		currentNode.diodeConducting = CircuitAnalyzer.MNATree(netlistConducting, null, null)
 		buildTree(currentNode.diodeConducting)
 		buildTree(currentNode.diodeBlocking)
-	}
-
-	private var plotStatesVoltages = Map[String, Boolean]()
-
-	@JSExport
-	def plotVoltageButton(name: String) = {
-
-		try {
-			plotStatesVoltages += name -> (plotStatesVoltages(name) match {
-				case true =>
-					graph.disableFunction("u_" + name)
-					false
-				case false =>
-					graph.enableFunction("u_" + name)
-					true
-			})
-		}
-		catch {
-			case _: NoSuchElementException =>
-				graph.plotElementVoltage(name)
-				plotStatesVoltages += name -> true
-		}
-	}
-
-	private var plotStatesCurrents = Map[String, Boolean]()
-
-	@JSExport
-	def plotCurrentButton(name: String) = {
-
-		try {
-			plotStatesCurrents += name -> (plotStatesCurrents(name) match {
-				case true =>
-					graph.disableFunction("i_" + name)
-					false
-				case false =>
-					graph.enableFunction("i_" + name)
-					true
-			})
-		}
-		catch {
-			case _: NoSuchElementException =>
-				graph.plotElementCurrent(name)
-				plotStatesCurrents += name -> true
-		}
-	}
-
-	private var plotStatesDerivedVoltages = Map[String, Boolean]()
-
-	@JSExport
-	def plotDerivedVoltageButton(name: String) = {
-
-		try {
-			plotStatesDerivedVoltages += name -> (plotStatesDerivedVoltages(name) match {
-				case true =>
-					graph.disableFunction("du_" + name + "/dt")
-					false
-				case false =>
-					graph.enableFunction("du_" + name + "/dt")
-					true
-			})
-		}
-		catch {
-			case _: NoSuchElementException =>
-				graph.plotDerivedElementVoltage(name)
-				plotStatesDerivedVoltages += name -> true
-		}
-	}
-
-	private var plotStatesDerivedCurrents = Map[String, Boolean]()
-
-	@JSExport
-	def plotDerivedCurrentButton(name: String) = {
-
-		try {
-			plotStatesDerivedCurrents += name -> (plotStatesDerivedCurrents(name) match {
-				case true =>
-					graph.disableFunction("di_" + name + "/dt")
-					false
-				case false =>
-					graph.enableFunction("di_" + name + "/dt")
-					true
-			})
-		}
-		catch {
-			case _: NoSuchElementException =>
-				graph.plotDerivedElementCurrent(name)
-				plotStatesDerivedCurrents += name -> true
-		}
 	}
 
 }

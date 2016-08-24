@@ -35,8 +35,8 @@
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="ScaladocSettings">
-    <option name="outputDir" value="D:\Desktop" />
-    <option name="additionalFlags" value="" />
+    <option name="outputDir" value="D:\Desktop\master_thesis\js_lib_test\scaladoc" />
+    <option name="additionalFlags" value="-skip-packages upickle:sbt:JampackNew" />
     <option name="maxHeapSize" value="" />
     <option name="docTitle" value="DiffSolver documentation" />
     <option name="verbose" value="false" />

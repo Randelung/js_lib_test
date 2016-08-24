@@ -1,7 +1,7 @@
 package ch.ethz.ipes.buschr.maths.root
 
-/**
-  * Created by Randolph Busch on 13/07/16.
+/** Basic Newton-Raphson algorithm to find a root using a function and its derivative.
+  *
   */
 object NewtonRaphson {
 

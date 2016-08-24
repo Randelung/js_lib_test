@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Example Scala.js application</title>
+		<meta http-equiv = "Content-Type" content = "text/html; charset=UTF-8" />
+	</head>
+	<body style = "margin: auto; max-width: 800px;">
+
+		<div id = "divCircuit" style = "margin: auto; max-width: 800px; max-height: 400px;"></div>
+		<button onclick = "button().graph.plotVoltageButton('R')">u_R</button>
+		<button onclick = "button().graph.plotVoltageButton('L')">u_L</button>
+		<button onclick = "button().graph.plotVoltageButton('C')">u_C</button>
+		<button onclick = "button().graph.plotVoltageButton('R_C')">u_R_C</button>
+		<button onclick = "button().graph.plotVoltageButton('R_L')">u_R_L</button>
+		<button onclick = "button().graph.plotVoltageButton('U')">u_U</button>
+		<button onclick = "button().graph.plotVoltageButton('D1')">u_D1</button>
+		<button onclick = "button().graph.plotVoltageButton('D2')">u_D2</button>
+		<button onclick = "button().graph.plotVoltageButton('D3')">u_D3</button>
+		<button onclick = "button().graph.plotVoltageButton('D4')">u_D4</button>
+		<button onclick = "button().graph.plotCurrentButton('R')">i_R</button>
+		<button onclick = "button().graph.plotCurrentButton('L')">i_L</button>
+		<button onclick = "button().graph.plotCurrentButton('C')">i_C</button>
+		<button onclick = "button().graph.plotCurrentButton('R_C')">i_R_C</button>
+		<button onclick = "button().graph.plotCurrentButton('R_L')">i_R_L</button>
+		<button onclick = "button().graph.plotCurrentButton('U')">i_U</button>
+		<button onclick = "button().graph.plotCurrentButton('D1')">i_D1</button>
+		<button onclick = "button().graph.plotCurrentButton('D2')">i_D2</button>
+		<button onclick = "button().graph.plotCurrentButton('D3')">i_D3</button>
+		<button onclick = "button().graph.plotCurrentButton('D4')">i_D4</button>
+		<div id = "divGraph" style = "margin: auto; max-width: 800px; max-height: 400px;"></div>
+
+		<script type = "text/javascript" src = "../diffsolver-fastopt.js"></script>
+		<script type = "text/javascript" src = "/workbench.js"></script>
+		<script>new ch.ethz.ipes.buschr.schematics.CircuitAnalyzer(document.getElementById("divCircuit"), "example/fw-rectifier/circuit.json", document.getElementById("divGraph"), "example/fw-rectifier/nodemap.json");</script>
+	</body>
+</html>

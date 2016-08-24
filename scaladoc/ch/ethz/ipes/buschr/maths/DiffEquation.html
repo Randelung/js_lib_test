@@ -1,0 +1,659 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>DiffEquation - DiffSolver documentation - ch.ethz.ipes.buschr.maths.DiffEquation</title>
+          <meta name="description" content="DiffEquation - DiffSolver documentation - ch.ethz.ipes.buschr.maths.DiffEquation" />
+          <meta name="keywords" content="DiffEquation DiffSolver documentation ch.ethz.ipes.buschr.maths.DiffEquation" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'ch.ethz.ipes.buschr.maths.DiffEquation';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <a href="DiffEquation$.html" title="Go to companion"><img src="../../../../../lib/class_to_object_big.png" /></a>
+        <p id="owner"><a href="../../../../package.html" class="extype" name="ch">ch</a>.<a href="../../../package.html" class="extype" name="ch.ethz">ethz</a>.<a href="../../package.html" class="extype" name="ch.ethz.ipes">ipes</a>.<a href="../package.html" class="extype" name="ch.ethz.ipes.buschr">buschr</a>.<a href="package.html" class="extype" name="ch.ethz.ipes.buschr.maths">maths</a></p>
+        <h1><a href="DiffEquation$.html" title="Go to companion">DiffEquation</a></h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DiffEquation</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Five step first order differential equation solver.</p><p>Solves a first order differential system, either as a system matrix or by using the factory method as a matrix of
+coefficients of the equation solved to y<sup>n</sup> = Ay<sup>n-1</sup> + ... Dy, which becomes [A B C ... D].
+The process is as follows:</p><p>1. Solve homogeneous first order problem given by y' = <code>_matrix</code> * y. This results in the object
+<code>_eigenvalueDecomposition</code>, which contains the eigenvalues in D and the respective eigenvectors in X. Eigenvalues
+and eigenvectors can be obtained using <code>eigenValues</code> and <code>eigenVectors</code> respectively. This is done automatically at
+object creation.</p><p>2. Find generalized eigenvectors for base of y. This populates <code>_generalEigenVectors</code>, which is obtainable using
+<code>generalEigenVectors</code>. This is done automatically at object creation.</p><p>3. (Optional) Add a non-homogeneous term to the right side, i.e. y' = Ay' + g. g can be either a constant, a
+polynomial term or an exponential term. A mixture thereof is not supported. This is done by request using
+<code>applyInhomogeneity</code>.</p><p>4. Add a data point to fix constants. This populates <code>_constants</code>, which is not directly obtainable. This step is
+invoked using <code>applyDataPoint</code> or <code>applyStartingConditions</code>, which is called if the data point is at <code>t = 0</code>.</p><p>5. Evaluate the solution for either a single line in the solution vector or the whole vector. As Scala is
+functional, this method can be used as a function handle elsewhere; however, if the matrix or data point are changed
+the solution will change while the function handle stays valid.
+</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="ch.ethz.ipes.buschr.maths.DiffEquation"><span>DiffEquation</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="ch.ethz.ipes.buschr.maths.DiffEquation#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;init&gt;(_matrix:JampackNew.Zmat):ch.ethz.ipes.buschr.maths.DiffEquation"></a>
+      <a id="&lt;init&gt;:DiffEquation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DiffEquation</span><span class="params">(<span name="_matrix">_matrix: <span class="extype" name="JampackNew.Zmat">Zmat</span></span>)</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">_matrix</dt><dd class="cmt"><p>Matrix A in y'= Ax
+</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#appliedDataPoint" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="appliedDataPoint:Boolean"></a>
+      <a id="appliedDataPoint:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">appliedDataPoint</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Check if a data point was applied.</p><div class="fullcomment"><div class="comment cmt"><p>Check if a data point was applied.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#applyDataPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="applyDataPoint(t:Double,vector:Array[Double]):Unit"></a>
+      <a id="applyDataPoint(Double,Array[Double]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">applyDataPoint</span><span class="params">(<span name="t">t: <span class="extype" name="scala.Double">Double</span></span>, <span name="vector">vector: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#applyInhomogeneity" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="applyInhomogeneity(coefficients:JampackNew.Zmat,exponents:JampackNew.Zmat):Unit"></a>
+      <a id="applyInhomogeneity(Zmat,Zmat):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">applyInhomogeneity</span><span class="params">(<span name="coefficients">coefficients: <span class="extype" name="JampackNew.Zmat">Zmat</span></span>, <span name="exponents">exponents: <span class="extype" name="JampackNew.Zmat">Zmat</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Adds non-homogeneous term to the equation.</p><div class="fullcomment"><div class="comment cmt"><p>Adds non-homogeneous term to the equation.</p><p>The additional term can be changed to zero, a constant, or an exponential function of t. Polynomial terms and
+mixed expressions are not supported.
+</p></div><dl class="paramcmts block"><dt class="param">coefficients</dt><dd class="cmt"><p>Complex array of coefficients for vector of either [1 t t<sup>2</sup> ...]' for polynomials (in which
+                    case exponents is expected to be <i>null</i>) or [exp(v1*t) exp(v2*t) ...]' for exponential
+                    inhomogeneities. The order of v1, v2 etc. is determined by the vector <i>exponents</i>.</p></dd><dt class="param">exponents</dt><dd class="cmt"><p>Exponents for exponential inhomogeneity. Otherwise expected to be <i>null</i>.
+</p></dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#applyStartingConditions" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="applyStartingConditions(vector:Array[Double]):Unit"></a>
+      <a id="applyStartingConditions(Array[Double]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">applyStartingConditions</span><span class="params">(<span name="vector">vector: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Double">Double</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Apply data point with <code>t = 0</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Apply data point with <code>t = 0</code>.
+</p></div><dl class="paramcmts block"><dt class="param">vector</dt><dd class="cmt"><p>Array of starting conditions for each line of <code>_matrix</code>
+</p></dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#clone" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():ch.ethz.ipes.buschr.maths.DiffEquation"></a>
+      <a id="clone():DiffEquation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="" class="extype" name="ch.ethz.ipes.buschr.maths.DiffEquation">DiffEquation</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a copy of this object without solving anything again.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a copy of this object without solving anything again.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="ch.ethz.ipes.buschr.maths.DiffEquation">DiffEquation</a> → AnyRef</dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#coefficients" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="coefficients:Array[JampackNew.Z]"></a>
+      <a id="coefficients:Array[Z]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">coefficients</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="JampackNew.Z">Z</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Copy of current coefficients for current data point.</p><div class="fullcomment"><div class="comment cmt"><p>Copy of current coefficients for current data point. null if no data point applied.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#derivedSolution" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="derivedSolution(t:Double,row:Int):JampackNew.Z"></a>
+      <a id="derivedSolution(Double,Int):Z"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">derivedSolution</span><span class="params">(<span name="t">t: <span class="extype" name="scala.Double">Double</span></span>, <span name="row">row: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>)</span><span class="result">: <span class="extype" name="JampackNew.Z">Z</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns first derivative at point <code>t</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Returns first derivative at point <code>t</code>.
+</p></div><dl class="paramcmts block"><dt class="param">t</dt><dd class="cmt"><p>Point in time at which to evaluate solution row.</p></dd><dt class="param">row</dt><dd class="cmt"><p>Row to evaulate. Default is zero because of n-order ODEs.</p></dd><dt>returns</dt><dd class="cmt"><p>Result
+</p></dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#derivedSolutionVector" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="derivedSolutionVector(t:Double):JampackNew.Zmat"></a>
+      <a id="derivedSolutionVector(Double):Zmat"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">derivedSolutionVector</span><span class="params">(<span name="t">t: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <span class="extype" name="JampackNew.Zmat">Zmat</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Evaulates whole solution vector at time <code>t</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Evaulates whole solution vector at time <code>t</code>.
+</p></div><dl class="paramcmts block"><dt class="param">t</dt><dd class="cmt"><p>Point in time at which to evaluate solution.</p></dd><dt>returns</dt><dd class="cmt"><p>Result
+</p></dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#eigenValues" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eigenValues:Array[JampackNew.Z]"></a>
+      <a id="eigenValues:Array[Z]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eigenValues</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="JampackNew.Z">Z</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Copy of the eigenvalues of <code>_matrix</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Copy of the eigenvalues of <code>_matrix</code>. Edits have no effect on this system.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#eigenVectors" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eigenVectors:JampackNew.Zmat"></a>
+      <a id="eigenVectors:Zmat"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eigenVectors</span><span class="result">: <span class="extype" name="JampackNew.Zmat">Zmat</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Copy of the eigenvectors of <code>_matrix</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Copy of the eigenvectors of <code>_matrix</code>. Edits have no effect on this system.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#generalEigenVectors" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="generalEigenVectors:JampackNew.Zmat"></a>
+      <a id="generalEigenVectors:Zmat"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">generalEigenVectors</span><span class="result">: <span class="extype" name="JampackNew.Zmat">Zmat</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Copy of the general eigenvectors of <code>_matrix</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Copy of the general eigenvectors of <code>_matrix</code>. Edits have no effect on this system.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#matrix" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="matrix:JampackNew.Zmat"></a>
+      <a id="matrix:Zmat"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">matrix</span><span class="result">: <span class="extype" name="JampackNew.Zmat">Zmat</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Copy of <code>_matrix</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Copy of <code>_matrix</code>. Edits have no effect on this system.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#particularSolution" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="particularSolution:(ch.ethz.ipes.buschr.maths.DiffEquation.Inhomogeneity.Value,JampackNew.Zmat,JampackNew.Zmat)"></a>
+      <a id="particularSolution:(DiffEquation.Inhomogeneity.Value,Zmat,Zmat)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">particularSolution</span><span class="result">: (<a href="DiffEquation$$Inhomogeneity$.html#ValueextendsOrdered[Enumeration.this.Value]withSerializable" class="extmbr" name="ch.ethz.ipes.buschr.maths.DiffEquation.Inhomogeneity.Value">DiffEquation.Inhomogeneity.Value</a>, <span class="extype" name="JampackNew.Zmat">Zmat</span>, <span class="extype" name="JampackNew.Zmat">Zmat</span>)</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Copy of inhomogeneity details.</p><div class="fullcomment"><div class="comment cmt"><p>Copy of inhomogeneity details.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>
+</p></dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#solution" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="solution(t:Double,row:Int):JampackNew.Z"></a>
+      <a id="solution(Double,Int):Z"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">solution</span><span class="params">(<span name="t">t: <span class="extype" name="scala.Double">Double</span></span>, <span name="row">row: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>)</span><span class="result">: <span class="extype" name="JampackNew.Z">Z</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Evaulates a row of the solution vector at time <code>t</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Evaulates a row of the solution vector at time <code>t</code>.
+</p></div><dl class="paramcmts block"><dt class="param">t</dt><dd class="cmt"><p>Time point at which to evaluate the solution.</p></dd><dt class="param">row</dt><dd class="cmt"><p>Row in the solution vector that's supposed to be evaluated. Default is 0, as n-order ODEs have the
+           solution in row 0.</p></dd><dt>returns</dt><dd class="cmt"><p>Result
+</p></dd></dl></div>
+    </li><li name="ch.ethz.ipes.buschr.maths.DiffEquation#solutionVector" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="solutionVector(t:Double):JampackNew.Zmat"></a>
+      <a id="solutionVector(Double):Zmat"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">solutionVector</span><span class="params">(<span name="t">t: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <span class="extype" name="JampackNew.Zmat">Zmat</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns the whole solution vector at time <code>t</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the whole solution vector at time <code>t</code>.
+</p></div><dl class="paramcmts block"><dt class="param">t</dt><dd class="cmt"><p>Point in time at which to evaluate system.</p></dd><dt>returns</dt><dd class="cmt"><p>Result
+</p></dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../../../lib/template.js"></script>
+    </body>
+      </html>

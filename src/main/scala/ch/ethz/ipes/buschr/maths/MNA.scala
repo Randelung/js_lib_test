@@ -6,7 +6,7 @@ import scala.collection.mutable.ListBuffer
 import scala.scalajs.js
 import scala.scalajs.js.JSON
 
-/** Parse Netlist into an MNA DAE system.
+/** Parse Netlist into an MNA DAE system. See source comments for clarification
   *
   * @param netlist Netlist to parse into a DAE system
   * @author Randolph Busch
@@ -237,6 +237,7 @@ class MNA(val netlist: MNA.NetList) {
 		B(matrixIndex, nodes.indexOf(filteredDiodes(i).endNode)) = 1
 	}
 
+	// Input lines, straight forward
 	for (i <- _netlist.inputs.indices) {
 		_netlist.inputs(i).inputType match {
 			case MNA.Input.InputType.currentSource =>
@@ -266,7 +267,6 @@ class MNA(val netlist: MNA.NetList) {
 		}
 	}
 
-	// implementation of MATLAB code: DiffEquationCreator
 	// rows and columns of differential variables
 	private var col = ListBuffer.empty[Int]
 	private var row = ListBuffer.empty[Int]
@@ -325,8 +325,8 @@ class MNA(val netlist: MNA.NetList) {
 		QmTSBTinvSBQ = Q - T * SBTinv * SBQ
 	}
 	else if (col.length == A.nrow) {
-		// netlist is pure ODE; never actually happens since there's at least two nodes that result in KCL equations,
-		// which are linear.
+		// netlist is pure ODE; never actually happens since there's at least one node, which results in a KCL equation,
+		// which is linear.
 
 		P = Eye.o(A.nrow)
 		Q = Eye.o(A.nrow)
@@ -337,8 +337,17 @@ class MNA(val netlist: MNA.NetList) {
 		T = Eye.o(A.nrow)
 	}
 
+	/** Copy of differential equation solver
+	  *
+	  * @return
+	  */
 	def appliedDataPoint = if (diffEquation == null) true else diffEquation.appliedDataPoint
 
+	/** Apply known system state at any time point t
+	  *
+	  * @param t          Point in time
+	  * @param dataVector System state at t
+	  */
 	def applyDataPoint(t: Double, dataVector: Array[Double]): Unit = {
 		if (diffEquation == null) {
 			return
@@ -352,6 +361,10 @@ class MNA(val netlist: MNA.NetList) {
 		}
 	}
 
+	/** Apply known system state at t = 0. A null vector will result in a vector of the right size filled with 0s.
+	  *
+	  * @param startingConditions Vector containing the differential state
+	  */
 	def applyStartingConditions(startingConditions: Array[Double]): Unit = {
 		if (diffEquation == null) {
 			return
@@ -365,6 +378,11 @@ class MNA(val netlist: MNA.NetList) {
 		}
 	}
 
+	/** Returns the differential solution at time t, mainly to use in other MNA systems as a starting point.
+	  *
+	  * @param t Point in time
+	  * @return
+	  */
 	def getStateVector(t: Double): Array[Double] = {
 		require(appliedDataPoint, "Need starting conditions first.")
 
@@ -376,6 +394,12 @@ class MNA(val netlist: MNA.NetList) {
 		}
 	}
 
+	/** Internal use. Solution to one unknown variable.
+	  *
+	  * @param t     Desired point in time
+	  * @param index Index in the solution vector. Managed by the MNA class.
+	  * @return
+	  */
 	private def solution(t: Double, index: Int): Double = {
 		require(index >= 0 && index < A.nrow, "Index must be positive integer in the size bounds.")
 		require(appliedDataPoint, "Need starting conditions first.")
@@ -413,6 +437,12 @@ class MNA(val netlist: MNA.NetList) {
 		}
 	}
 
+	/** Internal use. Derived solution to one unknown variable.
+	  *
+	  * @param t     Desired point in time.
+	  * @param index Index in the solution vector. Managed by the MNA class.
+	  * @return
+	  */
 	private def derivedSolution(t: Double, index: Int): Double = {
 		require(index >= 0 && index < A.nrow, "Index must be positive integer in the size bounds.")
 		require(appliedDataPoint, "Need starting conditions first.")
@@ -454,6 +484,10 @@ class MNA(val netlist: MNA.NetList) {
 		}
 	}
 
+	/** Clones this object without recalculating anything.
+	  *
+	  * @return
+	  */
 	override def clone(): MNA = {
 		val copy = new MNA(_netlist)
 		copy.nodes = nodes.clone()
@@ -483,6 +517,12 @@ class MNA(val netlist: MNA.NetList) {
 		copy
 	}
 
+	/** Voltage of an element contained in the netlist.
+	  *
+	  * @param element One element in the netlist
+	  * @param t       Desired point in time
+	  * @return
+	  */
 	def elementVoltage(element: MNA.Element, t: Double): Double = {
 		element match {
 			case _: MNA.Capacitor =>
@@ -501,6 +541,12 @@ class MNA(val netlist: MNA.NetList) {
 		solution(t, nodes.indexOf(element.startNode)) - solution(t, nodes.indexOf(element.endNode))
 	}
 
+	/** Current of an element contained in the netlist.
+	  *
+	  * @param element One element in the netlist
+	  * @param t       Desired point in time
+	  * @return
+	  */
 	def elementCurrent(element: MNA.Element, t: Double): Double = {
 		element match {
 			case _: MNA.Capacitor =>
@@ -530,6 +576,12 @@ class MNA(val netlist: MNA.NetList) {
 		}
 	}
 
+	/** Derived voltage of an element contained in the netlist.
+	  *
+	  * @param element One element in the netlist
+	  * @param t       Desired point in time
+	  * @return
+	  */
 	def derivedElementVoltage(element: MNA.Element, t: Double): Double = {
 		element match {
 			case _: MNA.Capacitor =>
@@ -548,6 +600,12 @@ class MNA(val netlist: MNA.NetList) {
 		derivedSolution(t, nodes.indexOf(element.startNode)) - derivedSolution(t, nodes.indexOf(element.endNode))
 	}
 
+	/** Derived current of an element contained in the netlist.
+	  *
+	  * @param element One element in the netlist
+	  * @param t       Desired point in time
+	  * @return
+	  */
 	def derivedElementCurrent(element: MNA.Element, t: Double): Double = {
 		element match {
 			case _: MNA.Capacitor =>
@@ -577,60 +635,152 @@ class MNA(val netlist: MNA.NetList) {
 		}
 	}
 
+	/** Debug info. Returns both system matrices.
+	  *
+	  * @return
+	  */
 	def systemMatrices = (A, B)
+
+	/** Debug info. Returns P, Q, S, and T, and a copy of the differential equation solver.
+	  *
+	  * @return
+	  */
+	def allInfo = (P.clone(), Q.clone(), S.clone(), T.clone(), diffEquation.clone())
 }
 
 object MNA {
 
+	/** Convenience method to parse a JSON into a netlist object and immediately create an MNA from it.
+	  *
+	  * @param json JSON to be parsed
+	  * @return
+	  */
 	def fromJSON(json: String) = {
 
 		val netlist = NetList.fromJSON(json)
 		(netlist, new MNA(netlist))
 	}
 
+	/** Capacitor representation
+	  *
+	  * @param name Unique name
+	  * @param startNode ID of starting node
+	  * @param endNode ID of end node
+	  * @param value Capacitance
+	  */
 	case class Capacitor(name: String, startNode: Int, endNode: Int, value: Z) extends Element {
 
 		def copy() = Capacitor(name, startNode, endNode, value.copy())
 	}
 
+	/** Diode representation
+	  *
+	  * @param name Unique name
+	  * @param startNode ID of starting node
+	  * @param endNode ID of end node
+	  */
 	class Diode(val name: String, val startNode: Int, val endNode: Int) extends Element {
 
+		/** Duplicate the diode
+		  *
+		  * @return
+		  */
 		def copy() = new Diode(name, startNode, endNode)
 
+		/** Actually useful string representation
+		  *
+		  * @return
+		  */
 		override def toString: String = s"Diode($name, $startNode, $endNode)"
 	}
 
-	// track state info for static system analysis. Extends Diode to fit into normal Diode array.
+	/** Internal use. Tracks Diode state information for static system analysis. Extends Diode to allow storage in Diode
+	  * array.
+	  *
+	  * @param name Unique name
+	  * @param startNode ID of starting node
+	  * @param endNode ID of end node
+	  * @param conducting Diode state
+	  */
 	case class InternalDiode(override val name: String, override val startNode: Int, override val endNode: Int, conducting: Boolean)
 		extends Diode(name, startNode, endNode) {
 
+		/** Actually useful string representation
+		  *
+		  * @return
+		  */
 		override def toString: String = s"InternalDiode($name, $startNode, $endNode, $conducting)"
 
+		/** Duplicate the diode
+		  *
+		  * @return
+		  */
 		override def copy(): Diode = InternalDiode(name, startNode, endNode, conducting)
 	}
 
+	/** Inductor representation
+	  *
+	  * @param name Unique name
+	  * @param startNode ID of starting node
+	  * @param endNode ID of end node
+	  * @param value Inductance
+	  */
 	case class Inductor(name: String, startNode: Int, endNode: Int, value: Z) extends Element {
 
+		/** Duplicate the inductor
+		  *
+		  * @return
+		  */
 		def copy() = Inductor(name, startNode, endNode, value.copy())
 	}
 
+	/** Resistor representation
+	  *
+	  * @param name Unique name
+	  * @param startNode ID of starting node
+	  * @param endNode ID of end node
+	  * @param value Resistance
+	  */
 	case class Resistor(name: String, startNode: Int, endNode: Int, value: Z) extends Element {
 
+		/** Duplicate the resistor
+		  *
+		  * @return
+		  */
 		def copy() = Resistor(name, startNode, endNode, value.copy())
 	}
 
+	/** Input representation
+	  *
+	  * @param name Unique name
+	  * @param startNode ID of starting node
+	  * @param endNode ID of end node
+	  * @param inhomogeneityType Type of inhomogeneity used: zero, constant, exponential, polynomial
+	  * @param inputType Type of sourse: voltageSource, currentSource
+	  * @param coefficients Vector of coefficients to exp(exponents * t)
+	  * @param exponents Vector containing all exponents
+	  */
 	case class Input(name: String, startNode: Int, endNode: Int, inhomogeneityType: Input.InhomogeneityType.Value,
 					 inputType: Input.InputType.Value, coefficients: Array[Z], exponents: Array[Z]) extends Element {
 
+		/** Duplicate the input
+		  *
+		  * @return
+		  */
 		def copy() = Input(name, startNode, endNode, inhomogeneityType, inputType,
 			if (coefficients == null) null else coefficients.clone(),
 			if (exponents == null) null else exponents.clone())
 
+		/** Actually useful string representation
+		  *
+		  * @return
+		  */
 		override def toString =
 			s"Input($name, $startNode, $endNode, $inhomogeneityType, $inputType, " +
 				s"${if (coefficients != null) coefficients.deep else coefficients}, ${if (exponents != null) exponents.deep else exponents})"
 	}
 
+	/** All types of circuit elements share this common trait as a parent type. */
 	trait Element {
 
 		val name: String
@@ -638,13 +788,16 @@ object MNA {
 		val endNode: Int
 	}
 
+	/** Enumerations for Input */
 	object Input {
 
+		/** Types of inhomogeneity implemented */
 		object InhomogeneityType extends Enumeration {
 
 			val exponential, polynomial, constant, zero = Value
 		}
 
+		/** Types of sources inplemented */
 		object InputType extends Enumeration {
 
 			val currentSource, voltageSource = Value
@@ -665,6 +818,11 @@ object MNA {
 					   var resistors: js.Array[Resistor], var diodes: js.Array[Diode],
 					   var inputs: js.Array[Input], var grounds: js.Array[Int]) {
 
+		/** Retrieve an element by name
+		  *
+		  * @param name Name of desired element
+		  * @return
+		  */
 		def apply(name: String): Element = {
 
 			if (capacitors.map(_.name).contains(name)) {
@@ -685,6 +843,10 @@ object MNA {
 			else throw new IllegalArgumentException("Unknown name.")
 		}
 
+		/** Duplicate the netlist
+		  *
+		  * @return
+		  */
 		def copy: NetList = {
 			val copy = NetList(js.Array[Capacitor](), js.Array[Inductor](), js.Array[Resistor](), js.Array[Diode](),
 				js.Array[Input](), js.Array[Int]())
@@ -710,8 +872,14 @@ object MNA {
 		}
 	}
 
+	/** NetList JSON parser */
 	object NetList {
 
+		/** Parses a JSON into a netlist
+		  *
+		  * @param json JSON string to be parsed
+		  * @return
+		  */
 		def fromJSON(json: String): NetList = {
 
 			// parse JSON

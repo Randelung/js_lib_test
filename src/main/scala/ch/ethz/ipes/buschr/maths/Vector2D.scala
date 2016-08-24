@@ -2,9 +2,7 @@ package ch.ethz.ipes.buschr.maths
 
 import scala.language.implicitConversions
 
-/**
-  * Created by Randolph Busch on 03/07/16.
-  */
+/** Vector geometry is easier than x/y calculations. */
 case class Vector2D(x: Double, y: Double) {
 
 	lazy val length = math.sqrt(x * x + y * y)
@@ -28,6 +26,7 @@ case class Vector2D(x: Double, y: Double) {
 	def angleTo(that: Vector2D) = math.acos(this scalarProduct that / (length * that.length))
 }
 
+/** Implicits for easy usage */
 object Vector2D {
 
 	implicit def fromTuple2DD(i: (Double, Double)): Vector2D = new Vector2D(i._1, i._2)

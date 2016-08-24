@@ -10,22 +10,22 @@ import scala.util.control.Breaks._
   * coefficients of the equation solved to y^n^ = Ay^n-1^ + ... Dy, which becomes [A B C ... D].
   * The process is as follows:
   *
-  * $ 1. Solve homogeneous first order problem given by y' = `_matrix` * y. This results in the object
+  * 1. Solve homogeneous first order problem given by y' = `_matrix` * y. This results in the object
   * `_eigenvalueDecomposition`, which contains the eigenvalues in D and the respective eigenvectors in X. Eigenvalues
   * and eigenvectors can be obtained using `eigenValues` and `eigenVectors` respectively. This is done automatically at
   * object creation.
   *
-  * $ 2. Find generalized eigenvectors for base of y. This populates `_generalEigenVectors`, which is obtainable using
+  * 2. Find generalized eigenvectors for base of y. This populates `_generalEigenVectors`, which is obtainable using
   * `generalEigenVectors`. This is done automatically at object creation.
   *
-  * $ 3. (Optional) Add a non-homogeneous term to the right side, i.e. y' = Ay' + g. g can be either a constant, a
+  * 3. (Optional) Add a non-homogeneous term to the right side, i.e. y' = Ay' + g. g can be either a constant, a
   * polynomial term or an exponential term. A mixture thereof is not supported. This is done by request using
   * `applyInhomogeneity`.
   *
-  * $ 4. Add a data point to fix constants. This populates `_constants`, which is not directly obtainable. This step is
+  * 4. Add a data point to fix constants. This populates `_constants`, which is not directly obtainable. This step is
   * invoked using `applyDataPoint` or `applyStartingConditions`, which is called if the data point is at `t = 0`.
   *
-  * $ 5. Evaluate the solution for either a single line in the solution vector or the whole vector. As Scala is
+  * 5. Evaluate the solution for either a single line in the solution vector or the whole vector. As Scala is
   * functional, this method can be used as a function handle elsewhere; however, if the matrix or data point are changed
   * the solution will change while the function handle stays valid.
   *
@@ -498,6 +498,18 @@ class DiffEquation(private var _matrix: Zmat) {
 	  * @return
 	  */
 	def appliedDataPoint = _appliedDataPoint
+
+	/** Copy of current coefficients for current data point. null if no data point applied.
+	  *
+	  * @return
+	  */
+	def coefficients = if (_appliedDataPoint) _constants else null
+
+	/** Copy of inhomogeneity details.
+	  *
+	  * @return
+	  */
+	def particularSolution = (_typeOfInhomogeneity, _particularSolution.clone(), _inhomogeneityExponents.clone())
 
 	/** Returns a copy of this object without solving anything again.
 	  *

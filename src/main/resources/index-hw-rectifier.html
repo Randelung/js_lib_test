@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Example Scala.js application</title>
+		<meta http-equiv = "Content-Type" content = "text/html; charset=UTF-8" />
+	</head>
+	<body style = "margin: auto; max-width: 800px;">
+
+		<div id = "divCircuit" style = "margin: auto; max-width: 800px; max-height: 400px;"></div>
+		<button onclick = "button().graph.plotVoltageButton('R')">u_R</button>
+		<button onclick = "button().graph.plotVoltageButton('C')">u_C</button>
+		<button onclick = "button().graph.plotVoltageButton('R_C')">u_R_C</button>
+		<button onclick = "button().graph.plotVoltageButton('U')">u_U</button>
+		<button onclick = "button().graph.plotVoltageButton('D')">u_D</button>
+		<button onclick = "button().graph.plotCurrentButton('R')">i_R</button>
+		<button onclick = "button().graph.plotCurrentButton('C')">i_C</button>
+		<button onclick = "button().graph.plotCurrentButton('R_C')">i_R_C</button>
+		<button onclick = "button().graph.plotCurrentButton('U')">i_U</button>
+		<button onclick = "button().graph.plotCurrentButton('D')">i_D</button>
+		<div id = "divGraph" style = "margin: auto; max-width: 800px; max-height: 400px;"></div>
+
+		<script type = "text/javascript" src = "../diffsolver-fastopt.js"></script>
+		<script type = "text/javascript" src = "/workbench.js"></script>
+		<script>new ch.ethz.ipes.buschr.schematics.CircuitAnalyzer(document.getElementById("divCircuit"), "example/hw-rectifier/circuit.json", document.getElementById("divGraph"), "example/hw-rectifier/nodemap.json");</script>
+	</body>
+</html>

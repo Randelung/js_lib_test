@@ -1,0 +1,71 @@
+{
+	"grid": {
+		"width": 3,
+		"height": 3
+	},
+	"map": [
+		{
+			"elementName": "R_C",
+			"startX": 2,
+			"endX": 2,
+			"startY": 1,
+			"endY": 2
+		},
+		{
+			"elementName": "R",
+			"startX": 3,
+			"endX": 3,
+			"startY": 1,
+			"endY": 3
+		},
+		{
+			"elementName": "C",
+			"startX": 2,
+			"endX": 2,
+			"startY": 2,
+			"endY": 3
+		},
+		{
+			"elementName": "U",
+			"startX": 1,
+			"endX": 1,
+			"startY": 1,
+			"endY": 3
+		},
+		{
+			"elementName": "D",
+			"startX": 1,
+			"endX": 2,
+			"startY": 1,
+			"endY": 1
+		}
+	],
+	"spreadNodes": [
+		{
+			"node": 1,
+			"locations": [
+				{
+					"x": 2,
+					"y": 1
+				},
+				{
+					"x": 3,
+					"y": 1
+				}
+			]
+		},
+		{
+			"node": 2,
+			"locations": [
+				{
+					"x": 1,
+					"y": 3
+				},
+				{
+					"x": 3,
+					"y": 3
+				}
+			]
+		}
+	]
+}

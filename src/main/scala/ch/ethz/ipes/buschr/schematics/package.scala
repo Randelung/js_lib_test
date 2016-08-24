@@ -3,9 +3,7 @@ package ch.ethz.ipes.buschr
 import ch.ethz.ipes.buschr.maths.Vector2D
 import org.scalajs.dom._
 
-/**
-  * Created by Randolph Busch on 03/07/16.
-  */
+/** Convenient implicits to use canvas with Vector2D */
 package object schematics {
 
 	implicit class Context2DWithVectors(context: CanvasRenderingContext2D) {

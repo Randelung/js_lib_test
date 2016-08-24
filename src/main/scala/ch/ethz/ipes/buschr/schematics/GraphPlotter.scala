@@ -7,9 +7,18 @@ import ch.ethz.ipes.buschr.maths.{MNA, Vector2D}
 import org.scalajs.dom._
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.scalajs.js.annotation.JSExport
 
-/**
-  * Created by Randolph Busch on 03/07/16.
+/** Plots a graph of desired functions. Steals the colors from MATLAB if no others are specified. Curerntly, the solver
+  * is also located here due to the step size inherent in the plot process.
+  *
+  * @param canvas Canvas to draw circuit on
+  * @param mnaTreeRoot Main netlist, out of which the non-linear combinations were created
+  * @param startX X axis start. Other than 0 is not supported, but not checked.
+  * @param endX X axis end
+  * @param startY Y axis start. Ignored if autoAdjust is true.
+  * @param endY Y axis end. Ignored if autoAdjust is true.
+  * @param autoAdjustY Automatically adjust Y axis bounds
   */
 class GraphPlotter(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, startX: Double, endX: Double, startY: Double, endY: Double, autoAdjustY: Boolean) {
 	require(startX < endX, "Graphing range must be greater than 0.")
@@ -426,6 +435,94 @@ class GraphPlotter(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, st
 		enabled(names.indexOf(name)) = false
 		adjustYLimits()
 	}
+
+	private var plotStatesVoltages = Map[String, Boolean]()
+
+	@JSExport
+	def plotVoltageButton(name: String) = {
+
+		try {
+			plotStatesVoltages += name -> (plotStatesVoltages(name) match {
+				case true =>
+					disableFunction("u_" + name)
+					false
+				case false =>
+					enableFunction("u_" + name)
+					true
+			})
+		}
+		catch {
+			case _: NoSuchElementException =>
+				plotElementVoltage(name)
+				plotStatesVoltages += name -> true
+		}
+	}
+
+	private var plotStatesCurrents = Map[String, Boolean]()
+
+	@JSExport
+	def plotCurrentButton(name: String) = {
+
+		try {
+			plotStatesCurrents += name -> (plotStatesCurrents(name) match {
+				case true =>
+					disableFunction("i_" + name)
+					false
+				case false =>
+					enableFunction("i_" + name)
+					true
+			})
+		}
+		catch {
+			case _: NoSuchElementException =>
+				plotElementCurrent(name)
+				plotStatesCurrents += name -> true
+		}
+	}
+
+	private var plotStatesDerivedVoltages = Map[String, Boolean]()
+
+	@JSExport
+	def plotDerivedVoltageButton(name: String) = {
+
+		try {
+			plotStatesDerivedVoltages += name -> (plotStatesDerivedVoltages(name) match {
+				case true =>
+					disableFunction("du_" + name + "/dt")
+					false
+				case false =>
+					enableFunction("du_" + name + "/dt")
+					true
+			})
+		}
+		catch {
+			case _: NoSuchElementException =>
+				plotDerivedElementVoltage(name)
+				plotStatesDerivedVoltages += name -> true
+		}
+	}
+
+	private var plotStatesDerivedCurrents = Map[String, Boolean]()
+
+	@JSExport
+	def plotDerivedCurrentButton(name: String) = {
+
+		try {
+			plotStatesDerivedCurrents += name -> (plotStatesDerivedCurrents(name) match {
+				case true =>
+					disableFunction("di_" + name + "/dt")
+					false
+				case false =>
+					enableFunction("di_" + name + "/dt")
+					true
+			})
+		}
+		catch {
+			case _: NoSuchElementException =>
+				plotDerivedElementCurrent(name)
+				plotStatesDerivedCurrents += name -> true
+		}
+	}
 }
 
 object GraphPlotter {
@@ -442,6 +539,7 @@ object GraphPlotter {
 	def apply(canvas: html.Canvas, mnaTreeRoot: CircuitAnalyzer.MNATree, startX: Double, endX: Double, startY: Double, endY: Double) =
 		new GraphPlotter(canvas, mnaTreeRoot, startX, endX, startY, endY, false)
 
+	// stolen MATLAB colors
 	val defaultColors = Array(
 		"#0072BD",
 		"#D95319",
